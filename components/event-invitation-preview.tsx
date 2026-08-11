@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type CSSProperties } from "react";
+import "./event-invitation-preview.css";
 import { getCountdown } from "@/lib/countdown";
 import type { EventContent, StoredEvent } from "@/lib/event-types";
 import { templates } from "@/lib/templates";
