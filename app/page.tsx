@@ -1,2 +1,3 @@
 import { Landing } from "@/components/celebra";
-export default function Page(){return <Landing/>}
+import { TestimonialsShowcase } from "@/components/testimonials-showcase";
+export default function Page(){return <><Landing/><TestimonialsShowcase/></>}

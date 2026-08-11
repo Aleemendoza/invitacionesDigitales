@@ -1,0 +1,7 @@
+"use client";
+import Link from "next/link";
+import {useEffect,useState} from "react";
+import {getBrowserSupabase} from "@/lib/supabase-browser";
+import {OrganizerNav} from "@/components/event-portal";
+import type {StoredEvent} from "@/lib/event-types";
+export function RsvpPanel({eventId}:{eventId:string}){const[event,setEvent]=useState<StoredEvent>();const[notice,setNotice]=useState("Cargando RSVP…");useEffect(()=>{(async()=>{const token=(await getBrowserSupabase()?.auth.getSession())?.data.session?.access_token;const response=await fetch(`/api/events/${eventId}/draft`,{headers:{authorization:`Bearer ${token??""}`}});const body=await response.json();if(!response.ok)throw new Error(body.error);setEvent(body.event);setNotice("")})().catch(error=>setNotice(error instanceof Error?error.message:"No pudimos cargar RSVP."))},[eventId]);if(!event)return <main className="appPage"><p>{notice}</p></main>;const rsvp=event.content.rsvp;return <main className="appPage narrow"><OrganizerNav event={event}/><p className="eyebrow">CONFIRMACIONES</p><h1>RSVP del evento</h1><section className="box"><b>{event.rsvp_enabled?"Las confirmaciones están activas.":"Las confirmaciones están desactivadas."}</b><p>{rsvp?.questions.length??0} preguntas configuradas · acceso por {rsvp?.accessMode==="name_and_code"?"nombre y código":"nombre"}.</p><Link className="button dark" href={`/eventos/${eventId}/editar`}>Configurar RSVP</Link></section></main>}
