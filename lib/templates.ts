@@ -20,8 +20,10 @@ const raw = [
 
 export const templates: Template[] = raw.map(([slug, name, category, style, plan, theme, title, date, venue]) => ({
   slug, name, category, style, plan, theme,
-  coverImage: `/images/templates/${slug}-cover.png`,
-  countdownImage: `/images/templates/${slug}-countdown.png`,
+  // Backgrounds are served directly by CSS, so use the precompressed mobile assets
+  // rather than relying on the image optimizer (which cannot optimize CSS URLs).
+  coverImage: `/images/templates/${slug}-cover.webp`,
+  countdownImage: `/images/templates/${slug}-countdown.webp`,
   preview: { title, date, venue },
 }));
 
