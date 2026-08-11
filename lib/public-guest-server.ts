@@ -74,7 +74,7 @@ export async function getGuestSession(eventId: string) {
   const rawToken = (await cookies()).get(GUEST_SESSION_COOKIE)?.value;
   if (!rawToken) return null;
   const db = getAdminSupabase();
-  const { data, error } = await db.from("guest_sessions").select("id,event_id,guest_group_id,expires_at,revoked_at,guest_groups(id,event_id,display_name,max_seats,seats,status,confirmed_seats)").eq("event_id", eventId).eq("session_token_hash", sha256(rawToken)).maybeSingle();
+  const { data, error } = await db.from("guest_sessions").select("id,event_id,guest_group_id,expires_at,revoked_at,guest_groups(id,event_id,display_name,seats,status,confirmed_seats)").eq("event_id", eventId).eq("session_token_hash", sha256(rawToken)).maybeSingle();
   if (error || !data || data.revoked_at || new Date(data.expires_at) <= new Date()) return null;
   await db.from("guest_sessions").update({ last_used_at: new Date().toISOString() }).eq("id", data.id);
   return data;
