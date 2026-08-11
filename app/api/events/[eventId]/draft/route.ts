@@ -1,0 +1,19 @@
+import { NextRequest, NextResponse } from "next/server";
+import { getAdminSupabase } from "@/lib/public-guest-server";
+import { startsAt, validateDraft, validatePlanFeatures, type EventDraftInput } from "@/lib/event-drafts";
+export const runtime = "nodejs";
+
+async function owner(request: NextRequest, eventId: string) {
+  const token=request.headers.get("authorization")?.replace(/^Bearer\s+/i,""); if(!token)return {error:NextResponse.json({error:"Iniciá sesión para continuar."},{status:401})};
+  const db=getAdminSupabase(); const {data:{user}}=await db.auth.getUser(token); if(!user)return {error:NextResponse.json({error:"Sesión vencida."},{status:401})};
+  const {data:event}=await db.from("events").select("id,slug,title,event_type,starts_at,status,template_slug,plan,payment_status,guest_access_mode,rsvp_enabled,rsvp_deadline,content,event_media(storage_path,kind,position),event_sections(kind,enabled,content)").eq("id",eventId).eq("owner_id",user.id).maybeSingle();
+  return event?{db,event}:{error:NextResponse.json({error:"Evento no encontrado."},{status:404})};
+}
+export async function GET(request:NextRequest,{params}:{params:Promise<{eventId:string}>}){const {eventId}=await params;const result=await owner(request,eventId);if("error" in result)return result.error;const media=await Promise.all((result.event.event_media??[]).sort((a:{position:number},b:{position:number})=>a.position-b.position).map(async(item:{storage_path:string;kind:string;position:number})=>({...item,url:(await result.db.storage.from("event-media").createSignedUrl(item.storage_path,3600)).data?.signedUrl??""})));return NextResponse.json({event:{...result.event,event_media:media}})}
+export async function PATCH(request:NextRequest,{params}:{params:Promise<{eventId:string}>}){try{const {eventId}=await params;const result=await owner(request,eventId);if("error" in result)return result.error;const input=await request.json() as EventDraftInput;const invalid=validateDraft(input);if(invalid)return NextResponse.json({error:invalid},{status:400});if(!validatePlanFeatures(input.plan,input.features))return NextResponse.json({error:"El plan no incluye alguna función seleccionada."},{status:400});
+  const content={...(result.event.content??{}),venue:input.venue,venueAddress:input.venueAddress??"",mapUrl:input.mapUrl??"",closingMessage:input.closingMessage??"",wizard_step:7,features:input.features,agenda:input.agenda,message:input.message??"",dressCode:input.dressCode??"",musicUrl:input.musicUrl??"",theme:input.theme,rsvp:input.rsvp};
+  const {error}=await result.db.from("events").update({title:input.title.trim(),event_type:input.eventType,starts_at:startsAt(input.date,input.time),template_slug:input.templateSlug,plan:input.plan,guest_access_mode:input.rsvp?.accessMode??"name_lookup",rsvp_enabled:input.rsvp?.enabled??input.features.includes("rsvp"),rsvp_deadline:input.rsvp?.deadline||null,content,updated_at:new Date().toISOString()}).eq("id",eventId);if(error)throw error;
+  for(const [kind,section] of [["gifts",input.sections?.gifts],["social_photos",input.sections?.socialPhotos]] as const){if(section){const {error:sectionError}=await result.db.from("event_sections").upsert({event_id:eventId,kind,position:50,enabled:section.enabled,visibility:"public",content:section},{onConflict:"event_id,kind"});if(sectionError)throw sectionError;}}
+  await result.db.from("rsvp_questions").delete().eq("event_id",eventId);const questions=input.rsvp?.questions??[];if(questions.length){const {error:questionError}=await result.db.from("rsvp_questions").insert(questions.map((q,index)=>({event_id:eventId,key:q.key,label:q.label,kind:q.kind,required:q.required,config:{options:q.options},position:index})));if(questionError)throw questionError;}
+  return NextResponse.json({ok:true});
+}catch(error){console.error("save event draft",error);return NextResponse.json({error:"No pudimos guardar los cambios."},{status:500})}}

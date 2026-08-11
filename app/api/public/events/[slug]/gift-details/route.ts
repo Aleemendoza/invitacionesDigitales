@@ -1,0 +1,4 @@
+import { NextResponse } from "next/server";
+import { getAdminSupabase, unavailable } from "@/lib/public-guest-server";
+export const runtime = "nodejs";
+export async function GET(_: Request, { params }: { params: Promise<{ slug: string }> }) { const { slug } = await params; try { const db = getAdminSupabase(); const { data: event } = await db.from("events").select("id,status").eq("slug", slug).maybeSingle(); if (!event || event.status !== "published") return NextResponse.json({ error: "No disponible." }, { status: 404 }); const { data } = await db.from("event_sections").select("content,enabled,visibility").eq("event_id", event.id).eq("kind", "gifts").eq("enabled", true).eq("visibility", "public").maybeSingle(); if (!data) return NextResponse.json({ error: "No disponible." }, { status: 404 }); return NextResponse.json(data.content, { headers: { "Cache-Control": "private, max-age=60" } }); } catch { return unavailable(); } }

@@ -1,0 +1,3 @@
+insert into storage.buckets (id,name,public,file_size_limit,allowed_mime_types) values ('event-media','event-media',false,8388608,array['image/jpeg','image/png','image/webp']) on conflict (id) do update set public=false,file_size_limit=8388608;
+drop policy if exists "event media owners manage files" on storage.objects;
+create policy "event media owners manage files" on storage.objects for all using (bucket_id='event-media' and exists(select 1 from public.events e where e.id::text=split_part(name,'/',1) and e.owner_id=auth.uid())) with check (bucket_id='event-media' and exists(select 1 from public.events e where e.id::text=split_part(name,'/',1) and e.owner_id=auth.uid()));
