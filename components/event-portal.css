@@ -1,0 +1,1 @@
+.organizerNav{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 32px}.organizerNav a{padding:9px 12px;border:1px solid var(--line);border-radius:7px;background:#fff;font-size:12px;font-weight:600}.organizerNav a:first-child{background:var(--dark);border-color:var(--dark);color:#fff}
