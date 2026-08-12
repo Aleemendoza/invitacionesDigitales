@@ -6,13 +6,17 @@ import { templates } from "../lib/templates.ts";
 
 const categoryFor = type => type === "Boda" ? "Bodas" : type === "Infantil" ? "Infantiles" : type === "Corporativo" ? "Corporativos" : type;
 
-test("every template has distinct cover and countdown assets", () => {
+test("every template has distinct optimized cover, countdown and section assets", () => {
   assert.equal(templates.length, 14);
   for (const template of templates) {
-    assert.match(template.coverImage, new RegExp(`${template.slug}-cover\\.png$`));
-    assert.match(template.countdownImage, new RegExp(`${template.slug}-countdown\\.png$`));
+    assert.match(template.coverImage, new RegExp(`${template.slug}-cover\\.webp$`));
+    assert.match(template.countdownImage, new RegExp(`${template.slug}-countdown\\.webp$`));
     assert.ok(existsSync(resolve(`public${template.coverImage}`)));
     assert.ok(existsSync(resolve(`public${template.countdownImage}`)));
+    for (const visual of Object.values(template.sections)) {
+      assert.match(visual.decorativeImage, /\.webp$/);
+      assert.ok(existsSync(resolve(`public${visual.decorativeImage}`)));
+    }
   }
 });
 test("every selectable event type has at least one template", () => {

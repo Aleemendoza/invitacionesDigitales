@@ -6,7 +6,7 @@ import { getCountdown } from "@/lib/countdown";
 import { defaultTheme, isTheme, textColor } from "@/lib/event-theme";
 import type { EventContent, EventSections, StoredEvent } from "@/lib/event-types";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
-import { templates } from "@/lib/templates";
+import { templates, type InvitationSection, type SectionVisual } from "@/lib/templates";
 import { getYouTubeVideoId, youtubeEmbedUrl } from "@/lib/youtube";
 import "./event-invitation-preview.css";
 
@@ -50,6 +50,7 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
   const mapLink = event.content.mapUrl || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : "");
   const social = event.sections?.socialPhotos;
   const socialValue = social?.socialValue ? (social.socialValue.startsWith("@") || social.socialValue.startsWith("#") ? social.socialValue : `@${social.socialValue}`) : "";
+  const panel = (section: InvitationSection) => previewPanelProps(template.sections[section], photos[1], section);
   const style = {
     "--cover-image": `url(${cover})`,
     "--theme-primary": theme.primaryColor,
@@ -64,15 +65,19 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
       <section className="eventCover">{musicId && <button className={`musicToggle ${music ? "isPlaying" : ""}`} aria-label={music ? "Silenciar música" : "Activar música"} aria-pressed={music} onClick={() => setMusic((current) => !current)}><Icon name={music ? "music" : "musicOff"} size={18} /></button>}<div><small>{event.event_type}</small><h2>{event.title || "Tu celebración"}</h2></div></section>
       {music && musicId && <iframe className="musicPlayer" title="Música" src={youtubeEmbedUrl(musicId)} allow="autoplay; encrypted-media" />}
       <Countdown startsAt={event.starts_at} image={template.countdownImage} preview={preview} />
-      {event.content.message && <section className="invitationMessage"><p className="eyebrow">Un mensaje especial</p><p>{event.content.message}</p></section>}
-      <section className="invitationWhere"><p className="eyebrow">Cuándo y dónde</p><strong>{date}</strong><span>{event.content.venue || "Lugar a confirmar"}</span>{event.content.venueAddress && <span>{event.content.venueAddress}</span>}{mapLink && <a href={mapLink} target="_blank" rel="noreferrer">Ver mapa y cómo llegar</a>}</section>
-      {event.content.agenda.length > 0 && <section><p className="eyebrow">Agenda</p><div className="invitationAgenda">{event.content.agenda.map((item) => <p key={`${item.time}-${item.title}`}><b>{item.time}</b><span>{item.title}</span></p>)}</div></section>}
-      {photos.length > 1 && <section><p className="eyebrow">Galería</p><div className="invitationGallery">{photos.slice(1).map((photo, index) => <img alt={`Foto ${index + 1} de la galería`} key={`${photo}-${index}`} src={photo} />)}</div></section>}
-      {event.content.dressCode && <section className="invitationDress"><p className="eyebrow">Vestimenta</p><strong>{event.content.dressCode}</strong></section>}
-      {event.sections?.gifts?.enabled && <section className="invitationGift"><p className="eyebrow">Regalos</p><p>{GIFT_MESSAGE}</p><button type="button">Ver datos del regalo</button></section>}
-      {social?.enabled && <section className="invitationSocial"><p className="eyebrow">Fotos sociales</p><p>{SOCIAL_PHOTOS_MESSAGE}</p>{socialValue && <strong>{socialValue}</strong>}</section>}
-      {event.content.rsvp?.enabled !== false && <section className="invitationRsvp"><p className="eyebrow">RSVP</p><h3>Confirmá tu asistencia</h3><button>Confirmar asistencia</button></section>}
+      {event.content.message && <section {...panel("message")}><p className="eyebrow">Un mensaje especial</p><p>{event.content.message}</p></section>}
+      <section {...panel("details")}><p className="eyebrow">Cuándo y dónde</p><strong>{date}</strong><span>{event.content.venue || "Lugar a confirmar"}</span>{event.content.venueAddress && <span>{event.content.venueAddress}</span>}{mapLink && <a href={mapLink} target="_blank" rel="noreferrer">Ver mapa y cómo llegar</a>}</section>
+      {event.content.agenda.length > 0 && <section {...panel("agenda")}><p className="eyebrow">Agenda</p><div className="invitationAgenda">{event.content.agenda.map((item) => <p key={`${item.time}-${item.title}`}><b>{item.time}</b><span>{item.title}</span></p>)}</div></section>}
+      {photos.length > 1 && <section {...panel("gallery")}><p className="eyebrow">Galería</p><div className="invitationGallery">{photos.slice(1).map((photo, index) => <img alt={`Foto ${index + 1} de la galería`} key={`${photo}-${index}`} src={photo} />)}</div></section>}
+      {event.content.dressCode && <section {...panel("dress")}><p className="eyebrow">Vestimenta</p><strong>{event.content.dressCode}</strong></section>}
+      {event.sections?.gifts?.enabled && <section {...panel("gifts")}><p className="eyebrow">Regalos</p><p>{GIFT_MESSAGE}</p><button type="button">Ver datos del regalo</button></section>}
+      {social?.enabled && <section {...panel("social")}><p className="eyebrow">Fotos sociales</p><p>{SOCIAL_PHOTOS_MESSAGE}</p>{socialValue && <strong>{socialValue}</strong>}</section>}
+      {event.content.rsvp?.enabled !== false && <section {...panel("rsvp")}><p className="eyebrow">RSVP</p><h3>Confirmá tu asistencia</h3><button>Confirmar asistencia</button></section>}
       {preview && <section className="previewCheckout"><p className="eyebrow">¿Te gusta cómo quedó?</p><button onClick={onCheckout}>Publicar — ${price.toLocaleString("es-AR")} →</button><button className="previewEdit" onClick={onEdit}>← Editar invitación</button></section>}
     </div></div></div>
   </aside>;
+}
+function previewPanelProps(visual: SectionVisual, photo: string | undefined, section: InvitationSection) {
+  const baseClass = { message: "invitationMessage", details: "invitationWhere", agenda: "invitationAgendaPanel", gallery: "invitationGalleryPanel", dress: "invitationDress", gifts: "invitationGift", social: "invitationSocial", rsvp: "invitationRsvp" }[section];
+  return { className: `${baseClass} previewPanel previewPanel--${visual.tone}`, style: { "--section-gradient": visual.gradient, "--section-art": `url(${visual.decorativeImage})`, "--section-photo": visual.photoEnabled && photo ? `url(${photo})` : "none" } as CSSProperties };
 }
