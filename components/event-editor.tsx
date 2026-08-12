@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/celebra";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
-import { defaultAgenda, type EventDraftInput } from "@/lib/event-drafts";
+import { defaultAgenda, planDetails, type EventDraftInput } from "@/lib/event-drafts";
 import type { GiftSectionConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
 import { normalizeTheme, templateTheme } from "@/lib/event-theme";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
@@ -66,6 +66,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
   const [draft, setDraft] = useState<EventDraftInput>();
   const [notice, setNotice] = useState("Cargando evento…");
   const [saving, setSaving] = useState(false);
+  const [paying, setPaying] = useState(false);
   const [uploading, setUploading] = useState(false);
   const token = async () => (await getBrowserSupabase()?.auth.getSession())?.data.session?.access_token;
 
@@ -99,6 +100,20 @@ export function EventEditor({ eventId }: { eventId: string }) {
     setNotice(response.ok ? "Cambios guardados." : body.error ?? "No pudimos guardar los cambios.");
     setSaving(false);
     if (response.ok) void load();
+  };
+
+  const checkout = async () => {
+    setPaying(true);
+    setNotice("");
+    try {
+      const response = await fetch(`/api/events/${eventId}/checkout`, { method: "POST", headers: { authorization: `Bearer ${await token()}` } });
+      const body = await response.json();
+      if (!response.ok) throw new Error(body.error ?? "No pudimos iniciar el pago.");
+      window.location.assign(body.checkoutUrl);
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : "No pudimos iniciar el pago.");
+      setPaying(false);
+    }
   };
 
   const uploadGallery = async (files: FileList | null) => {
@@ -179,7 +194,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label className="switch"><span>Activar RSVP</span><input type="checkbox" checked={rsvp.enabled} onChange={(item) => update("rsvp", { ...rsvp, enabled: item.currentTarget.checked })} /></label>
         <DeadlineFields value={rsvp.deadline} onChange={(deadline) => update("rsvp", { ...rsvp, deadline })} />
         <label>Acceso<select value={rsvp.accessMode} onChange={(item) => update("rsvp", { ...rsvp, accessMode: item.currentTarget.value as typeof rsvp.accessMode })}><option value="name_lookup">Búsqueda por nombre</option><option value="name_and_code">Nombre y código</option></select></label>
-        <button className="button dark" type="button" disabled={saving} onClick={() => void save()}>{saving ? "Guardando…" : "Guardar cambios"}</button><p className="wizardNotice">{notice}</p>
+        <div className="editorPaymentActions"><button className="button dark" type="button" disabled={saving || paying} onClick={() => void save()}>{saving ? "Guardando…" : "Guardar cambios"}</button>{event.payment_status === "approved" ? <Link className="button pink" href={`/e/${event.slug}`} target="_blank">Ver invitación publicada</Link> : event.payment_status === "pending" ? <button className="button outline" type="button" disabled>Pago en verificación</button> : <button className="button pink" type="button" disabled={saving || paying} onClick={() => void checkout()}>{paying ? "Abriendo Mercado Pago…" : `Pagar y publicar — $${planDetails[draft.plan].price.toLocaleString("es-AR")} →`}</button>}</div><p className="wizardNotice">{notice}</p>
       </section>
       <EventInvitationPreview event={preview} />
     </div>
