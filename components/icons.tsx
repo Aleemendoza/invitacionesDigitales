@@ -1,6 +1,6 @@
 import type { ReactNode, SVGProps } from "react";
 
-export type IconName = "calendar" | "pin" | "timeline" | "gallery" | "hanger" | "gift" | "camera" | "mail" | "menu" | "music" | "arrow" | "close" | "copy" | "check" | "plus" | "edit" | "trash" | "link" | "share" | "users";
+export type IconName = "calendar" | "pin" | "timeline" | "gallery" | "hanger" | "dress" | "suit" | "gift" | "camera" | "mail" | "menu" | "music" | "arrow" | "close" | "copy" | "check" | "plus" | "edit" | "trash" | "link" | "share" | "users";
 
 const paths: Record<IconName, ReactNode> = {
   calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4m10-4v4M3 10h18" /></>,
@@ -8,6 +8,8 @@ const paths: Record<IconName, ReactNode> = {
   timeline: <><path d="M4 4v16m5-16v16m5-16v16m5-16v16M3 8h18M3 16h18" /></>,
   gallery: <><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8" cy="9" r="1.5" /><path d="m4 18 5-5 3 3 3-4 5 6" /></>,
   hanger: <><path d="M12 4a2.5 2.5 0 1 1-2.5 2.5" /><path d="m10 6.5-7 9.5h18l-7-9.5" /></>,
+  dress: <><path d="M9 3h6l1 5-2 2 5 10H5l5-10-2-2Z" /><path d="M9 3c.2 2 1.2 3 3 3s2.8-1 3-3M8 20h8" /></>,
+  suit: <><path d="m8 3 4 4 4-4 4 6-3 3v8H7v-8L4 9Z" /><path d="m12 7-2 5 2 2 2-2-2-5M12 14v6" /></>,
   gift: <><rect x="4" y="9" width="16" height="11" rx="1" /><path d="M3 9h18M12 9v11M12 9H8.5C5 9 5 4 8.5 4 11 4 12 9 12 9Zm0 0h3.5C19 9 19 4 15.5 4 13 4 12 9 12 9Z" /></>,
   camera: <><path d="M4 7h3l1.5-2h7L17 7h3v12H4Z" /><circle cx="12" cy="13" r="4" /></>,
   mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 7 9-7" /></>,

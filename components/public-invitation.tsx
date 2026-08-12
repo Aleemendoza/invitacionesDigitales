@@ -74,7 +74,7 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
 
       {event.event_media && event.event_media.length > 1 && <section className="piGallery"><SectionHeader icon="gallery" label="Galería" /><div>{event.event_media.slice(1).map((item, index) => <img key={item.storage_path} src={item.url} alt={`Foto ${index + 1} del evento`} />)}</div></section>}
 
-      {event.content.dressCode && <section className="piDress"><Icon name="hanger" /><div><small>Dress code</small><h2>{event.content.dressCode}</h2></div></section>}
+      {event.content.dressCode && <section className="piDress"><Icon name="dress" className="piDressIcon piDressIconLeft" /><div><small>Vestimenta</small><h2>{event.content.dressCode}</h2><span>Elegí tu mejor look para la ocasión</span></div><Icon name="suit" className="piDressIcon piDressIconRight" /></section>}
 
       {gifts && <GiftSection slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} />}
       {social && <SocialPhotosSection config={social.content as SocialPhotoSectionConfig} theme={template.theme} />}
