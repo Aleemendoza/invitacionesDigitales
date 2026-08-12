@@ -1,0 +1,11 @@
+/* The price page is content-only: no device previews or empty image columns. */
+.pricing .plans{grid-template-columns:1fr!important;max-width:620px!important;align-items:stretch!important}
+.pricing .planCard{display:flex!important;min-height:0!important;padding:28px!important;overflow:visible!important}
+.pricing .planCopy{width:100%!important;padding:0!important}
+.pricing .planCard .planPrice+p{min-height:0!important;max-width:none!important}
+.pricing .planIncludes{margin:22px 0 0;color:#62595a;font:700 10px var(--mono);letter-spacing:1.1px;text-transform:uppercase}
+.pricing .planCard ul{margin:10px 0 24px!important;max-width:none!important}
+.pricing .planActions{max-width:none!important;margin-top:12px!important;padding-top:18px;border-top:1px solid var(--line)}
+.pricing .planShowcase{display:none!important}
+@media(max-width:500px){.pricing .planCard{padding:24px 20px!important}.pricing .planCard h2{font-size:38px!important}}
+@media(min-width:901px){.pricing .plans{grid-template-columns:repeat(3,minmax(0,1fr))!important;max-width:1180px!important}.pricing .planCard{min-height:550px!important;padding:30px!important}.pricing .planCard .planPrice+p{min-height:76px!important}.pricing .planActions{margin-top:auto!important}}
