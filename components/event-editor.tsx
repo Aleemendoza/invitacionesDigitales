@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { Header } from "@/components/celebra";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
 import { defaultAgenda, type EventDraftInput } from "@/lib/event-drafts";
@@ -135,7 +136,8 @@ export function EventEditor({ eventId }: { eventId: string }) {
   };
 
   return <main className="editorPage">
-    <header className="editorHeader"><Link className="brand" href="/mis-eventos">celebra</Link><b>/{event.slug}</b><Link className="button outline" href={`/e/${event.slug}`}>Ver enlace público</Link></header>
+    <Header app />
+    <div className="editorContextBar"><b>/{event.slug}</b><Link className="button outline" href={`/e/${event.slug}`}>Ver enlace público</Link></div>
     <div className="editorWorkspace">
       <section className="editorForm">
         <p className="eyebrow">Configuración del evento</p><h1>{draft.title}</h1>
