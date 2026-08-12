@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Icon } from "@/components/icons";
 import type { GiftSectionConfig } from "@/lib/event-sections";
+import { GIFT_MESSAGE } from "@/lib/invitation-copy";
 
 type GiftLoadState = "loading" | "ready" | "error";
 
@@ -32,7 +33,7 @@ export function GiftSection({ slug, fallback, theme = "ivory" }: { slug: string;
   const isTransfer = preview.type === "bank_transfer";
   const account = config?.accounts?.[0];
   const canOpen = isTransfer && state === "ready" && Boolean(account?.accountAlias);
-  const body = <><p className="giftLabel"><Icon name="gift" size={20} /><span>{preview.title || "Regalos"}</span></p>{preview.message && <p className="giftMessage">{preview.message}</p>}</>;
+  const body = <><p className="giftLabel"><Icon name="gift" size={20} /><span>Regalos</span></p><p className="giftMessage">{GIFT_MESSAGE}</p></>;
 
   if (preview.type === "cash_message") return <section className={`giftSection premiumGift gift-${theme}`}>{body}</section>;
   if (!isTransfer) return <section className={`giftSection premiumGift gift-${theme}`}>{body}{preview.externalUrl && <a className="giftCta" href={preview.externalUrl} target="_blank" rel="noreferrer">{preview.externalLabel ?? "Ver opciones"}<Icon name="arrow" size={15} /></a>}</section>;

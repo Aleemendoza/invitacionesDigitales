@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Icon } from "@/components/icons";
 import { normalizeInstagramHandle, type SocialPhotoSectionConfig } from "@/lib/event-sections";
+import { SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 
 export function SocialPhotosSection({ config, theme = "ivory" }: { config: SocialPhotoSectionConfig; theme?: string }) {
   const [copied, setCopied] = useState(false);
@@ -21,7 +22,7 @@ export function SocialPhotosSection({ config, theme = "ivory" }: { config: Socia
   return <section className={`socialSection premiumSocial social-${theme}`}>
     <div className="premiumSocialCopy">
       <Icon name="camera" />
-      <div><p className="eyebrow">{config.title}</p><h2>{config.description}</h2></div>
+      <div><p className="eyebrow">Fotos sociales</p><h2>{SOCIAL_PHOTOS_MESSAGE}</h2></div>
     </div>
     <div className="premiumSocialActions">
       <strong>{value}</strong>

@@ -1,6 +1,6 @@
 import type { ReactNode, SVGProps } from "react";
 
-export type IconName = "calendar" | "pin" | "timeline" | "gallery" | "hanger" | "dress" | "suit" | "gift" | "camera" | "mail" | "menu" | "music" | "arrow" | "close" | "copy" | "check" | "plus" | "edit" | "trash" | "link" | "share" | "users";
+export type IconName = "calendar" | "pin" | "timeline" | "gallery" | "hanger" | "dress" | "suit" | "gift" | "camera" | "mail" | "menu" | "music" | "musicOff" | "arrow" | "close" | "copy" | "check" | "plus" | "edit" | "trash" | "link" | "share" | "users";
 
 const paths: Record<IconName, ReactNode> = {
   calendar: <><rect x="3" y="5" width="18" height="16" rx="2" /><path d="M7 3v4m10-4v4M3 10h18" /></>,
@@ -15,6 +15,7 @@ const paths: Record<IconName, ReactNode> = {
   mail: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 7 9-7" /></>,
   menu: <path d="M4 7h16M4 12h16M4 17h16" />,
   music: <><path d="M9 18V6l10-2v12" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="16" r="2" /></>,
+  musicOff: <><path d="M9 18V6l10-2v12" /><circle cx="7" cy="18" r="2" /><circle cx="17" cy="16" r="2" /><path d="m4 4 16 16" /></>,
   arrow: <path d="m5 12 7 7 7-7M12 19V5" />,
   close: <path d="m6 6 12 12M18 6 6 18" />,
   copy: <><rect x="8" y="8" width="11" height="12" rx="2" /><path d="M5 16H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></>,
