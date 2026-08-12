@@ -1,6 +1,7 @@
 "use client";
 import "./public-event.css";
 import "./premium-rsvp.css";
+import "./rsvp-preferences.css";
 import Link from "next/link";
 import {useEffect,useMemo,useState,type CSSProperties} from "react";
 type Context={event:any;group:any;members:any[];questions:any[];answers:{question_id:string;value:unknown}[]};type Match={displayName:string;lookupHint?:string;lookupToken:string};const steps=["Asistencia","Invitados","Preferencias","Confirmación"];
