@@ -3,11 +3,13 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
+import { ThemeControls } from "@/components/theme-controls";
 import { defaultAgenda, type EventDraftInput } from "@/lib/event-drafts";
 import type { GiftSectionConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
-import { defaultTheme, isTheme } from "@/lib/event-theme";
+import { normalizeTheme, templateTheme } from "@/lib/event-theme";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
+import { templates } from "@/lib/templates";
 
 const blankGift: GiftSectionConfig = {
   enabled: false, title: "Regalos", message: GIFT_MESSAGE, type: "bank_transfer", protectedDetails: true,
@@ -20,6 +22,7 @@ const blankSocial: SocialPhotoSectionConfig = {
 
 function toDraft(event: any): EventDraftInput {
   const date = event.starts_at ? new Date(event.starts_at) : null;
+  const template = templates.find((item) => item.slug === event.template_slug) ?? templates[0];
   const storedSections = Object.fromEntries((event.event_sections ?? []).map((section: any) => [section.kind, { ...section.content, enabled: section.enabled }])) as Record<string, unknown>;
   return {
     title: event.title,
@@ -38,7 +41,7 @@ function toDraft(event: any): EventDraftInput {
     message: event.content.message ?? "",
     dressCode: event.content.dressCode ?? "",
     musicUrl: event.content.musicUrl ?? "",
-    theme: isTheme(event.content.theme) ? event.content.theme : defaultTheme,
+    theme: normalizeTheme(event.content.theme, templateTheme(template.theme)),
     rsvp: event.content.rsvp ?? { enabled: event.rsvp_enabled ?? true, deadline: event.rsvp_deadline?.slice(0, 16) ?? "", accessMode: event.guest_access_mode ?? "name_lookup", questions: [] },
     sections: {
       gifts: { ...blankGift, ...(storedSections.gifts as Partial<GiftSectionConfig> | undefined), message: GIFT_MESSAGE, title: "Regalos" },
@@ -119,6 +122,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
   const social = draft.sections?.socialPhotos ?? blankSocial;
   const account = gift.accounts[0] ?? blankGift.accounts[0];
   const rsvp = draft.rsvp!;
+  const template = templates.find((item) => item.slug === draft.templateSlug) ?? templates[0];
   const photos = event.event_media?.map((item: any) => item.url ?? "").filter(Boolean) ?? [];
   const preview = {
     title: draft.title,
@@ -139,6 +143,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label>Título<input value={draft.title} onChange={(item) => update("title", item.currentTarget.value)} /></label>
         <label>Tipo de evento<input value={draft.eventType} onChange={(item) => update("eventType", item.currentTarget.value)} /></label>
         <div className="fieldPair"><label>Fecha<input type="date" value={draft.date} onChange={(item) => update("date", item.currentTarget.value)} /></label><label>Hora<input type="time" value={draft.time} onChange={(item) => update("time", item.currentTarget.value)} /></label></div>
+        <ThemeControls value={draft.theme!} defaults={templateTheme(template.theme)} onChange={(theme) => update("theme", theme)} />
 
         <h3>Portada y galería</h3>
         <p className="editorHint">La primera imagen es la portada. Las siguientes aparecen en la galería de tu invitación.</p>

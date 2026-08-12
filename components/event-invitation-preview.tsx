@@ -3,7 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Icon } from "@/components/icons";
 import { getCountdown } from "@/lib/countdown";
-import { defaultTheme, isTheme, textColor } from "@/lib/event-theme";
+import { normalizeTheme, templateTheme, textColor } from "@/lib/event-theme";
 import type { EventContent, EventSections, StoredEvent } from "@/lib/event-types";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 import { templates, type InvitationSection, type SectionVisual } from "@/lib/templates";
@@ -40,7 +40,7 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
   const template = templates.find((item) => item.slug === event.template_slug) ?? templates[0];
   const photos = event.photos?.filter(Boolean) ?? [];
   const cover = photos[0] || template.coverImage;
-  const theme = isTheme(event.content.theme) ? event.content.theme : defaultTheme;
+  const theme = normalizeTheme(event.content.theme, templateTheme(template.theme));
   const [music, setMusic] = useState(false);
   const musicId = event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
   const date = event.starts_at ? new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.starts_at)) : "Fecha a confirmar";
@@ -54,8 +54,11 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
   const style = {
     "--cover-image": `url(${cover})`,
     "--theme-primary": theme.primaryColor,
+    "--theme-on-primary": textColor(theme.primaryColor),
     "--theme-accent": theme.accentColor,
     "--theme-on-accent": textColor(theme.accentColor),
+    "--theme-background": theme.backgroundColor,
+    "--theme-on-background": textColor(theme.backgroundColor),
     "--theme-font": theme.fontStyle === "princesa" ? "cursive" : theme.fontStyle === "refinada" ? "Georgia,serif" : "var(--serif)",
   } as CSSProperties;
 

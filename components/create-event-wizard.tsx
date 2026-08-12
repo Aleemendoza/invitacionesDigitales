@@ -3,9 +3,10 @@
 import { ChangeEvent, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
+import { ThemeControls } from "@/components/theme-controls";
 import { WizardHeader } from "@/components/wizard-header";
 import { defaultAgenda, planDetails, type EventDraftInput } from "@/lib/event-drafts";
-import { defaultTheme, type EventTheme } from "@/lib/event-theme";
+import { defaultTheme, normalizeTheme, templateTheme, type EventTheme } from "@/lib/event-theme";
 import { clearPendingEventDraft, readPendingEventDraft, savePendingEventDraft } from "@/lib/pending-event-draft";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { templates, type Template } from "@/lib/templates";
@@ -17,7 +18,6 @@ const initial: Draft = { title: "", eventType: "", date: "", time: "", venue: ""
 const types = ["Boda", "XV", "Cumpleaños", "Infantil", "Baby Shower", "Corporativo"];
 const category = (type: string) => type === "Boda" ? "Bodas" : type === "Infantil" ? "Infantiles" : type === "Corporativo" ? "Corporativos" : type;
 const options = (type: string) => type === "Baby Shower" ? templates.filter((item) => item.slug === "dreamscape") : templates.filter((item) => item.category === category(type));
-const themed = (template: Template): EventTheme => template.theme === "midnight" || template.theme === "gala" || template.theme === "after" ? { primaryColor: "#24191d", accentColor: "#c89e42", fontStyle: "refinada" } : template.theme === "aura" || template.theme === "dream" ? { primaryColor: "#3e2340", accentColor: "#b33c71", fontStyle: "princesa" } : defaultTheme;
 
 export function CreateEventWizard() {
   const router = useRouter();
@@ -35,7 +35,8 @@ export function CreateEventWizard() {
         if (resume) {
           const pending = await readPendingEventDraft();
           if (pending) {
-            setDraft({ ...pending.draft, theme: pending.draft.theme ?? defaultTheme } as Draft);
+            const pendingTemplate = templates.find((item) => item.slug === pending.draft.templateSlug) ?? templates[0];
+            setDraft({ ...pending.draft, theme: normalizeTheme(pending.draft.theme, templateTheme(pendingTemplate.theme)) } as Draft);
             setPhotos(pending.photos.map((file) => ({ file, preview: URL.createObjectURL(file) })));
             setNotice("Recuperamos tu borrador para que puedas guardarlo.");
           }
@@ -48,9 +49,9 @@ export function CreateEventWizard() {
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const chooseType = (eventType: string) => {
     const template = options(eventType)[0] ?? templates[0];
-    setDraft((current) => ({ ...current, eventType, templateSlug: template.slug, plan: template.plan, features: planDetails[template.plan].features, theme: themed(template) }));
+    setDraft((current) => ({ ...current, eventType, templateSlug: template.slug, plan: template.plan, features: planDetails[template.plan].features, theme: templateTheme(template.theme) }));
   };
-  const chooseTemplate = (template: Template) => setDraft((current) => ({ ...current, templateSlug: template.slug, plan: template.plan, features: planDetails[template.plan].features, theme: themed(template) }));
+  const chooseTemplate = (template: Template) => setDraft((current) => ({ ...current, templateSlug: template.slug, plan: template.plan, features: planDetails[template.plan].features, theme: templateTheme(template.theme) }));
   const valid = () => draft.step === 0 ? Boolean(draft.eventType) : draft.step === 1 ? draft.title.trim().length > 1 : draft.step === 2 ? Boolean(draft.date && draft.time) : draft.step === 3 ? draft.venue.trim().length > 1 : draft.step === 4 ? draft.agenda.length > 0 && draft.agenda.every((item) => item.time && item.title.trim()) : draft.step === 5 ? Boolean(draft.templateSlug) : draft.step === 6 ? photos.length > 0 : true;
   const next = () => { if (!valid()) return setNotice("Completá este paso para continuar."); setNotice(""); update("step", Math.min(7, draft.step + 1)); };
   const submit = async () => {
@@ -75,7 +76,8 @@ export function CreateEventWizard() {
   if (!ready) return null;
   const preview = { title: draft.title, event_type: draft.eventType, starts_at: draft.date && draft.time ? new Date(`${draft.date}T${draft.time}:00-03:00`).toISOString() : null, template_slug: draft.templateSlug || "eclat", content: { venue: draft.venue, venueAddress: draft.venueAddress, mapUrl: draft.mapUrl, closingMessage: draft.closingMessage, wizard_step: draft.step, features: draft.features, agenda: draft.agenda, message: draft.message, dressCode: draft.dressCode, musicUrl: draft.musicUrl, theme: draft.theme }, photos: photos.map((photo) => photo.preview) };
   const heading = ["¿Qué vamos a celebrar?", "Contanos quién celebra.", "¿Cuándo empieza?", "¿Dónde se encuentran?", "¿Cuál es la agenda?", "Elegí una plantilla.", "Subí tus fotos.", "Últimos detalles."][draft.step];
-  return <main><WizardHeader /><div className="progress"><span>Paso {draft.step + 1} de 8</span><progress value={draft.step + 1} max="8" /></div><section className="wizard photoWizard"><div className="wizardPanel"><p className="eyebrow">Tu celebración</p><h1>{heading}</h1><Fields draft={draft} photos={photos} update={update} chooseType={chooseType} chooseTemplate={chooseTemplate} setPhotos={setPhotos} />{notice && <p className="wizardNotice">{notice}</p>}<div className="wizardActions"><button className="button outline" disabled={!draft.step || saving} onClick={() => update("step", draft.step - 1)}>Volver</button><button className="button dark" disabled={saving} onClick={draft.step === 7 ? submit : next}>{saving ? "Guardando…" : draft.step === 7 ? "Crear mi evento" : "Continuar →"}</button></div></div><EventInvitationPreview event={preview} /></section></main>;
+  const selectedTemplate = templates.find((item) => item.slug === draft.templateSlug) ?? templates[0];
+  return <main><WizardHeader /><div className="progress"><span>Paso {draft.step + 1} de 8</span><progress value={draft.step + 1} max="8" /></div><section className="wizard photoWizard"><div className="wizardPanel"><p className="eyebrow">Tu celebración</p><h1>{heading}</h1><Fields draft={draft} photos={photos} update={update} chooseType={chooseType} chooseTemplate={chooseTemplate} setPhotos={setPhotos} />{draft.step === 7 && <ThemeControls value={draft.theme} defaults={templateTheme(selectedTemplate.theme)} onChange={(theme) => update("theme", theme)} />}{notice && <p className="wizardNotice">{notice}</p>}<div className="wizardActions"><button className="button outline" disabled={!draft.step || saving} onClick={() => update("step", draft.step - 1)}>Volver</button><button className="button dark" disabled={saving} onClick={draft.step === 7 ? submit : next}>{saving ? "Guardando…" : draft.step === 7 ? "Crear mi evento" : "Continuar →"}</button></div></div><EventInvitationPreview event={preview} /></section></main>;
 }
 
 function Fields({ draft, photos, update, chooseType, chooseTemplate, setPhotos }: { draft: Draft; photos: Photo[]; update: <K extends keyof Draft>(key: K, value: Draft[K]) => void; chooseType: (value: string) => void; chooseTemplate: (value: Template) => void; setPhotos: (value: Photo[]) => void }) {
