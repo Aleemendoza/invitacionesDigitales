@@ -7,7 +7,7 @@ export type RsvpQuestion = { id?: string; key: string; label: string; kind: Rsvp
 export type RsvpConfig = { enabled: boolean; deadline?: string; accessMode: "name_lookup" | "name_and_code"; questions: RsvpQuestion[] };
 export type EventContent = {
   venue: string; venueAddress?: string; mapUrl?: string; closingMessage?: string; wizard_step: number; features: string[]; agenda: AgendaItem[];
-  message?: string; dressCode?: string; musicUrl?: string; theme?: EventTheme; rsvp?: RsvpConfig;
+  message?: string; dressCode?: string; musicUrl?: string; organizerWhatsapp?: string; theme?: EventTheme; rsvp?: RsvpConfig;
 };
 export type EventSections = { gifts?: GiftSectionConfig; socialPhotos?: SocialPhotoSectionConfig };
 export type StoredEvent = { id: string; slug: string; title: string; event_type: string; starts_at: string | null; status: "draft" | "published" | "finished"; template_slug: string; plan: Plan; payment_status: PaymentStatus; rsvp_enabled?: boolean; content: EventContent; sections?: EventSections; event_media?: { storage_path: string; kind: string; position: number; url?: string }[] };

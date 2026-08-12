@@ -12,6 +12,7 @@ import { normalizeTheme, templateTheme, textColor } from "@/lib/event-theme";
 import type { StoredEvent } from "@/lib/event-types";
 import { templates, type InvitationSection, type SectionVisual } from "@/lib/templates";
 import { getYouTubeVideoId, youtubeEmbedUrl } from "@/lib/youtube";
+import { hasPlanFeature, normalizeWhatsapp, type Plan } from "@/lib/event-drafts";
 type Section = { kind: string; content: Record<string, unknown> };
 const format = (value: number) => String(value).padStart(2, "0");
 export function PublicInvitation({ event }: { event: StoredEvent & { event_sections?: Section[] } }) {
@@ -39,7 +40,7 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
     {event.event_media && event.event_media.length > 1 && <section className="piGallery" {...panel("gallery")}><SectionHeader icon="gallery" label="Galería" /><div>{event.event_media.slice(1).map((item, index) => <img key={item.storage_path} src={item.url} alt={`Foto ${index + 1} del evento`} />)}</div></section>}
     {event.content.dressCode && <section className="piDress" {...panel("dress")}><Icon name="dress" className="piDressIcon piDressIconLeft" /><div><small>Vestimenta</small><h2>{event.content.dressCode}</h2><span>Elegí tu mejor look para la ocasión</span></div><Icon name="suit" className="piDressIcon piDressIconRight" /></section>}
     {gifts && <div {...panel("gifts")}><GiftSection slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} /></div>}{social && <div {...panel("social")}><SocialPhotosSection config={social.content as SocialPhotoSectionConfig} theme={template.theme} /></div>}
-    <section className="piRsvp" {...panel("rsvp")}><div className="piRsvpCopy"><Icon name="mail" /><div><p className="eyebrow">Asistencia</p><h2>Confirmá tu asistencia</h2><p>{event.content.rsvp?.deadline ? `Confirmá antes del ${new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.content.rsvp.deadline))}` : "Tu respuesta es muy importante"}</p></div></div>{event.rsvp_enabled && <Link href={`/e/${event.slug}/rsvp`}>Confirmar</Link>}</section>
+    <section className="piRsvp" {...panel("rsvp")}><div className="piRsvpCopy"><Icon name="mail" /><div><p className="eyebrow">Asistencia</p><h2>Confirmá tu asistencia</h2><p>{event.content.rsvp?.deadline ? `Confirmá antes del ${new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.content.rsvp.deadline))}` : "Tu respuesta es muy importante"}</p></div></div>{hasPlanFeature(event.plan as Plan,"general-rsvp")&&event.rsvp_enabled?<Link href={`/e/${event.slug}/rsvp`}>Confirmar</Link>:<a href={`https://wa.me/${normalizeWhatsapp(event.content.organizerWhatsapp) || "5493886145245"}?text=${encodeURIComponent(`Hola, confirmo mi asistencia a ${event.title}.`)}`} target="_blank" rel="noreferrer">Confirmar por WhatsApp</a>}</section>
     <footer>{event.content.closingMessage || "Gracias por ser parte de este momento inolvidable"}</footer>
   </main>;
 }

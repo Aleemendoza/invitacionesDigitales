@@ -8,6 +8,7 @@ import type { EventContent, EventSections, StoredEvent } from "@/lib/event-types
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 import { templates, type InvitationSection, type SectionVisual } from "@/lib/templates";
 import { getYouTubeVideoId, youtubeEmbedUrl } from "@/lib/youtube";
+import { planDetails, type Plan } from "@/lib/event-drafts";
 import "./event-invitation-preview.css";
 
 export type InvitationPreviewData = Pick<StoredEvent, "title" | "event_type" | "starts_at" | "template_slug"> & {
@@ -36,7 +37,7 @@ function Countdown({ startsAt, image, preview }: { startsAt: string | null; imag
   </section>;
 }
 
-export function EventInvitationPreview({ event, label = "Vista previa", plan, onCheckout = () => window.location.assign("/precios"), onEdit = () => window.scrollTo({ top: 0, behavior: "smooth" }) }: { event: InvitationPreviewData; label?: string; plan?: "Essential" | "Plus" | "Premium"; onCheckout?: () => void; onEdit?: () => void }) {
+export function EventInvitationPreview({ event, label = "Vista previa", plan, onCheckout = () => window.location.assign("/precios"), onEdit = () => window.scrollTo({ top: 0, behavior: "smooth" }) }: { event: InvitationPreviewData; label?: string; plan?: Plan; onCheckout?: () => void; onEdit?: () => void }) {
   const template = templates.find((item) => item.slug === event.template_slug) ?? templates[0];
   const photos = event.photos?.filter(Boolean) ?? [];
   const cover = photos[0] || template.coverImage;
@@ -45,7 +46,7 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
   const musicId = event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
   const date = event.starts_at ? new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.starts_at)) : "Fecha a confirmar";
   const preview = label.length > 0;
-  const price = (plan ?? template.plan) === "Premium" ? 25000 : (plan ?? template.plan) === "Plus" ? 20000 : 15000;
+  const price = planDetails[plan ?? template.plan].price;
   const mapQuery = [event.content.venue, event.content.venueAddress].filter(Boolean).join(", ");
   const mapLink = event.content.mapUrl || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : "");
   const social = event.sections?.socialPhotos;

@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
 import { WizardHeader } from "@/components/wizard-header";
-import { defaultAgenda, planDetails, type EventDraftInput } from "@/lib/event-drafts";
+import { defaultAgenda, defaultFeatures, planDetails, type EventDraftInput } from "@/lib/event-drafts";
 import { defaultTheme, normalizeTheme, templateTheme, type EventTheme } from "@/lib/event-theme";
 import { clearPendingEventDraft, readPendingEventDraft, savePendingEventDraft } from "@/lib/pending-event-draft";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
@@ -14,7 +14,7 @@ import { templates, type Template } from "@/lib/templates";
 type Draft = EventDraftInput & { theme: EventTheme };
 type Photo = { file: File; preview: string };
 
-const initial: Draft = { title: "", eventType: "", date: "", time: "", venue: "", venueAddress: "", mapUrl: "", closingMessage: "", templateSlug: "", plan: "Essential", step: 0, agenda: defaultAgenda(), features: [], message: "", dressCode: "", musicUrl: "", theme: defaultTheme };
+const initial: Draft = { title: "", eventType: "", date: "", time: "", venue: "", venueAddress: "", mapUrl: "", closingMessage: "", templateSlug: "", plan: "standard", step: 0, agenda: defaultAgenda(), features: defaultFeatures("standard"), message: "", dressCode: "", musicUrl: "", organizerWhatsapp:"", theme: defaultTheme };
 const types = ["Boda", "XV", "Cumpleaños", "Infantil", "Baby Shower", "Corporativo"];
 const category = (type: string) => type === "Boda" ? "Bodas" : type === "Infantil" ? "Infantiles" : type === "Corporativo" ? "Corporativos" : type;
 const options = (type: string) => type === "Baby Shower" ? templates.filter((item) => item.slug === "dreamscape") : templates.filter((item) => item.category === category(type));
@@ -49,9 +49,9 @@ export function CreateEventWizard() {
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const chooseType = (eventType: string) => {
     const template = options(eventType)[0] ?? templates[0];
-    setDraft((current) => ({ ...current, eventType, templateSlug: template.slug, plan: template.plan, features: planDetails[template.plan].features, theme: templateTheme(template.theme) }));
+    setDraft((current) => ({ ...current, eventType, templateSlug: template.slug, features: defaultFeatures(current.plan), theme: templateTheme(template.theme) }));
   };
-  const chooseTemplate = (template: Template) => setDraft((current) => ({ ...current, templateSlug: template.slug, plan: template.plan, features: planDetails[template.plan].features, theme: templateTheme(template.theme) }));
+  const chooseTemplate = (template: Template) => setDraft((current) => ({ ...current, templateSlug: template.slug, features: defaultFeatures(current.plan), theme: templateTheme(template.theme) }));
   const valid = () => draft.step === 0 ? Boolean(draft.eventType) : draft.step === 1 ? draft.title.trim().length > 1 : draft.step === 2 ? Boolean(draft.date && draft.time) : draft.step === 3 ? draft.venue.trim().length > 1 : draft.step === 4 ? draft.agenda.length > 0 && draft.agenda.every((item) => item.time && item.title.trim()) : draft.step === 5 ? Boolean(draft.templateSlug) : draft.step === 6 ? photos.length > 0 : true;
   const next = () => { if (!valid()) return setNotice("Completá este paso para continuar."); setNotice(""); update("step", Math.min(7, draft.step + 1)); };
   const submit = async () => {

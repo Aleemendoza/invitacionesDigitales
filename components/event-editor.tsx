@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { Header } from "@/components/celebra";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
-import { defaultAgenda, planDetails, type EventDraftInput } from "@/lib/event-drafts";
+import { defaultAgenda, defaultFeatures, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
 import type { GiftSectionConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
 import { normalizeTheme, templateTheme } from "@/lib/event-theme";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
@@ -116,6 +116,16 @@ export function EventEditor({ eventId }: { eventId: string }) {
     }
   };
 
+  const requestUpgrade = async (targetPlan: Plan) => {
+    if (!event || targetPlan === event.plan) return;
+    if (event.payment_status !== "approved") { update("plan", targetPlan); update("features", defaultFeatures(targetPlan)); return; }
+    const response = await fetch(`/api/events/${eventId}/upgrade`, { method:"POST", headers:{"content-type":"application/json",authorization:`Bearer ${await token()}`}, body:JSON.stringify({targetPlan}) });
+    const body = await response.json(); if (!response.ok) return setNotice(body.error ?? "No pudimos solicitar la actualización.");
+    const target=planDetails[targetPlan]; const current=planDetails[event.plan as Plan];
+    const message=`Hola, quiero actualizar mi invitación “${event.title}” (${event.slug}) de ${current.name} a ${target.name}. El saldo informado es $${body.upgrade.amount.toLocaleString("es-AR")}. Solicitud: ${body.upgrade.id}`;
+    window.open(`https://wa.me/5493886145245?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer"); setNotice("Solicitud registrada. Enviá el mensaje por WhatsApp para coordinar el pago.");
+  };
+
   const uploadGallery = async (files: FileList | null) => {
     if (!files?.length) return;
     const selected = Array.from(files).slice(0, 5);
@@ -156,6 +166,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
     <div className="editorWorkspace">
       <section className="editorForm">
         <p className="eyebrow">Configuración del evento</p><h1>{draft.title}</h1>
+        <section className="box"><b>Plan: {planDetails[draft.plan].name}</b><p>{event.payment_status==="approved"?"Para subir de plan se calcula el saldo y lo coordinás por WhatsApp.":"Podés cambiar de plan antes de publicar."}</p><select value={draft.plan} onChange={item=>void requestUpgrade(item.currentTarget.value as Plan)}>{plans.map(plan=><option key={plan} value={plan} disabled={event.payment_status==="approved"&&plan===event.plan}>{planDetails[plan].name} — ${planDetails[plan].price.toLocaleString("es-AR")}</option>)}</select></section>
         <h3>Identidad</h3>
         <label>Título<input value={draft.title} onChange={(item) => update("title", item.currentTarget.value)} /></label>
         <label>Tipo de evento<input value={draft.eventType} onChange={(item) => update("eventType", item.currentTarget.value)} /></label>
@@ -180,7 +191,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
 
         <h3>Vestimenta y música</h3>
         <label>Vestimenta<input placeholder="Ej.: Elegante sport" value={draft.dressCode ?? ""} onChange={(item) => update("dressCode", item.currentTarget.value)} /></label>
-        <label>Música de YouTube<input type="url" placeholder="https://www.youtube.com/watch?v=..." value={draft.musicUrl ?? ""} onChange={(item) => update("musicUrl", item.currentTarget.value)} /></label>
+        {draft.plan!=="standard"&&<label>Música de YouTube<input type="url" placeholder="https://www.youtube.com/watch?v=..." value={draft.musicUrl ?? ""} onChange={(item) => update("musicUrl", item.currentTarget.value)} /></label>}
 
         <h3>Regalos</h3>
         <label className="switch"><span>Activar regalos</span><input type="checkbox" checked={gift.enabled} onChange={(item) => updateGift({ ...gift, enabled: item.currentTarget.checked })} /></label>
@@ -190,10 +201,11 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label className="switch"><span>Activar bloque social</span><input type="checkbox" checked={social.enabled} onChange={(item) => updateSocial({ ...social, enabled: item.currentTarget.checked })} /></label>
         {social.enabled && <><div className="fixedCopy"><b>Texto fijo de la invitación</b><p>{SOCIAL_PHOTOS_MESSAGE}</p></div><label>Usuario o hashtag<input placeholder="@usuario o #hashtag" value={social.socialValue} onChange={(item) => updateSocial({ ...social, socialValue: item.currentTarget.value })} /></label></>}
 
-        <h3>RSVP</h3>
+        <h3>{draft.plan==="standard"?"Confirmaciones por WhatsApp":"RSVP"}</h3>
+        {draft.plan==="standard"?<label>WhatsApp del organizador<input inputMode="tel" placeholder="549..." value={draft.organizerWhatsapp??""} onChange={item=>update("organizerWhatsapp",item.currentTarget.value)}/></label>:<>
         <label className="switch"><span>Activar RSVP</span><input type="checkbox" checked={rsvp.enabled} onChange={(item) => update("rsvp", { ...rsvp, enabled: item.currentTarget.checked })} /></label>
         <DeadlineFields value={rsvp.deadline} onChange={(deadline) => update("rsvp", { ...rsvp, deadline })} />
-        <label>Acceso<select value={rsvp.accessMode} onChange={(item) => update("rsvp", { ...rsvp, accessMode: item.currentTarget.value as typeof rsvp.accessMode })}><option value="name_lookup">Búsqueda por nombre</option><option value="name_and_code">Nombre y código</option></select></label>
+        <label>Acceso<select value={rsvp.accessMode} onChange={(item) => update("rsvp", { ...rsvp, accessMode: item.currentTarget.value as typeof rsvp.accessMode })}><option value="name_lookup">Búsqueda por nombre</option><option value="name_and_code">Nombre y código</option></select></label></>}
         <div className="editorPaymentActions"><button className="button dark" type="button" disabled={saving || paying} onClick={() => void save()}>{saving ? "Guardando…" : "Guardar cambios"}</button>{event.payment_status === "approved" ? <Link className="button pink" href={`/e/${event.slug}`} target="_blank">Ver invitación publicada</Link> : event.payment_status === "pending" ? <button className="button outline" type="button" disabled>Pago en verificación</button> : <button className="button pink" type="button" disabled={saving || paying} onClick={() => void checkout()}>{paying ? "Abriendo Mercado Pago…" : `Pagar y publicar — $${planDetails[draft.plan].price.toLocaleString("es-AR")} →`}</button>}</div><p className="wizardNotice">{notice}</p>
       </section>
       <EventInvitationPreview event={preview} />

@@ -1,12 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ownerContext } from "@/lib/event-owner";
 import { hashAccessCode, secureToken, sha256 } from "@/lib/public-guest-server";
+import { hasPlanFeature, type Plan } from "@/lib/event-drafts";
 
 export const runtime = "nodejs";
 export async function POST(request: NextRequest, { params }: { params: Promise<{ eventId: string; guestId: string }> }) {
   try {
     const { eventId, guestId } = await params;
     const result = await ownerContext(request, eventId); if ("error" in result) return result.error;
+    if(!hasPlanFeature(result.event.plan as Plan,"individual-links"))return NextResponse.json({error:"Los enlaces personales son exclusivos de Premium Plus+."},{status:403});
     if (result.event.payment_status !== "approved") return NextResponse.json({ error: "Publicá la invitación para habilitar los enlaces." }, { status: 403 });
     const { data: guest } = await result.db.from("guest_groups").select("id").eq("id", guestId).eq("event_id", eventId).maybeSingle();
     if (!guest) return NextResponse.json({ error: "Invitado no encontrado." }, { status: 404 });
