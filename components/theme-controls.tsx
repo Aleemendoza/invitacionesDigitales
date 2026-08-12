@@ -16,6 +16,7 @@ export function ThemeControls({ value, defaults, onChange }: { value: EventTheme
       <label>Color principal<input type="color" value={value.primaryColor} onChange={(event) => update("primaryColor", event.currentTarget.value)} /></label>
       <label>Color de acento<input type="color" value={value.accentColor} onChange={(event) => update("accentColor", event.currentTarget.value)} /></label>
       <label>Color de fondo<input type="color" value={value.backgroundColor} onChange={(event) => update("backgroundColor", event.currentTarget.value)} /></label>
+      <label>Color del título<input type="color" value={value.titleColor} onChange={(event) => update("titleColor", event.currentTarget.value)} /></label>
     </div>
     <fieldset className="fontChoices"><legend>Tipografía</legend><div>{fonts.map((font) => <button className={value.fontStyle === font.value ? "selected" : ""} type="button" key={font.value} onClick={() => update("fontStyle", font.value)} aria-pressed={value.fontStyle === font.value}>{font.label}</button>)}</div></fieldset>
   </section>;

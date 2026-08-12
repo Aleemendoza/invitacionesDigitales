@@ -59,6 +59,7 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
     "--theme-on-accent": textColor(theme.accentColor),
     "--theme-background": theme.backgroundColor,
     "--theme-on-background": textColor(theme.backgroundColor),
+    "--theme-title": theme.titleColor,
     "--theme-font": theme.fontStyle === "princesa" ? "cursive" : theme.fontStyle === "refinada" ? "Georgia,serif" : "var(--serif)",
   } as CSSProperties;
 
