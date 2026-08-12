@@ -17,10 +17,58 @@ const examples = [
 
 export function TestimonialsShowcase() {
   const [index, setIndex] = useState(0);
-  useEffect(() => { const timer = window.setInterval(() => setIndex(value => (value + 1) % examples.length), 5500); return () => window.clearInterval(timer); }, []);
+
+  useEffect(() => {
+    const timer = window.setInterval(
+      () => setIndex((value) => (value + 1) % examples.length),
+      5500
+    );
+    return () => window.clearInterval(timer);
+  }, []);
+
   const [name, text] = examples[index];
-  return <section className="testimonials" aria-labelledby="testimonials-title">
-    <div className="testimonialsBadge"><img src="/images/review-badge-example.png" alt="Ejemplo visual de una insignia de reseñas"/><small>Imagen de referencia · no representa una verificación ni reseñas reales.</small></div>
-    <div className="testimonialsContent"><p className="eyebrow">OPINIONES DE EJEMPLO</p><h2 id="testimonials-title">Así podría sentirse<br/><em>la confianza.</em></h2><p className="testimonialsDisclosure">Contenido demostrativo para previsualizar esta sección. Reemplazalo por opiniones verificadas antes de publicar.</p><article className="testimonialCard" aria-live="polite"><div className="testimonialAvatar" aria-hidden="true">{name[0]}</div><div><b>{name}</b><span className="testimonialStars" aria-label="5 de 5 estrellas">★★★★★</span></div><blockquote>“{text}”</blockquote></article><div className="testimonialDots" aria-label="Seleccionar ejemplo">{examples.map((_, item) => <button key={item} onClick={() => setIndex(item)} className={index === item ? "active" : ""} aria-label={`Ver ejemplo ${item + 1}`}/>)}</div></div>
-  </section>;
+
+  return (
+    <section className="testimonials testimonials--stacked" aria-labelledby="testimonials-title">
+      <div className="testimonialsBadge testimonialsBadge--top">
+        <img
+          src="/images/review-badge-example.png"
+          alt="Ejemplo visual de una insignia de reseñas"
+        />
+        <small>Imagen de referencia · no representa una verificación ni reseñas reales.</small>
+      </div>
+
+      <div className="testimonialsContent">
+        <p className="eyebrow">OPINIONES DE EJEMPLO</p>
+        <h2 id="testimonials-title">
+          Así podría sentirse
+          <br />
+          <em>la confianza.</em>
+        </h2>
+        <p className="testimonialsDisclosure">
+          Contenido demostrativo para previsualizar esta sección. Reemplazalo por opiniones verificadas antes de publicar.
+        </p>
+
+        <article className="testimonialCard" aria-live="polite">
+          <div className="testimonialAvatar" aria-hidden="true">{name[0]}</div>
+          <div>
+            <b>{name}</b>
+            <span className="testimonialStars" aria-label="5 de 5 estrellas">★★★★★</span>
+          </div>
+          <blockquote>“{text}”</blockquote>
+        </article>
+
+        <div className="testimonialDots" aria-label="Seleccionar ejemplo">
+          {examples.map((_, item) => (
+            <button
+              key={item}
+              onClick={() => setIndex(item)}
+              className={index === item ? "active" : ""}
+              aria-label={`Ver ejemplo ${item + 1}`}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
 }
