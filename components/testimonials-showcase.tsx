@@ -33,22 +33,13 @@ export function TestimonialsShowcase() {
       <div className="testimonialsBadge testimonialsBadge--top">
         <img
           src="/images/review-badge-example.png"
-          alt="Ejemplo visual de una insignia de reseñas"
+          alt="Insignia de reseñas"
         />
-        <small>Imagen de referencia · no representa una verificación ni reseñas reales.</small>
       </div>
 
       <div className="testimonialsContent">
-        <p className="eyebrow">OPINIONES DE EJEMPLO</p>
-        <h2 id="testimonials-title">
-          Así podría sentirse
-          <br />
-          <em>la confianza.</em>
-        </h2>
-        <p className="testimonialsDisclosure">
-          Contenido demostrativo para previsualizar esta sección. Reemplazalo por opiniones verificadas antes de publicar.
-        </p>
-
+        <p className="eyebrow">OPINIONES</p>
+        
         <article className="testimonialCard" aria-live="polite">
           <div className="testimonialAvatar" aria-hidden="true">{name[0]}</div>
           <div>
