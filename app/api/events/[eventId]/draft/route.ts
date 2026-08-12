@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getAdminSupabase } from "@/lib/public-guest-server";
 import { startsAt, validateDraft, validatePlanFeatures, type EventDraftInput } from "@/lib/event-drafts";
+import { normalizeRsvpQuestions } from "@/lib/rsvp-standard";
 export const runtime = "nodejs";
 
 async function owner(request: NextRequest, eventId: string) {
@@ -14,6 +15,6 @@ export async function PATCH(request:NextRequest,{params}:{params:Promise<{eventI
   const content={...(result.event.content??{}),venue:input.venue,venueAddress:input.venueAddress??"",mapUrl:input.mapUrl??"",closingMessage:input.closingMessage??"",wizard_step:7,features:input.features,agenda:input.agenda,message:input.message??"",dressCode:input.dressCode??"",musicUrl:input.musicUrl??"",theme:input.theme,rsvp:input.rsvp};
   const {error}=await result.db.from("events").update({title:input.title.trim(),event_type:input.eventType,starts_at:startsAt(input.date,input.time),template_slug:input.templateSlug,plan:input.plan,guest_access_mode:input.rsvp?.accessMode??"name_lookup",rsvp_enabled:input.rsvp?.enabled??input.features.includes("rsvp"),rsvp_deadline:input.rsvp?.deadline||null,content,updated_at:new Date().toISOString()}).eq("id",eventId);if(error)throw error;
   for(const [kind,section] of [["gifts",input.sections?.gifts],["social_photos",input.sections?.socialPhotos]] as const){if(section){const {error:sectionError}=await result.db.from("event_sections").upsert({event_id:eventId,kind,position:50,enabled:section.enabled,visibility:"public",content:section},{onConflict:"event_id,kind"});if(sectionError)throw sectionError;}}
-  await result.db.from("rsvp_questions").delete().eq("event_id",eventId);const questions=input.rsvp?.questions??[];if(questions.length){const {error:questionError}=await result.db.from("rsvp_questions").insert(questions.map((q,index)=>({event_id:eventId,key:q.key,label:q.label,kind:q.kind,required:q.required,config:{options:q.options},position:index})));if(questionError)throw questionError;}
+  await result.db.from("rsvp_questions").delete().eq("event_id",eventId);const questions=normalizeRsvpQuestions(input.rsvp?.questions??[]);if(questions.length){const {error:questionError}=await result.db.from("rsvp_questions").insert(questions.map((q,index)=>({event_id:eventId,key:q.key,label:q.label,kind:q.kind,required:q.required,config:{options:q.options},position:index})));if(questionError)throw questionError;}
   return NextResponse.json({ok:true});
 }catch(error){console.error("save event draft",error);return NextResponse.json({error:"No pudimos guardar los cambios."},{status:500})}}
