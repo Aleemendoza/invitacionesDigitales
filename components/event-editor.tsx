@@ -106,7 +106,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
     setPaying(true);
     setNotice("");
     try {
-      const response = await fetch(`/api/events/${eventId}/checkout`, { method: "POST", headers: { authorization: `Bearer ${await token()}` } });
+      const response = await fetch(`/api/events/${eventId}/checkout`, { method: "POST", headers: { "content-type":"application/json", authorization: `Bearer ${await token()}` }, body: JSON.stringify({ plan: draft?.plan }) });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error ?? "No pudimos iniciar el pago.");
       window.location.assign(body.checkoutUrl);
