@@ -10,9 +10,10 @@ async function context(request: NextRequest, params: Promise<{ eventId: string }
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   const result = await context(request, params); if ("error" in result) return result.error;
-  const { data, error } = await result.db.from("guest_groups").select(fields).eq("event_id", result.event.id).order("display_name");
+  const { data, error } = await result.db.from("guest_groups").select(`${fields},guest_members(id,name,attending,guest_member_food_preferences(food_preference))`).eq("event_id", result.event.id).order("display_name");
   if (error) return NextResponse.json({ error: "No pudimos cargar los invitados." }, { status: 500 });
-  return NextResponse.json({ guests: data ?? [], paymentStatus: result.event.payment_status, eventSlug: result.event.slug, eventTitle: result.event.title });
+  const guests = (data ?? []).map((guest: any) => ({ ...guest, members: (guest.guest_members ?? []).map((member: any) => ({ id: member.id, name: member.name, attending: member.attending, foodPreference: member.guest_member_food_preferences?.[0]?.food_preference ?? null })) }));
+  return NextResponse.json({ guests, paymentStatus: result.event.payment_status, eventSlug: result.event.slug, eventTitle: result.event.title });
 }
 export async function POST(request: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   try { const result = await context(request, params); if ("error" in result) return result.error; const body = await request.json() as { name?: unknown; seats?: unknown }; if (!validName(body.name)) return NextResponse.json({ error: "Ingresá un nombre o grupo de entre 2 y 120 caracteres." }, { status: 400 }); if (!validSeats(body.seats)) return NextResponse.json({ error: `Los cupos deben estar entre 1 y ${MAX_SEATS}.` }, { status: 400 }); const name = body.name.trim(); const { data, error } = await result.db.from("guest_groups").insert({ event_id: result.event.id, name, display_name: name, lookup_name_normalized: name.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase(), seats: body.seats }).select(fields).single(); if (error) throw error; const { error: membersError } = await result.db.from("guest_members").insert(Array.from({ length: body.seats }, (_, index) => ({ guest_group_id: data.id, name: `Invitado ${index + 1}` }))); if (membersError) { await result.db.from("guest_groups").delete().eq("id", data.id); throw membersError; } return NextResponse.json({ guest: data }, { status: 201 }); }
