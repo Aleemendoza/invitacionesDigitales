@@ -1,13 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { Icon } from "@/components/icons";
 import type { GiftSectionConfig } from "@/lib/event-sections";
 import { GIFT_MESSAGE } from "@/lib/invitation-copy";
 
 type GiftLoadState = "loading" | "ready" | "error";
 
-export function GiftSection({ slug, fallback, theme = "ivory" }: { slug: string; fallback: GiftSectionConfig; theme?: string }) {
+export function GiftSection({ slug, fallback, theme = "ivory", photoUrl }: { slug: string; fallback: GiftSectionConfig; theme?: string; photoUrl?: string }) {
   const [config, setConfig] = useState<GiftSectionConfig>();
   const [state, setState] = useState<GiftLoadState>("loading");
   const [open, setOpen] = useState(false);
@@ -33,12 +33,13 @@ export function GiftSection({ slug, fallback, theme = "ivory" }: { slug: string;
   const isTransfer = preview.type === "bank_transfer";
   const account = config?.accounts?.[0];
   const canOpen = isTransfer && state === "ready" && Boolean(account?.accountAlias);
-  const body = <><p className="giftLabel"><Icon name="gift" size={20} /><span>Regalos</span></p><p className="giftMessage">{GIFT_MESSAGE}</p></>;
+  const style = surfaceStyle(preview.visual, photoUrl);
+  const body = <><p className="giftLabel"><Icon name="gift" size={20} /><span>Regalos</span></p><h2>{preview.title || "Un detalle para recordar"}</h2><p className="giftMessage">{preview.message || GIFT_MESSAGE}</p></>;
 
-  if (preview.type === "cash_message") return <section className={`giftSection premiumGift gift-${theme}`}>{body}</section>;
-  if (!isTransfer) return <section className={`giftSection premiumGift gift-${theme}`}>{body}{preview.externalUrl && <a className="giftCta" href={preview.externalUrl} target="_blank" rel="noreferrer">{preview.externalLabel ?? "Ver opciones"}<Icon name="arrow" size={15} /></a>}</section>;
+  if (preview.type === "cash_message") return <section className={`giftSection premiumGift gift-${theme} sectionSurface`} style={style}>{body}</section>;
+  if (!isTransfer) return <section className={`giftSection premiumGift gift-${theme} sectionSurface`} style={style}>{body}{preview.externalUrl && <a className="giftCta" href={preview.externalUrl} target="_blank" rel="noreferrer">{preview.externalLabel ?? "Ver opciones"}<Icon name="arrow" size={15} /></a>}</section>;
 
-  return <section id="regalos" className={`giftSection premiumGift gift-${theme}`}>
+  return <section id="regalos" className={`giftSection premiumGift gift-${theme} sectionSurface`} style={style}>
     {body}
     <button ref={trigger} className="giftCta" disabled={!canOpen} onClick={() => setOpen(true)}>
       <Icon name="gift" size={16} />{state === "loading" ? "Preparando datos" : canOpen ? "Ver datos del regalo" : "Datos no disponibles"}
@@ -46,6 +47,16 @@ export function GiftSection({ slug, fallback, theme = "ivory" }: { slug: string;
     {state === "error" && <p className="giftStatus">No pudimos obtener los datos del regalo. Probá de nuevo más tarde.</p>}
     {open && account && <GiftDialog account={account} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}
   </section>;
+}
+
+function surfaceStyle(visual?: GiftSectionConfig["visual"], resolvedPhotoUrl?: string) {
+  return {
+    "--section-custom-bg": visual?.backgroundColor || "transparent",
+    "--section-custom-fg": visual?.textColor || "currentColor",
+    "--section-custom-accent": visual?.accentColor || "var(--event-accent)",
+    "--section-custom-photo": (resolvedPhotoUrl || visual?.photoUrl) ? `url("${resolvedPhotoUrl || visual?.photoUrl}")` : "none",
+    "--section-photo-overlay": String((visual?.photoOverlay ?? 55) / 100),
+  } as CSSProperties;
 }
 
 function GiftDialog({ account, onClose }: { account: GiftSectionConfig["accounts"][number]; onClose: () => void }) {

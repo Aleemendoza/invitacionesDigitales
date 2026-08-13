@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import "./event-editor-section-controls.css";
 import { Header } from "@/components/celebra";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
 import { defaultAgenda, defaultFeatures, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
-import type { GiftSectionConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
+import type { GiftSectionConfig, SectionVisualConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
 import { normalizeTheme, templateTheme } from "@/lib/event-theme";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
@@ -44,9 +45,10 @@ function toDraft(event: any): EventDraftInput {
     musicUrl: event.content.musicUrl ?? "",
     theme: normalizeTheme(event.content.theme, templateTheme(template.theme)),
     rsvp: event.content.rsvp ?? { enabled: event.rsvp_enabled ?? true, deadline: event.rsvp_deadline?.slice(0, 16) ?? "", accessMode: event.guest_access_mode ?? "name_lookup", questions: [] },
+    sectionStyles: event.content.sectionStyles ?? {},
     sections: {
-      gifts: { ...blankGift, ...(storedSections.gifts as Partial<GiftSectionConfig> | undefined), message: GIFT_MESSAGE, title: "Regalos" },
-      socialPhotos: { ...blankSocial, ...(storedSections.social_photos as Partial<SocialPhotoSectionConfig> | undefined), description: SOCIAL_PHOTOS_MESSAGE, title: "Fotos sociales" },
+      gifts: { ...blankGift, ...(storedSections.gifts as Partial<GiftSectionConfig> | undefined) },
+      socialPhotos: { ...blankSocial, ...(storedSections.social_photos as Partial<SocialPhotoSectionConfig> | undefined) },
     },
   };
 }
@@ -59,6 +61,11 @@ function DeadlineFields({ value, onChange }: { value?: string; onChange: (value:
     <label>Fecha límite<input type="date" value={date} onChange={(item) => updateDate(item.currentTarget.value)} /></label>
     <label>Hora límite<input type="time" value={time} onChange={(item) => updateTime(item.currentTarget.value)} /></label>
   </div>;
+}
+
+function SectionVisualControls({ label, value, photos, onChange }: { label: string; value?: SectionVisualConfig; photos: { path: string; url: string }[]; onChange: (next: SectionVisualConfig) => void }) {
+  const visual = value ?? {};
+  return <fieldset className="sectionVisualControls"><legend>Diseño de {label}</legend><div className="fieldPair"><label>Fondo<input type="color" value={visual.backgroundColor ?? "#21191b"} onChange={(event) => onChange({ ...visual, backgroundColor: event.currentTarget.value })} /></label><label>Texto<input type="color" value={visual.textColor ?? "#ffffff"} onChange={(event) => onChange({ ...visual, textColor: event.currentTarget.value })} /></label><label>Acento<input type="color" value={visual.accentColor ?? "#e44f88"} onChange={(event) => onChange({ ...visual, accentColor: event.currentTarget.value })} /></label></div><label>Foto de fondo<select value={visual.photoPath ?? ""} onChange={(event) => { const photo = photos.find((item) => item.path === event.currentTarget.value); onChange({ ...visual, photoPath: photo?.path, photoUrl: photo?.url }); }}><option value="">Sin foto</option>{photos.map((photo, index) => <option key={photo.path} value={photo.path}>Imagen {index + 1}</option>)}</select></label>{visual.photoPath && <label>Oscurecer foto ({visual.photoOverlay ?? 55}%)<input type="range" min="0" max="90" value={visual.photoOverlay ?? 55} onChange={(event) => onChange({ ...visual, photoOverlay: Number(event.currentTarget.value) })} /></label>}<p className="editorHint">Usá las imágenes que ya subiste para la invitación. Cada sección conserva sus colores y foto propios.</p></fieldset>;
 }
 
 export function EventEditor({ eventId }: { eventId: string }) {
@@ -150,12 +157,13 @@ export function EventEditor({ eventId }: { eventId: string }) {
   const rsvp = draft.rsvp!;
   const template = templates.find((item) => item.slug === draft.templateSlug) ?? templates[0];
   const photos = event.event_media?.map((item: any) => item.url ?? "").filter(Boolean) ?? [];
+  const photoOptions = event.event_media?.filter((item: any) => item.storage_path && item.url).map((item: any) => ({ path: item.storage_path, url: item.url })) ?? [];
   const preview = {
     title: draft.title,
     event_type: draft.eventType,
     starts_at: draft.date && draft.time ? new Date(`${draft.date}T${draft.time}:00-03:00`).toISOString() : null,
     template_slug: draft.templateSlug,
-    content: { venue: draft.venue, venueAddress: draft.venueAddress, mapUrl: draft.mapUrl, closingMessage: draft.closingMessage, wizard_step: 7, features: draft.features, agenda: draft.agenda, message: draft.message, dressCode: draft.dressCode, musicUrl: draft.musicUrl, theme: draft.theme, rsvp },
+    content: { venue: draft.venue, venueAddress: draft.venueAddress, mapUrl: draft.mapUrl, closingMessage: draft.closingMessage, wizard_step: 7, features: draft.features, agenda: draft.agenda, message: draft.message, dressCode: draft.dressCode, musicUrl: draft.musicUrl, theme: draft.theme, rsvp, sectionStyles: draft.sectionStyles },
     sections: draft.sections,
     photos,
   };
@@ -183,7 +191,9 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label>Lugar<input value={draft.venue} onChange={(item) => update("venue", item.currentTarget.value)} /></label>
         <label>Dirección<input value={draft.venueAddress ?? ""} onChange={(item) => update("venueAddress", item.currentTarget.value)} /></label>
         <label>Enlace de Google Maps<input type="url" value={draft.mapUrl ?? ""} placeholder="https://maps.google.com/..." onChange={(item) => update("mapUrl", item.currentTarget.value)} /></label>
-        <label>Mensaje de cierre<input value={draft.closingMessage ?? ""} onChange={(item) => update("closingMessage", item.currentTarget.value)} /></label>
+        <div className="fixedCopy"><b>Mensaje final según el tipo de evento</b><p>La invitación mostrará una despedida fija adaptada al tipo de celebración.</p></div>
+
+        <SectionVisualControls label="mensaje final" value={draft.sectionStyles?.closing} photos={photoOptions} onChange={(closing) => update("sectionStyles", { ...draft.sectionStyles, closing })} />
 
         <h3>Agenda</h3>
         {draft.agenda.map((item, index) => <div className="editorAgenda" key={`${index}-${item.time}`}><input aria-label={`Hora del momento ${index + 1}`} type="time" value={item.time} onChange={(next) => updateAgenda(index, "time", next.currentTarget.value)} /><input aria-label={`Nombre del momento ${index + 1}`} value={item.title} onChange={(next) => updateAgenda(index, "title", next.currentTarget.value)} /></div>)}
@@ -193,13 +203,15 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label>Vestimenta<input placeholder="Ej.: Elegante sport" value={draft.dressCode ?? ""} onChange={(item) => update("dressCode", item.currentTarget.value)} /></label>
         {draft.plan!=="standard"&&<label>Música de YouTube<input type="url" placeholder="https://www.youtube.com/watch?v=..." value={draft.musicUrl ?? ""} onChange={(item) => update("musicUrl", item.currentTarget.value)} /></label>}
 
+        <SectionVisualControls label="confirmación" value={draft.sectionStyles?.rsvp} photos={photoOptions} onChange={(rsvpStyle) => update("sectionStyles", { ...draft.sectionStyles, rsvp: rsvpStyle })} />
+
         <h3>Regalos</h3>
         <label className="switch"><span>Activar regalos</span><input type="checkbox" checked={gift.enabled} onChange={(item) => updateGift({ ...gift, enabled: item.currentTarget.checked })} /></label>
-        {gift.enabled && <><div className="fixedCopy"><b>Texto fijo de la invitación</b><p>{GIFT_MESSAGE}</p></div><label>Titular<input value={account.accountHolderFullName} onChange={(item) => updateGift({ ...gift, accounts: [{ ...account, accountHolderFullName: item.currentTarget.value }] })} /></label><label>Alias<input value={account.accountAlias} onChange={(item) => updateGift({ ...gift, accounts: [{ ...account, accountAlias: item.currentTarget.value }] })} /></label><label>CBU/CVU<input inputMode="numeric" value={account.cbuOrCvu ?? ""} onChange={(item) => updateGift({ ...gift, accounts: [{ ...account, cbuOrCvu: item.currentTarget.value }] })} /></label></>}
+        {gift.enabled && <><label>Título<input value={gift.title} onChange={(item) => updateGift({ ...gift, title: item.currentTarget.value })} /></label><label>Mensaje<textarea value={gift.message} onChange={(item) => updateGift({ ...gift, message: item.currentTarget.value })} /></label><label>Titular<input value={account.accountHolderFullName} onChange={(item) => updateGift({ ...gift, accounts: [{ ...account, accountHolderFullName: item.currentTarget.value }] })} /></label><label>Alias<input value={account.accountAlias} onChange={(item) => updateGift({ ...gift, accounts: [{ ...account, accountAlias: item.currentTarget.value }] })} /></label><label>CBU/CVU<input inputMode="numeric" value={account.cbuOrCvu ?? ""} onChange={(item) => updateGift({ ...gift, accounts: [{ ...account, cbuOrCvu: item.currentTarget.value }] })} /></label><SectionVisualControls label="regalos" value={gift.visual} photos={photoOptions} onChange={(visual) => updateGift({ ...gift, visual })} /></>}
 
         <h3>Fotos sociales</h3>
         <label className="switch"><span>Activar bloque social</span><input type="checkbox" checked={social.enabled} onChange={(item) => updateSocial({ ...social, enabled: item.currentTarget.checked })} /></label>
-        {social.enabled && <><div className="fixedCopy"><b>Texto fijo de la invitación</b><p>{SOCIAL_PHOTOS_MESSAGE}</p></div><label>Usuario o hashtag<input placeholder="@usuario o #hashtag" value={social.socialValue} onChange={(item) => updateSocial({ ...social, socialValue: item.currentTarget.value })} /></label></>}
+        {social.enabled && <><label>Título<input value={social.title} onChange={(item) => updateSocial({ ...social, title: item.currentTarget.value })} /></label><label>Mensaje<textarea value={social.description} onChange={(item) => updateSocial({ ...social, description: item.currentTarget.value })} /></label><label>Usuario o hashtag<input placeholder="@usuario o #hashtag" value={social.socialValue} onChange={(item) => updateSocial({ ...social, socialValue: item.currentTarget.value })} /></label><label>Texto del botón<input value={social.ctaLabel ?? ""} placeholder="Ver Instagram" onChange={(item) => updateSocial({ ...social, ctaLabel: item.currentTarget.value })} /></label><SectionVisualControls label="Instagram" value={social.visual} photos={photoOptions} onChange={(visual) => updateSocial({ ...social, visual })} /></>}
 
         <h3>{draft.plan==="standard"?"Confirmaciones por WhatsApp":"RSVP"}</h3>
         {draft.plan==="standard"?<label>WhatsApp del organizador<input inputMode="tel" placeholder="549..." value={draft.organizerWhatsapp??""} onChange={item=>update("organizerWhatsapp",item.currentTarget.value)}/></label>:<>

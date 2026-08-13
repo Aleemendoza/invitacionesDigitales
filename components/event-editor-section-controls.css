@@ -1,0 +1,20 @@
+.editorForm .sectionVisualControls {
+  display: grid;
+  gap: 10px;
+  margin: 20px 0;
+  padding: 16px;
+  border: 1px solid #e3d9d3;
+  border-radius: 12px;
+  background: #fbf8f5;
+}
+
+.editorForm .sectionVisualControls legend {
+  padding: 0 6px;
+  color: #67223b;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.editorForm .sectionVisualControls label { margin: 0; }
+.editorForm .sectionVisualControls input[type="color"] { min-height: 40px; padding: 4px; }
+.editorForm .sectionVisualControls input[type="range"] { accent-color: var(--pink); padding: 0; }

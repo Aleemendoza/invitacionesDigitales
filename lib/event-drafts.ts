@@ -1,4 +1,5 @@
 import type { EventSections, RsvpConfig } from "./event-types";
+import type { InvitationSectionStyles } from "./event-sections";
 import type { EventTheme } from "./event-theme";
 
 export type Plan = "standard" | "premium" | "premium_plus";
@@ -18,7 +19,7 @@ export const isPlan = (value: unknown): value is Plan => typeof value === "strin
 export const planRank = (plan: Plan) => plans.indexOf(plan);
 export const defaultFeatures = (plan: Plan): PlanFeature[] => [...planDetails[plan].features].filter((feature) => !["whatsapp-rsvp", "general-rsvp", "custom-rsvp", "csv-export", "guest-list", "individual-links", "qr-album", "trivia"].includes(feature));
 
-export type EventDraftInput = { title:string; eventType:string; date:string; time:string; venue:string; venueAddress?:string; mapUrl?:string; closingMessage?:string; templateSlug:string; plan:Plan; step:number; agenda:AgendaItem[]; features:PlanFeature[]; message?:string; dressCode?:string; musicUrl?:string; organizerWhatsapp?:string; theme?:EventTheme; rsvp?:RsvpConfig; sections?:EventSections };
+export type EventDraftInput = { title:string; eventType:string; date:string; time:string; venue:string; venueAddress?:string; mapUrl?:string; closingMessage?:string; templateSlug:string; plan:Plan; step:number; agenda:AgendaItem[]; features:PlanFeature[]; message?:string; dressCode?:string; musicUrl?:string; organizerWhatsapp?:string; theme?:EventTheme; rsvp?:RsvpConfig; sections?:EventSections; sectionStyles?:InvitationSectionStyles };
 export const defaultAgenda=():AgendaItem[]=>[{time:"19:30",title:"Ceremonia"},{time:"21:00",title:"Recepción"},{time:"00:00",title:"Fiesta"}];
 export function slugify(value:string){return value.normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,56)}
 export function nextAvailableSlug(base:string,existing:Iterable<string>){const occupied=new Set(existing);if(!occupied.has(base))return base;for(let suffix=2;suffix<10_000;suffix+=1){const candidate=`${base}-${suffix}`;if(!occupied.has(candidate))return candidate}throw new Error("No se pudo asignar una URL disponible.")}

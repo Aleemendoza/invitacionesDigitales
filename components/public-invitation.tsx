@@ -2,6 +2,8 @@
 import "./public-event.css";
 import "./public-invitation-premium.css";
 import "./agenda-timeline.css";
+import "./invitation-section-surfaces.css";
+import "./invitation-hero.css";
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { GiftSection } from "@/components/gift-section";
@@ -14,6 +16,8 @@ import type { StoredEvent } from "@/lib/event-types";
 import { templates, type InvitationSection, type SectionVisual } from "@/lib/templates";
 import { getYouTubeVideoId, youtubeEmbedUrl } from "@/lib/youtube";
 import { hasPlanFeature, normalizeWhatsapp, type Plan } from "@/lib/event-drafts";
+import { closingMessageForEventType } from "@/lib/event-closing";
+import type { SectionVisualConfig } from "@/lib/event-sections";
 type Section = { kind: string; content: Record<string, unknown> };
 const format = (value: number) => String(value).padStart(2, "0");
 export function PublicInvitation({ event }: { event: StoredEvent & { event_sections?: Section[] } }) {
@@ -29,9 +33,11 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
   const musicId = event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
   const mapQuery = [event.content.venue, event.content.venueAddress].filter(Boolean).join(", "); const mapLink = event.content.mapUrl || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : "");
   const sectionPhoto = event.event_media?.find((item) => item.position > 0)?.url;
+  const mediaUrlByPath = new Map((event.event_media ?? []).map((item) => [item.storage_path, item.url]));
   const panel = (section: InvitationSection) => panelProps(template.sections[section], sectionPhoto, section);
+  const rsvpPanel = panel("rsvp");
   return <main className={`publicInvite premiumInvite ${template.theme}`} style={style}>
-    <section className="piHero"><div className="piHeroTools"><button aria-label="Abrir menú"><Icon name="menu" size={19} /></button>{musicId && <button className={musicPlaying ? "isPlaying" : ""} aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={() => setMusicPlaying((current) => !current)}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>}</div><div className="piHeroCopy"><p>{event.event_type}</p><h1>{event.title}</h1></div></section>
+    <section className="piHero"><div className="piHeroTools"><button aria-label="Abrir menú"><Icon name="menu" size={19} /></button>{musicId && <button className={musicPlaying ? "isPlaying" : ""} aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={() => setMusicPlaying((current) => !current)}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>}</div><div className="piHeroCopy"><h1>{event.title}</h1></div></section>
     {musicPlaying && musicId && <iframe className="publicMusicPlayer" title="Música del evento" src={youtubeEmbedUrl(musicId)} allow="autoplay; encrypted-media" />}
     <section className="piCountdownCard"><p>Falta muy poco</p><div>{values.map((value, index) => <span key={index}><b>{format(value)}</b><small>{["Días", "Horas", "Minutos", "Segundos"][index]}</small></span>)}</div></section>
     <section className="piDetails" {...panel("details")}><Info icon="calendar" title="¿Cuándo?"><p>{date}<br />{event.starts_at && new Intl.DateTimeFormat("es-AR", { hour: "2-digit", minute: "2-digit" }).format(new Date(event.starts_at))} HS</p></Info><Info icon="pin" title="¿Dónde?"><p>{event.content.venue}<br />{event.content.venueAddress}</p>{mapLink && <a href={mapLink} target="_blank" rel="noreferrer">Ver en mapa</a>}</Info></section>
@@ -40,13 +46,17 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
     {event.content.agenda.length > 0 && <section className="piAgenda" {...panel("agenda")}><header><p className="eyebrow">La noche</p><span>Así se vive cada momento</span></header><ol>{event.content.agenda.map((item, index) => <li key={item.time + "-" + item.title}><AgendaIcon index={index} /><div className="piAgendaDot" /><article><time>{item.time}</time><h2>{item.title}</h2></article></li>)}</ol></section>}
     {event.event_media && event.event_media.length > 1 && <section className="piGallery" {...panel("gallery")}><SectionHeader icon="gallery" label="Galería" /><div>{event.event_media.slice(1).map((item, index) => <img key={item.storage_path} src={item.url} alt={`Foto ${index + 1} del evento`} />)}</div></section>}
     {event.content.dressCode && <section className="piDress" {...panel("dress")}><Icon name="dress" className="piDressIcon piDressIconLeft" /><div><small>Vestimenta</small><h2>{event.content.dressCode}</h2><span>Elegí tu mejor look para la ocasión</span></div><Icon name="suit" className="piDressIcon piDressIconRight" /></section>}
-    {gifts && <div {...panel("gifts")}><GiftSection slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} /></div>}{social && <div {...panel("social")}><SocialPhotosSection config={social.content as SocialPhotoSectionConfig} theme={template.theme} /></div>}
-    <section className="piRsvp" {...panel("rsvp")}><div className="piRsvpCopy"><Icon name="mail" /><div><p className="eyebrow">Asistencia</p><h2>Confirmá tu asistencia</h2><p>{event.content.rsvp?.deadline ? `Confirmá antes del ${new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.content.rsvp.deadline))}` : "Tu respuesta es muy importante"}</p></div></div>{hasPlanFeature(event.plan as Plan,"general-rsvp")&&event.rsvp_enabled?<Link href={`/e/${event.slug}/rsvp`}>Confirmar</Link>:<a href={`https://wa.me/${normalizeWhatsapp(event.content.organizerWhatsapp) || "5493886145245"}?text=${encodeURIComponent(`Hola, confirmo mi asistencia a ${event.title}.`)}`} target="_blank" rel="noreferrer">Confirmar por WhatsApp</a>}</section>
-    <footer>{event.content.closingMessage || "Gracias por ser parte de este momento inolvidable"}</footer>
+    {gifts && <div {...panel("gifts")}><GiftSection slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((gifts.content as GiftSectionConfig).visual?.photoPath ?? "")} /></div>}{social && <div {...panel("social")}><SocialPhotosSection config={social.content as SocialPhotoSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((social.content as SocialPhotoSectionConfig).visual?.photoPath ?? "")} /></div>}
+    <section className="piRsvp sectionSurface" {...rsvpPanel} style={{ ...rsvpPanel.style, ...surfaceStyle(event.content.sectionStyles?.rsvp, mediaUrlByPath) }}><div className="piRsvpCopy"><Icon name="mail" /><div><p className="eyebrow">Asistencia</p><h2>¿Nos acompañás?</h2><p>{event.content.rsvp?.deadline ? `Confirmá antes del ${new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.content.rsvp.deadline))}` : "Tu respuesta es muy importante"}</p></div></div>{hasPlanFeature(event.plan as Plan,"general-rsvp")&&event.rsvp_enabled?<Link href={`/e/${event.slug}/rsvp`}>Confirmar asistencia</Link>:<a href={`https://wa.me/${normalizeWhatsapp(event.content.organizerWhatsapp) || "5493886145245"}?text=${encodeURIComponent(`Hola, confirmo mi asistencia a ${event.title}.`)}`} target="_blank" rel="noreferrer">Confirmar por WhatsApp</a>}</section>
+    <footer className="piClosing sectionSurface" style={surfaceStyle(event.content.sectionStyles?.closing, mediaUrlByPath)}><h2>{event.title}</h2><p>{closingMessageForEventType(event.event_type)}</p></footer>
   </main>;
 }
 function panelProps(visual: SectionVisual, photo: string | undefined, section: InvitationSection) {
   return { "data-section-tone": visual.tone, "data-section-card": visual.card, "data-section": section, style: { "--section-gradient": visual.gradient, "--section-art": `url(${visual.decorativeImage})`, "--section-photo": visual.photoEnabled && photo ? `url(${photo})` : "none" } as CSSProperties };
+}
+function surfaceStyle(visual?: SectionVisualConfig, mediaUrlByPath?: Map<string, string | undefined>) {
+  const photoUrl = (visual?.photoPath && mediaUrlByPath?.get(visual.photoPath)) || visual?.photoUrl;
+  return { "--section-custom-bg": visual?.backgroundColor || "transparent", "--section-custom-fg": visual?.textColor || "currentColor", "--section-custom-accent": visual?.accentColor || "var(--event-accent)", "--section-custom-photo": photoUrl ? `url("${photoUrl}")` : "none", "--section-photo-overlay": String((visual?.photoOverlay ?? 55) / 100) } as CSSProperties;
 }
 function SectionHeader({ icon, label }: { icon: "gallery"; label: string }) { return <header className="piSectionHeader"><Icon name={icon} /><p>{label}</p></header>; }
 function Info({ icon, title, children }: { icon: "calendar" | "pin"; title: string; children: React.ReactNode }) { return <article><Icon name={icon} /><h2>{title}</h2>{children}</article>; }

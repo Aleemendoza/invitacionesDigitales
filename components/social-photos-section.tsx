@@ -1,11 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type CSSProperties } from "react";
 import { Icon } from "@/components/icons";
 import { normalizeInstagramHandle, type SocialPhotoSectionConfig } from "@/lib/event-sections";
 import { SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 
-export function SocialPhotosSection({ config, theme = "ivory" }: { config: SocialPhotoSectionConfig; theme?: string }) {
+export function SocialPhotosSection({ config, theme = "ivory", photoUrl }: { config: SocialPhotoSectionConfig; theme?: string; photoUrl?: string }) {
   const [copied, setCopied] = useState(false);
   if (!config.enabled || config.socialType === "collaborative_album" || !config.socialValue.trim()) return null;
 
@@ -19,10 +19,17 @@ export function SocialPhotosSection({ config, theme = "ivory" }: { config: Socia
     window.setTimeout(() => setCopied(false), 1500);
   };
 
-  return <section className={`socialSection premiumSocial social-${theme}`}>
+  const style = {
+    "--section-custom-bg": config.visual?.backgroundColor || "transparent",
+    "--section-custom-fg": config.visual?.textColor || "currentColor",
+    "--section-custom-accent": config.visual?.accentColor || "var(--event-accent)",
+    "--section-custom-photo": (photoUrl || config.visual?.photoUrl) ? `url("${photoUrl || config.visual?.photoUrl}")` : "none",
+    "--section-photo-overlay": String((config.visual?.photoOverlay ?? 55) / 100),
+  } as CSSProperties;
+  return <section className={`socialSection premiumSocial social-${theme} sectionSurface`} style={style}>
     <div className="premiumSocialCopy">
       <Icon name="camera" />
-      <div><p className="eyebrow">Fotos sociales</p><h2>{SOCIAL_PHOTOS_MESSAGE}</h2></div>
+      <div><p className="eyebrow">{config.title || "Fotos sociales"}</p><h2>{config.description || SOCIAL_PHOTOS_MESSAGE}</h2></div>
     </div>
     <div className="premiumSocialActions">
       <strong>{value}</strong>
