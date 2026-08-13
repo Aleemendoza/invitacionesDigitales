@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { createPortal } from "react-dom";
 import { Icon } from "@/components/icons";
 import type { GiftSectionConfig } from "@/lib/event-sections";
 import { GIFT_MESSAGE } from "@/lib/invitation-copy";
@@ -70,7 +71,7 @@ function GiftDialog({ account, onClose }: { account: GiftSectionConfig["accounts
   }, [onClose]);
   const copy = async (value: string, label: string) => { await navigator.clipboard.writeText(value); setCopied(label); window.setTimeout(() => setCopied(""), 1500); };
 
-  return <div className="giftBackdrop" onMouseDown={onClose}><section className="giftDialog" role="dialog" aria-modal="true" aria-labelledby="gift-title" onMouseDown={(event) => event.stopPropagation()}>
+  return createPortal(<div className="giftBackdrop" onMouseDown={onClose}><section className="giftDialog" role="dialog" aria-modal="true" aria-labelledby="gift-title" onMouseDown={(event) => event.stopPropagation()}>
     <button ref={close} className="dialogClose" onClick={onClose} aria-label="Cerrar"><Icon name="close" /></button>
     <p className="eyebrow">Un detalle más</p><h2 id="gift-title">Datos para regalo</h2>
     <Field label="Titular" value={account.accountHolderFullName} />
@@ -79,7 +80,7 @@ function GiftDialog({ account, onClose }: { account: GiftSectionConfig["accounts
     {account.cbuOrCvu && <Field label="CBU / CVU" value={account.cbuOrCvu} copy={() => copy(account.cbuOrCvu!, "CBU")} />}
     <p className="recipientCheck"><Icon name="check" size={17} /> Verificá el titular antes de transferir.</p>
     <p className="copyFeedback">{copied && `${copied} copiado`}</p>
-  </section></div>;
+  </section></div>, document.body);
 }
 
 function Field({ label, value, copy }: { label: string; value: string; copy?: () => void }) {
