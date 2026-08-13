@@ -1,6 +1,6 @@
 "use client";
 
-import { ChangeEvent, useEffect, useState } from "react";
+import { ChangeEvent, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
@@ -10,6 +10,7 @@ import { defaultTheme, normalizeTheme, templateTheme, type EventTheme } from "@/
 import { clearPendingEventDraft, readPendingEventDraft, savePendingEventDraft } from "@/lib/pending-event-draft";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { templates, type Template } from "@/lib/templates";
+import { prepareImageUpload } from "@/lib/image-upload";
 
 type Draft = EventDraftInput & { theme: EventTheme };
 type Photo = { file: File; preview: string };
@@ -32,6 +33,7 @@ export function CreateEventWizard() {
   const [saving, setSaving] = useState(false);
   const [ready, setReady] = useState(false);
   const [planChosen, setPlanChosen] = useState(false);
+  const submittingRef = useRef(false);
   const resume = params.get("resume") === "1";
 
   useEffect(() => {
@@ -63,22 +65,30 @@ export function CreateEventWizard() {
   const valid = () => draft.step === 0 ? planChosen : draft.step === 1 ? Boolean(draft.eventType) : draft.step === 2 ? draft.title.trim().length > 1 : draft.step === 3 ? Boolean(draft.date && draft.time) : draft.step === 4 ? draft.venue.trim().length > 1 : draft.step === 5 ? draft.agenda.length > 0 && draft.agenda.every((item) => item.time && item.title.trim()) : draft.step === 6 ? Boolean(draft.templateSlug) : draft.step === 7 ? photos.length > 0 : true;
   const next = () => { if (!valid()) return setNotice("Completá este paso para continuar."); setNotice(""); update("step", Math.min(8, draft.step + 1)); };
   const submit = async () => {
+    if (submittingRef.current || saving) return;
     if (!valid()) return setNotice("Completá este paso para crear el evento.");
+    submittingRef.current = true;
     const session = (await getBrowserSupabase()?.auth.getSession())?.data.session;
-    if (!session) { await savePendingEventDraft({ draft, photos: photos.map((item) => item.file) }); router.push(`/login?next=${encodeURIComponent("/crear?resume=1")}`); return; }
+    if (!session) { try { await savePendingEventDraft({ draft, photos: photos.map((item) => item.file) }); router.push(`/login?next=${encodeURIComponent("/crear?resume=1")}`); } finally { submittingRef.current = false; } return; }
     setSaving(true);
+    let createdEventId: string | undefined;
     try {
       const response = await fetch("/api/events/drafts", { method: "POST", headers: { "content-type": "application/json", authorization: `Bearer ${session.access_token}` }, body: JSON.stringify(draft) });
       const body = await response.json();
       if (!response.ok) throw new Error(body.error);
+      createdEventId = body.event.id;
       if (photos.length) {
-        const form = new FormData(); photos.forEach((photo) => form.append("photos", photo.file));
-        const media = await fetch(`/api/events/${body.event.id}/media`, { method: "POST", headers: { authorization: `Bearer ${session.access_token}` }, body: form });
-        if (!media.ok) throw new Error("El evento se creó, pero falló la carga de fotos.");
+        for (const photo of photos) {
+          const form = new FormData(); form.append("photos", photo.file);
+          const media = await fetch(`/api/events/${body.event.id}/media`, { method: "POST", headers: { authorization: `Bearer ${session.access_token}` }, body: form });
+          if (!media.ok) throw new Error("El evento se creó, pero falló la carga de una foto.");
+        }
       }
       await clearPendingEventDraft(); router.replace(`/eventos/${body.event.id}/editar`);
-    } catch (error) { setNotice(error instanceof Error ? error.message : "No pudimos crear el evento."); }
-    finally { setSaving(false); }
+    } catch (error) {
+      if (createdEventId) { await clearPendingEventDraft(); router.replace(`/eventos/${createdEventId}/editar?media=error`); return; }
+      setNotice(error instanceof Error ? error.message : "No pudimos crear el evento.");
+    } finally { setSaving(false); submittingRef.current = false; }
   };
 
   if (!ready) return null;
@@ -102,7 +112,8 @@ function Fields({ draft, photos, update, choosePlan, chooseType, chooseTemplate,
 }
 
 function PhotoPicker({ photos, setPhotos, plan }: { photos: Photo[]; setPhotos: (value: Photo[]) => void; plan: Plan }) {
+  const [error, setError] = useState("");
   const maxPhotos = planDetails[plan].galleryLimit ?? 10;
-  const choose = (event: ChangeEvent<HTMLInputElement>) => { const added = Array.from(event.currentTarget.files ?? []).filter((file) => file.type.startsWith("image/")).slice(0, maxPhotos - photos.length).map((file) => ({ file, preview: URL.createObjectURL(file) })); setPhotos([...photos, ...added]); event.currentTarget.value = ""; };
-  return <div className="photoUploader"><p>{plan === "standard" ? "Subí una foto para la portada." : `Podés subir hasta ${maxPhotos} fotos.`}</p>{photos.length < maxPhotos && <label className="upload">{photos.length ? "Agregar fotos" : "Elegir fotos"}<input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={choose} /></label>}<div className="photoThumbs">{photos.map((photo, index) => <figure key={photo.preview}><img src={photo.preview} alt={`Foto ${index + 1}`} /><button onClick={() => setPhotos(photos.filter((item) => item !== photo))}>×</button></figure>)}</div></div>;
+  const choose = async (event: ChangeEvent<HTMLInputElement>) => { try { setError(""); const files = Array.from(event.currentTarget.files ?? []).filter((file) => file.type.startsWith("image/")).slice(0, maxPhotos - photos.length); const prepared = await Promise.all(files.map(prepareImageUpload)); const added = prepared.map((file) => ({ file, preview: URL.createObjectURL(file) })); setPhotos([...photos, ...added]); } catch (reason) { setError(reason instanceof Error ? reason.message : "No pudimos preparar la imagen."); } finally { event.currentTarget.value = ""; } };
+  return <div className="photoUploader"><p>{plan === "standard" ? "Subí una foto para la portada." : `Podés subir hasta ${maxPhotos} fotos.`}</p>{photos.length < maxPhotos && <label className="upload">{photos.length ? "Agregar fotos" : "Elegir fotos"}<input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={choose} /></label>}{error && <p className="wizardNotice">{error}</p>}<div className="photoThumbs">{photos.map((photo, index) => <figure key={photo.preview}><img src={photo.preview} alt={`Foto ${index + 1}`} /><button onClick={() => setPhotos(photos.filter((item) => item !== photo))}>×</button></figure>)}</div></div>;
 }

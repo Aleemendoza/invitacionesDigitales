@@ -12,6 +12,7 @@ import { normalizeTheme, templateTheme } from "@/lib/event-theme";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { templates } from "@/lib/templates";
+import { prepareImageUpload } from "@/lib/image-upload";
 
 const blankGift: GiftSectionConfig = {
   enabled: false, title: "Regalos", message: GIFT_MESSAGE, type: "bank_transfer", protectedDetails: true,
@@ -139,14 +140,18 @@ export function EventEditor({ eventId }: { eventId: string }) {
     const access = await token();
     if (!access) return setNotice("Iniciá sesión para subir imágenes.");
     setUploading(true);
-    const form = new FormData();
-    selected.forEach((file) => form.append("photos", file));
-    const response = await fetch(`/api/events/${eventId}/media`, { method: "POST", headers: { authorization: `Bearer ${access}` }, body: form });
-    const body = await response.json();
-    setUploading(false);
-    if (!response.ok) return setNotice(body.error ?? "No pudimos subir las imágenes.");
-    setNotice(`${selected.length} imagen${selected.length === 1 ? " subida" : "es subidas"}.`);
-    void load();
+    try {
+      const prepared = await Promise.all(selected.map(prepareImageUpload));
+      for (const file of prepared) {
+        const form = new FormData(); form.append("photos", file);
+        const response = await fetch(`/api/events/${eventId}/media`, { method: "POST", headers: { authorization: `Bearer ${access}` }, body: form });
+        const body = await response.json();
+        if (!response.ok) throw new Error(body.error ?? "No pudimos subir las imágenes.");
+      }
+      setNotice(`${prepared.length} imagen${prepared.length === 1 ? " subida" : "es subidas"}.`);
+      void load();
+    } catch (reason) { setNotice(reason instanceof Error ? reason.message : "No pudimos subir las imágenes."); }
+    finally { setUploading(false); }
   };
 
   if (!event || !draft) return <main className="appPage"><p>{notice}</p></main>;

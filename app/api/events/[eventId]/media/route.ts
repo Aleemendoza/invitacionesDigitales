@@ -3,7 +3,7 @@ import { getAdminSupabase } from "@/lib/public-guest-server";
 import { planDetails, type Plan } from "@/lib/event-drafts";
 
 export const runtime = "nodejs";
-const MAX_BYTES = 8 * 1024 * 1024;
+const MAX_BYTES = 3_500_000;
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
   try {
