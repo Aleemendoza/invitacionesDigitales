@@ -1,2 +1,2 @@
-import { Catalog } from "@/components/celebra";
+import { Catalog } from "@/components/papeleta";
 export default function Page(){return <Catalog/>}

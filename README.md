@@ -1,4 +1,4 @@
-# Celebra
+# Papeleta
 
 Plataforma de invitaciones digitales con una URL pública canónica por evento: `https://dominio/e/{slug}`. Las personas ven la invitación sin registrarse e identifican su grupo sólo al confirmar RSVP.
 

@@ -3,7 +3,7 @@ import { cookies } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 
-export const GUEST_SESSION_COOKIE = "celebra_guest_session";
+export const GUEST_SESSION_COOKIE = "papeleta_guest_session";
 const SESSION_DAYS = 30;
 const tokenSecret = () => process.env.GUEST_ACCESS_TOKEN_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
 
@@ -35,7 +35,7 @@ export function sha256(value: string) { return createHash("sha256").update(value
 export function hashAccessCode(value: string) {
   const secret = tokenSecret();
   if (!secret) throw new Error("GUEST_ACCESS_TOKEN_SECRET is required.");
-  return createHmac("sha256", secret).update(`celebra:guest-pin:v1:${value}`).digest("hex");
+  return createHmac("sha256", secret).update(`papeleta:guest-pin:v1:${value}`).digest("hex");
 }
 export function secureToken() { return randomBytes(32).toString("base64url"); }
 
