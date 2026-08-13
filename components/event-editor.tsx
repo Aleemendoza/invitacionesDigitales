@@ -125,10 +125,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
 
   const requestUpgrade = async (targetPlan: Plan) => {
     if (!event || targetPlan === event.plan) return;
-    const currentTemplate = templates.find((template) => template.slug === draft?.templateSlug);
-    const compatibleTemplate = templates.find((template) => template.plan === targetPlan && template.category === currentTemplate?.category);
-    if (!compatibleTemplate) { setNotice(`No hay una plantilla ${planDetails[targetPlan].name} para este tipo de evento.`); return; }
-    if (event.payment_status !== "approved") { update("plan", targetPlan); update("templateSlug", compatibleTemplate.slug); update("theme", templateTheme(compatibleTemplate.theme)); update("features", defaultFeatures(targetPlan)); return; }
+    if (event.payment_status !== "approved") { update("plan", targetPlan); update("features", defaultFeatures(targetPlan)); return; }
     const response = await fetch(`/api/events/${eventId}/upgrade`, { method:"POST", headers:{"content-type":"application/json",authorization:`Bearer ${await token()}`}, body:JSON.stringify({targetPlan}) });
     const body = await response.json(); if (!response.ok) return setNotice(body.error ?? "No pudimos solicitar la actualización.");
     const target=planDetails[targetPlan]; const current=planDetails[event.plan as Plan];

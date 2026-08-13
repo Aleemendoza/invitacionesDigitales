@@ -38,7 +38,7 @@ function Countdown({ startsAt, image, preview }: { startsAt: string | null; imag
 }
 
 export function EventInvitationPreview({ event, label = "Vista previa", plan, onCheckout = () => window.location.assign("/precios"), onEdit = () => window.scrollTo({ top: 0, behavior: "smooth" }) }: { event: InvitationPreviewData; label?: string; plan?: Plan; onCheckout?: () => void; onEdit?: () => void }) {
-  const template = templates.find((item) => item.slug === event.template_slug) ?? templates[0];
+  const template = templates.find((item) => item.slug === event.template_slug) ?? (plan ? templates.find((item) => item.plan === plan) : undefined) ?? templates[0];
   const photos = event.photos?.filter(Boolean) ?? [];
   const cover = photos[0] || template.coverImage;
   const theme = normalizeTheme(event.content.theme, templateTheme(template.theme));

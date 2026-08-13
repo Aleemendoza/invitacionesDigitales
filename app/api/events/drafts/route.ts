@@ -7,7 +7,7 @@ async function currentUser(request: NextRequest) { const token = request.headers
 export async function POST(request: NextRequest) { try {
   const user = await currentUser(request); if (!user) return NextResponse.json({ error: "Iniciá sesión para crear tu invitación." }, { status: 401 });
   const input = await request.json() as EventDraftInput; const validation = validateDraft(input); if (validation) return NextResponse.json({ error: validation }, { status: 400 });
-  if (!templates.some(item => item.slug === input.templateSlug && item.plan === input.plan) || !validatePlanFeatures(input.plan, input.features)) return NextResponse.json({ error: "La plantilla o las funciones elegidas no corresponden al plan." }, { status: 400 });
+  if (!templates.some(item => item.slug === input.templateSlug) || !validatePlanFeatures(input.plan, input.features)) return NextResponse.json({ error: "La plantilla o las funciones elegidas no corresponden al plan." }, { status: 400 });
   const db = getAdminSupabase(); await db.from("profiles").upsert({ id: user.id, full_name: user.user_metadata.full_name ?? user.email ?? "Organizador" });
   const base = slugify(input.title) || "mi-evento"; const [{ data: exact }, { data: related }] = await Promise.all([db.from("events").select("slug").eq("slug", base), db.from("events").select("slug").like("slug", `${base}-%`)]);
   const slug = nextAvailableSlug(base, [...(exact ?? []), ...(related ?? [])].map(event => event.slug));
