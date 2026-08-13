@@ -8,7 +8,7 @@ import type { EventContent, EventSections, StoredEvent } from "@/lib/event-types
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 import { templates, type InvitationSection, type SectionVisual } from "@/lib/templates";
 import { getYouTubeVideoId, youtubeEmbedUrl } from "@/lib/youtube";
-import { planDetails, type Plan } from "@/lib/event-drafts";
+import { hasPlanFeature, planDetails, type Plan } from "@/lib/event-drafts";
 import "./event-invitation-preview.css";
 
 export type InvitationPreviewData = Pick<StoredEvent, "title" | "event_type" | "starts_at" | "template_slug"> & {
@@ -77,7 +77,7 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
       {event.content.dressCode && <section {...panel("dress")}><p className="eyebrow">Vestimenta</p><strong>{event.content.dressCode}</strong></section>}
       {event.sections?.gifts?.enabled && <section {...panel("gifts")}><p className="eyebrow">Regalos</p><p>{GIFT_MESSAGE}</p><button type="button">Ver datos del regalo</button></section>}
       {social?.enabled && <section {...panel("social")}><p className="eyebrow">Fotos sociales</p><p>{SOCIAL_PHOTOS_MESSAGE}</p>{socialValue && <strong>{socialValue}</strong>}</section>}
-      {event.content.rsvp?.enabled !== false && <section {...panel("rsvp")}><p className="eyebrow">RSVP</p><h3>Confirmá tu asistencia</h3><button>Confirmar asistencia</button></section>}
+      {hasPlanFeature(plan ?? template.plan, "general-rsvp") && event.content.rsvp?.enabled !== false && <section {...panel("rsvp")}><p className="eyebrow">RSVP</p><h3>Confirmá tu asistencia</h3><button>Confirmar asistencia</button></section>}
       {preview && <section className="previewCheckout"><p className="eyebrow">¿Te gusta cómo quedó?</p><button onClick={onCheckout}>Publicar — ${price.toLocaleString("es-AR")} →</button><button className="previewEdit" onClick={onEdit}>← Editar invitación</button></section>}
     </div></div></div>
   </aside>;

@@ -6,7 +6,7 @@ import "./event-editor-section-controls.css";
 import { Header } from "@/components/papeleta";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
-import { defaultAgenda, defaultFeatures, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
+import { defaultAgenda, defaultFeatures, hasPlanFeature, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
 import type { GiftSectionConfig, SectionVisualConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
 import { normalizeTheme, templateTheme } from "@/lib/event-theme";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
@@ -125,7 +125,10 @@ export function EventEditor({ eventId }: { eventId: string }) {
 
   const requestUpgrade = async (targetPlan: Plan) => {
     if (!event || targetPlan === event.plan) return;
-    if (event.payment_status !== "approved") { update("plan", targetPlan); update("features", defaultFeatures(targetPlan)); return; }
+    const currentTemplate = templates.find((template) => template.slug === draft?.templateSlug);
+    const compatibleTemplate = templates.find((template) => template.plan === targetPlan && template.category === currentTemplate?.category);
+    if (!compatibleTemplate) { setNotice(`No hay una plantilla ${planDetails[targetPlan].name} para este tipo de evento.`); return; }
+    if (event.payment_status !== "approved") { update("plan", targetPlan); update("templateSlug", compatibleTemplate.slug); update("theme", templateTheme(compatibleTemplate.theme)); update("features", defaultFeatures(targetPlan)); return; }
     const response = await fetch(`/api/events/${eventId}/upgrade`, { method:"POST", headers:{"content-type":"application/json",authorization:`Bearer ${await token()}`}, body:JSON.stringify({targetPlan}) });
     const body = await response.json(); if (!response.ok) return setNotice(body.error ?? "No pudimos solicitar la actualización.");
     const target=planDetails[targetPlan]; const current=planDetails[event.plan as Plan];
@@ -201,7 +204,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
 
         <h3>Vestimenta y música</h3>
         <label>Vestimenta<input placeholder="Ej.: Elegante sport" value={draft.dressCode ?? ""} onChange={(item) => update("dressCode", item.currentTarget.value)} /></label>
-        {draft.plan!=="standard"&&<label>Música de YouTube<input type="url" placeholder="https://www.youtube.com/watch?v=..." value={draft.musicUrl ?? ""} onChange={(item) => update("musicUrl", item.currentTarget.value)} /></label>}
+        {hasPlanFeature(draft.plan, "music") && <label>Música de YouTube<input type="url" placeholder="https://www.youtube.com/watch?v=..." value={draft.musicUrl ?? ""} onChange={(item) => update("musicUrl", item.currentTarget.value)} /></label>}
 
         <SectionVisualControls label="confirmación" value={draft.sectionStyles?.rsvp} photos={photoOptions} onChange={(rsvpStyle) => update("sectionStyles", { ...draft.sectionStyles, rsvp: rsvpStyle })} />
 
@@ -213,8 +216,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label className="switch"><span>Activar bloque social</span><input type="checkbox" checked={social.enabled} onChange={(item) => updateSocial({ ...social, enabled: item.currentTarget.checked })} /></label>
         {social.enabled && <><label>Título<input value={social.title} onChange={(item) => updateSocial({ ...social, title: item.currentTarget.value })} /></label><label>Mensaje<textarea value={social.description} onChange={(item) => updateSocial({ ...social, description: item.currentTarget.value })} /></label><label>Usuario o hashtag<input placeholder="@usuario o #hashtag" value={social.socialValue} onChange={(item) => updateSocial({ ...social, socialValue: item.currentTarget.value })} /></label><label>Texto del botón<input value={social.ctaLabel ?? ""} placeholder="Ver Instagram" onChange={(item) => updateSocial({ ...social, ctaLabel: item.currentTarget.value })} /></label><SectionVisualControls label="Instagram" value={social.visual} photos={photoOptions} onChange={(visual) => updateSocial({ ...social, visual })} /></>}
 
-        <h3>{draft.plan==="standard"?"Confirmaciones por WhatsApp":"RSVP"}</h3>
-        {draft.plan==="standard"?<label>WhatsApp del organizador<input inputMode="tel" placeholder="549..." value={draft.organizerWhatsapp??""} onChange={item=>update("organizerWhatsapp",item.currentTarget.value)}/></label>:<>
+        {hasPlanFeature(draft.plan, "general-rsvp") && <><h3>RSVP</h3>
         <label className="switch"><span>Activar RSVP</span><input type="checkbox" checked={rsvp.enabled} onChange={(item) => update("rsvp", { ...rsvp, enabled: item.currentTarget.checked })} /></label>
         <DeadlineFields value={rsvp.deadline} onChange={(deadline) => update("rsvp", { ...rsvp, deadline })} />
         <label>Acceso<select value={rsvp.accessMode} onChange={(item) => update("rsvp", { ...rsvp, accessMode: item.currentTarget.value as typeof rsvp.accessMode })}><option value="name_lookup">Búsqueda por nombre</option><option value="name_and_code">Nombre y código</option></select></label></>}
