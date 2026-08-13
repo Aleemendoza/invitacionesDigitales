@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
+import "./role-badge-visibility.css";
 
 export type AccountRole = "organizer" | "admin";
 type AccountContext = { userId: string; role: AccountRole; fullName: string };

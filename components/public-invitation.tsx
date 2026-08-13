@@ -1,6 +1,7 @@
 "use client";
 import "./public-event.css";
 import "./public-invitation-premium.css";
+import "./agenda-timeline.css";
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { GiftSection } from "@/components/gift-section";
@@ -36,7 +37,7 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
     <section className="piDetails" {...panel("details")}><Info icon="calendar" title="¿Cuándo?"><p>{date}<br />{event.starts_at && new Intl.DateTimeFormat("es-AR", { hour: "2-digit", minute: "2-digit" }).format(new Date(event.starts_at))} HS</p></Info><Info icon="pin" title="¿Dónde?"><p>{event.content.venue}<br />{event.content.venueAddress}</p>{mapLink && <a href={mapLink} target="_blank" rel="noreferrer">Ver en mapa</a>}</Info></section>
     {event.content.message && <section className="piMessage" {...panel("message")}><p className="eyebrow">Un mensaje especial</p><p>{event.content.message}</p></section>}
     {mapLink && <section className="piMap" {...panel("details")}><div><Icon name="pin" /><p className="eyebrow">Cómo llegar</p><strong>{event.content.venue}</strong>{event.content.venueAddress && <span>{event.content.venueAddress}</span>}</div><a href={mapLink} target="_blank" rel="noreferrer">Abrir mapa</a></section>}
-    {event.content.agenda.length > 0 && <section className="piAgenda" {...panel("agenda")}><p className="eyebrow">La noche</p><div>{event.content.agenda.map((item) => <article key={`${item.time}-${item.title}`}><Icon name="timeline" /><b>{item.time}</b><span>{item.title}</span></article>)}</div></section>}
+    {event.content.agenda.length > 0 && <section className="piAgenda" {...panel("agenda")}><header><p className="eyebrow">La noche</p><span>Así se vive cada momento</span></header><ol>{event.content.agenda.map((item, index) => <li key={item.time + "-" + item.title}><AgendaIcon index={index} /><div className="piAgendaDot" /><article><time>{item.time}</time><h2>{item.title}</h2></article></li>)}</ol></section>}
     {event.event_media && event.event_media.length > 1 && <section className="piGallery" {...panel("gallery")}><SectionHeader icon="gallery" label="Galería" /><div>{event.event_media.slice(1).map((item, index) => <img key={item.storage_path} src={item.url} alt={`Foto ${index + 1} del evento`} />)}</div></section>}
     {event.content.dressCode && <section className="piDress" {...panel("dress")}><Icon name="dress" className="piDressIcon piDressIconLeft" /><div><small>Vestimenta</small><h2>{event.content.dressCode}</h2><span>Elegí tu mejor look para la ocasión</span></div><Icon name="suit" className="piDressIcon piDressIconRight" /></section>}
     {gifts && <div {...panel("gifts")}><GiftSection slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} /></div>}{social && <div {...panel("social")}><SocialPhotosSection config={social.content as SocialPhotoSectionConfig} theme={template.theme} /></div>}
@@ -49,3 +50,15 @@ function panelProps(visual: SectionVisual, photo: string | undefined, section: I
 }
 function SectionHeader({ icon, label }: { icon: "gallery"; label: string }) { return <header className="piSectionHeader"><Icon name={icon} /><p>{label}</p></header>; }
 function Info({ icon, title, children }: { icon: "calendar" | "pin"; title: string; children: React.ReactNode }) { return <article><Icon name={icon} /><h2>{title}</h2>{children}</article>; }
+function AgendaIcon({ index }: { index: number }) {
+  const kind = index % 6;
+  const icons = [
+    <><path d="M7 3h3l3 18H8L7 3Zm7 0h3l-1 18h-5l3-18Z" /><path d="M4 10h16M6 15h12" /></>,
+    <><path d="M7 3v18M4 3v7a3 3 0 0 0 6 0V3M17 3v18M14 3h6" /></>,
+    <><circle cx="12" cy="12" r="8" /><path d="M4 12h16M12 4a12 12 0 0 1 0 16M12 4a12 12 0 0 0 0 16M6 7.5h12M6 16.5h12M19 4v3m-1.5-1.5h3M5 19v2m-1 1h2" /></>,
+    <><path d="M5 18h14M7 18v-6h10v6M9 12V8h6v4M10 8V5a2 2 0 1 1 4 0v3" /><path d="M4 21h16" /></>,
+    <><rect x="4" y="6" width="16" height="13" rx="2" /><circle cx="11" cy="12.5" r="3.5" /><circle cx="11" cy="12.5" r="1" /><path d="M17 9v6M16 9h2M16 15h2M18 3v3m-1.5-1.5h3" /></>,
+    <><path d="M6 13h12v3a4 4 0 0 1-4 4h-4a4 4 0 0 1-4-4v-3Z" /><path d="M18 15h1a2 2 0 0 1 0 4h-2M8 9c-1-1-1-2 0-3M12 9c-1-1-1-2 0-3M16 9c-1-1-1-2 0-3" /></>,
+  ];
+  return <svg className="piAgendaIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.45" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">{icons[kind]}</svg>;
+}

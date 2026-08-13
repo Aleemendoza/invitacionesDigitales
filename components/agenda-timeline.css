@@ -1,0 +1,151 @@
+.premiumInvite .piAgenda {
+  padding: 38px 20px 42px;
+}
+
+.piAgenda > header {
+  display: grid;
+  gap: 8px;
+  margin: 0 auto 30px;
+  max-width: 340px;
+  text-align: center;
+}
+
+.piAgenda > header .eyebrow {
+  color: var(--event-accent);
+  font: 800 11px var(--sans);
+  letter-spacing: .24em;
+  text-transform: uppercase;
+}
+
+.piAgenda > header > span {
+  color: currentColor;
+  font-size: 14px;
+  opacity: .82;
+}
+
+.piAgenda ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.piAgenda li {
+  display: grid;
+  grid-template-columns: 58px 25px minmax(0, 1fr);
+  min-height: 106px;
+  position: relative;
+}
+
+.piAgenda li::before {
+  background: color-mix(in srgb, var(--event-accent) 78%, transparent);
+  content: "";
+  height: calc(100% + 2px);
+  left: 69px;
+  position: absolute;
+  top: 28px;
+  width: 1px;
+}
+
+.piAgenda li:last-child::before { display: none; }
+
+.piAgendaIcon {
+  align-self: start;
+  color: var(--event-accent);
+  height: 34px;
+  justify-self: center;
+  margin-top: 10px;
+  width: 34px;
+}
+
+.piAgendaDot {
+  align-self: start;
+  background: var(--event-primary);
+  border: 2px solid var(--event-accent);
+  border-radius: 50%;
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--event-accent) 18%, transparent), 0 0 16px color-mix(in srgb, var(--event-accent) 70%, transparent);
+  height: 11px;
+  justify-self: center;
+  margin-top: 20px;
+  position: relative;
+  width: 11px;
+  z-index: 1;
+}
+
+.piAgenda article {
+  align-self: start;
+  display: grid;
+  gap: 5px;
+  padding: 0 0 20px 12px;
+}
+
+.piAgenda time {
+  color: var(--event-accent);
+  font: 500 26px/.95 var(--serif);
+  letter-spacing: .02em;
+}
+
+.piAgenda article h2 {
+  color: currentColor;
+  font: 800 11px var(--sans);
+  letter-spacing: .14em;
+  margin: 0;
+  text-transform: uppercase;
+}
+
+@media (min-width: 470px) {
+  .piAgenda ol {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    position: relative;
+  }
+
+  .piAgenda ol::before {
+    background: color-mix(in srgb, var(--event-accent) 78%, transparent);
+    content: "";
+    height: calc(100% - 70px);
+    left: 50%;
+    position: absolute;
+    top: 36px;
+    width: 1px;
+  }
+
+  .piAgenda li {
+    grid-template-columns: 1fr 27px;
+    min-height: 142px;
+  }
+
+  .piAgenda li::before { display: none; }
+  .piAgenda li:nth-child(odd) { text-align: right; }
+  .piAgenda li:nth-child(even) {
+    grid-column: 2;
+    grid-template-columns: 27px 1fr;
+    text-align: left;
+  }
+
+  .piAgenda li:nth-child(odd) .piAgendaIcon { grid-column: 1; grid-row: 1; justify-self: end; margin-right: 28px; }
+  .piAgenda li:nth-child(odd) .piAgendaDot { grid-column: 2; grid-row: 1; }
+  .piAgenda li:nth-child(odd) article { grid-column: 1; grid-row: 1; padding: 54px 25px 22px 0; }
+  .piAgenda li:nth-child(even) .piAgendaDot { grid-column: 1; grid-row: 1; }
+  .piAgenda li:nth-child(even) .piAgendaIcon { grid-column: 2; grid-row: 1; justify-self: start; margin-left: 28px; }
+  .piAgenda li:nth-child(even) article { grid-column: 2; grid-row: 1; padding: 54px 0 22px 25px; }
+  .piAgenda li:nth-child(odd) .piAgendaDot::after,
+  .piAgenda li:nth-child(even) .piAgendaDot::after {
+    background: color-mix(in srgb, var(--event-accent) 75%, transparent);
+    content: "";
+    height: 1px;
+    position: absolute;
+    top: 4px;
+    width: 26px;
+  }
+  .piAgenda li:nth-child(odd) .piAgendaDot::after { right: 9px; }
+  .piAgenda li:nth-child(even) .piAgendaDot::after { left: 9px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .piAgendaIcon { animation: agenda-icon-float 4s ease-in-out infinite; }
+  .piAgenda li:nth-child(even) .piAgendaIcon { animation-delay: -2s; }
+}
+
+@keyframes agenda-icon-float {
+  50% { filter: drop-shadow(0 0 8px color-mix(in srgb, var(--event-accent) 65%, transparent)); transform: translateY(-3px); }
+}

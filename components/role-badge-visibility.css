@@ -1,0 +1,5 @@
+.organizerNav .roleBadge,
+.panelShell > .panelTop > .roleBadge,
+.panelShell > .panelTop .roleBadge {
+  display: none;
+}
