@@ -42,3 +42,22 @@ export async function PATCH(request: NextRequest) {
   await context.db.from("role_audit_log").insert({ actor_id: context.userId, target_id: body.userId, previous_role: currentRole, next_role: body.role });
   return NextResponse.json({ ok: true });
 }
+
+export async function DELETE(request: NextRequest) {
+  const context = await adminContext(request); if (!isAdminContext(context)) return context.error;
+  const userId = request.nextUrl.searchParams.get("userId");
+  if (!userId) return NextResponse.json({ error: "Usuario inválido." }, { status: 400 });
+  if (userId === context.userId) return NextResponse.json({ error: "No podés eliminar tu propia cuenta." }, { status: 409 });
+  const [{ data: target }, { count: adminCount }, { data: authTarget }] = await Promise.all([
+    context.db.from("profiles").select("role").eq("id", userId).maybeSingle(),
+    context.db.from("profiles").select("id", { count: "exact", head: true }).eq("role", "admin"),
+    context.db.auth.admin.getUserById(userId),
+  ]);
+  if (!authTarget.user) return NextResponse.json({ error: "Usuario no encontrado." }, { status: 404 });
+  if (target?.role === "admin" && (adminCount ?? 0) <= 1) return NextResponse.json({ error: "Debe permanecer al menos un administrador." }, { status: 409 });
+  const { error: auditError } = await context.db.from("account_deletion_audit_log").insert({ actor_id: context.userId, target_id: userId, target_email: authTarget.user.email ?? "sin-email" });
+  if (auditError) return NextResponse.json({ error: "No pudimos auditar la eliminación." }, { status: 500 });
+  const { error } = await context.db.auth.admin.deleteUser(userId);
+  if (error) return NextResponse.json({ error: "No pudimos eliminar la cuenta." }, { status: 500 });
+  return NextResponse.json({ ok: true });
+}
