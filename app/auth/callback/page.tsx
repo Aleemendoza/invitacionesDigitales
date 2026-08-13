@@ -7,16 +7,25 @@ import { getBrowserSupabase } from "@/lib/supabase-browser";
 function CallbackContent() {
   const router = useRouter();
   const params = useSearchParams();
-  const [message, setMessage] = useState("Completando el ingreso con Google…");
+  const [message, setMessage] = useState("Completando el ingreso…");
 
   useEffect(() => {
     const completeLogin = async () => {
       try {
-        const code = params.get("code");
         const client = getBrowserSupabase();
-        if (!code || !client) throw new Error("No pudimos completar el acceso.");
-        const { error } = await client.auth.exchangeCodeForSession(code);
-        if (error) throw error;
+        if (!client) throw new Error("No encontramos la configuración de acceso.");
+        const callbackError = params.get("error_description") ?? params.get("error");
+        if (callbackError) throw new Error(callbackError);
+        const code = params.get("code");
+        if (code) {
+          const { error } = await client.auth.exchangeCodeForSession(code);
+          if (error) throw error;
+        } else {
+          // Email confirmation can return the Supabase session in the URL hash.
+          // The browser client consumes that hash during initialization.
+          const { data: { session } } = await client.auth.getSession();
+          if (!session) throw new Error("El enlace de confirmación venció o ya fue utilizado. Solicitá uno nuevo.");
+        }
         const next = params.get("next");
         router.replace(next?.startsWith("/") ? next : "/mis-eventos");
         router.refresh();
