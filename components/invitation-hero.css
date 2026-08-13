@@ -8,17 +8,24 @@
 }
 
 .premiumInvite .piHeroCopy {
+  display: grid;
+  justify-items: center;
   right: 22px;
   bottom: 112px;
   left: 22px;
+  text-align: center;
 }
 
 .premiumInvite .piHeroCopy h1 {
+  max-width: 100%;
   margin: 0;
   color: var(--event-title);
-  font: 500 clamp(50px, 13vw, 72px) / .88 var(--serif);
+  font: 500 clamp(38px, min(13vw, 62px), 72px) / .92 var(--serif);
   letter-spacing: -.05em;
+  overflow-wrap: anywhere;
   text-shadow: 0 2px 14px rgb(0 0 0 / 35%);
+  text-align: center;
+  text-wrap: balance;
 }
 
 .premiumInvite .piHeroCopy time {

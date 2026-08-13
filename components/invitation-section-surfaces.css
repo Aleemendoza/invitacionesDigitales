@@ -23,7 +23,9 @@
 .premiumInvite .sectionSurface .premiumSocialActions strong { background: var(--surface-accent); color: var(--event-on-accent); }
 
 .premiumInvite .piRsvp.sectionSurface {
+  display: grid;
   align-content: center;
+  justify-items: center;
   min-height: 0;
   margin-top: 14px;
   padding: 34px 30px 38px;
@@ -33,10 +35,17 @@
 .premiumInvite .piRsvp.sectionSurface .piRsvpCopy {
   display: grid;
   justify-items: center;
+  max-width: 100%;
   text-align: center;
 }
 
 .premiumInvite .piRsvp.sectionSurface .piRsvpCopy > svg { color: var(--surface-accent); }
+.premiumInvite .piRsvp.sectionSurface .piRsvpCopy h2,
+.premiumInvite .piRsvp.sectionSurface .piRsvpCopy p {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
 .premiumInvite .piRsvp.sectionSurface a {
   justify-self: center;
   border-radius: 999px;
