@@ -17,7 +17,8 @@ type Photo = { file: File; preview: string };
 
 const initial: Draft = { title: "", eventType: "", date: "", time: "", venue: "", venueAddress: "", mapUrl: "", closingMessage: "", templateSlug: "", plan: "standard", step: 0, agenda: defaultAgenda(), features: defaultFeatures("standard"), message: "", dressCode: "", musicUrl: "", theme: defaultTheme };
 const types = ["Boda", "XV", "Cumpleaños", "Infantil", "Baby Shower", "Corporativo"];
-const options = () => templates;
+const category = (type: string) => type === "Boda" ? "Bodas" : type === "Infantil" ? "Infantiles" : type === "Corporativo" ? "Corporativos" : type;
+const options = (type: string) => type === "Baby Shower" ? templates.filter((item) => item.slug === "dreamscape") : templates.filter((item) => item.category === category(type));
 const planBenefits: Record<Plan, string[]> = {
   standard: ["Portada personalizada", "Agenda, mapa y regalos", "Sin confirmaciones de asistencia"],
   premium: ["Galería y música", "RSVP dentro de la invitación", "Exportación de respuestas"],
@@ -57,7 +58,7 @@ export function CreateEventWizard() {
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const choosePlan = (plan: Plan) => { const previewTemplate = templates.find((item) => item.plan === plan) ?? templates[0]; setPlanChosen(true); setDraft((current) => ({ ...current, plan, eventType: "", templateSlug: "", features: defaultFeatures(plan), theme: templateTheme(previewTemplate.theme) })); };
   const chooseType = (eventType: string) => {
-    const template = options()[0];
+    const template = options(eventType)[0];
     if (!template) return;
     setDraft((current) => ({ ...current, eventType, templateSlug: template.slug, features: defaultFeatures(current.plan), theme: templateTheme(template.theme) }));
   };
@@ -106,7 +107,7 @@ function Fields({ draft, photos, update, choosePlan, chooseType, chooseTemplate,
   if (draft.step === 3) return <div className="fieldPair"><label>Fecha<input type="date" value={draft.date} onChange={(event) => update("date", event.currentTarget.value)} /></label><label>Hora<input type="time" value={draft.time} onChange={(event) => update("time", event.currentTarget.value)} /></label></div>;
   if (draft.step === 4) return <><label>Lugar<input value={draft.venue} onChange={(event) => update("venue", event.currentTarget.value)} /></label><label>Dirección<input placeholder="Ej.: Av. Libertador 1234, Palermo" value={draft.venueAddress ?? ""} onChange={(event) => update("venueAddress", event.currentTarget.value)} /></label><label>Enlace de Google Maps (opcional)<input type="url" placeholder="https://maps.google.com/..." value={draft.mapUrl ?? ""} onChange={(event) => update("mapUrl", event.currentTarget.value)} /></label></>;
   if (draft.step === 5) return <div className="agendaEditor">{draft.agenda.map((item, index) => <div key={`${index}-${item.time}`}><input type="time" value={item.time} onChange={(event) => editAgenda(index, "time", event.currentTarget.value)} /><input value={item.title} onChange={(event) => editAgenda(index, "title", event.currentTarget.value)} />{draft.agenda.length > 1 && <button type="button" aria-label="Eliminar momento" onClick={() => update("agenda", draft.agenda.filter((_, itemIndex) => itemIndex !== index))}>×</button>}</div>)}<button type="button" className="textButton" onClick={() => update("agenda", [...draft.agenda, { time: "", title: "" }])}>+ Agregar otro momento</button></div>;
-  if (draft.step === 6) return <div className="templatePicker">{options().map((template) => <button className={draft.templateSlug === template.slug ? "selected" : ""} onClick={() => chooseTemplate(template)} key={template.slug}><span className="templateThumb" style={{ backgroundImage: `url(${template.coverImage})` }} /><b>{template.name}</b><small>{template.style}</small></button>)}</div>;
+  if (draft.step === 6) return <div className="templatePicker">{options(draft.eventType).map((template) => <button className={draft.templateSlug === template.slug ? "selected" : ""} onClick={() => chooseTemplate(template)} key={template.slug}><span className="templateThumb" style={{ backgroundImage: `url(${template.coverImage})` }} /><b>{template.name}</b><small>{template.style}</small></button>)}</div>;
   if (draft.step === 7) return <PhotoPicker photos={photos} setPhotos={setPhotos} plan={draft.plan} />;
   return <div className="wizardDetails"><p>Completá los detalles que quieras mostrar. También vas a poder editarlos después desde tu panel.</p>{draft.features.includes("dress-code") && <label>Vestimenta<input placeholder="Ej.: Elegante sport" value={draft.dressCode ?? ""} onChange={(event) => update("dressCode", event.currentTarget.value)} /></label>}{draft.features.includes("music") && <label>Música (enlace de YouTube)<input type="url" placeholder="https://www.youtube.com/watch?v=..." value={draft.musicUrl ?? ""} onChange={(event) => update("musicUrl", event.currentTarget.value)} /></label>}<label>Mensaje de cierre<input placeholder="Ej.: Gracias por ser parte de este momento" value={draft.closingMessage ?? ""} onChange={(event) => update("closingMessage", event.currentTarget.value)} /></label></div>;
 }
