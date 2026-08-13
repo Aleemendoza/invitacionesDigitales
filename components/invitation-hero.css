@@ -1,6 +1,6 @@
 .premiumInvite .piHero {
   isolation: isolate;
-  margin: 10px 22px 0;
+  margin: 0 22px;
   min-height: 590px;
   overflow: hidden;
   border-radius: 0 0 48% 48% / 0 0 19% 19%;
@@ -9,7 +9,7 @@
 
 .premiumInvite .piHeroCopy {
   right: 22px;
-  bottom: 34px;
+  bottom: 112px;
   left: 22px;
 }
 
@@ -19,6 +19,41 @@
   font: 500 clamp(50px, 13vw, 72px) / .88 var(--serif);
   letter-spacing: -.05em;
   text-shadow: 0 2px 14px rgb(0 0 0 / 35%);
+}
+
+.premiumInvite .piHeroCopy time {
+  display: block;
+  margin-top: 13px;
+  color: var(--event-title);
+  font: 400 21px / 1 var(--sans);
+  letter-spacing: .08em;
+  text-shadow: 0 2px 14px rgb(0 0 0 / 35%);
+}
+
+.premiumInvite .piHeroMenu {
+  position: absolute;
+  z-index: 3;
+  top: 66px;
+  left: 20px;
+  min-width: 190px;
+  padding: 8px;
+  border: 1px solid rgb(255 255 255 / 25%);
+  border-radius: 12px;
+  background: rgb(25 18 22 / 88%);
+  box-shadow: 0 12px 26px rgb(0 0 0 / 28%);
+  backdrop-filter: blur(12px);
+}
+
+.premiumInvite .piHeroMenu a {
+  display: block;
+  border-radius: 8px;
+  background: var(--event-accent);
+  color: var(--event-on-accent);
+  padding: 12px 14px;
+  font: 800 12px var(--sans);
+  letter-spacing: .02em;
+  text-align: center;
+  text-decoration: none;
 }
 
 @media (max-width: 380px) {

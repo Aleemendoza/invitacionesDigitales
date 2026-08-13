@@ -1,0 +1,37 @@
+.piGalleryCarousel { position: relative; }
+
+.piGalleryTrack {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+  overflow-x: auto;
+  padding: 0 1px 9px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+
+.piGalleryTrack::-webkit-scrollbar { display: none; }
+
+.piGalleryTrack img {
+  aspect-ratio: 1.35 / 1;
+  flex: 0 0 min(78%, 310px);
+  height: auto;
+  object-fit: cover;
+  scroll-snap-align: start;
+}
+
+.piGalleryHint {
+  display: block;
+  color: var(--event-primary);
+  font: 700 9px var(--sans);
+  letter-spacing: .1em;
+  margin-top: 3px;
+  opacity: .65;
+  text-align: right;
+  text-transform: uppercase;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .piGalleryTrack { scroll-behavior: auto; }
+}
