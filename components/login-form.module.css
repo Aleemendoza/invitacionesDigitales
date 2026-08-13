@@ -1,0 +1,72 @@
+.googleButton {
+  align-items: center;
+  background: #fff;
+  border: 1px solid var(--line, #d9cdc4);
+  border-radius: 10px;
+  color: var(--ink, #29141b);
+  cursor: pointer;
+  display: flex;
+  font: 700 14px var(--sans, Arial, sans-serif);
+  gap: 12px;
+  justify-content: center;
+  margin: 24px 0 0;
+  min-height: 48px;
+  padding: 11px 16px;
+  transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
+  width: 100%;
+}
+
+.googleButton:hover:not(:disabled) {
+  border-color: var(--wine, #381924);
+  box-shadow: 0 4px 14px rgb(44 20 28 / 12%);
+  transform: translateY(-1px);
+}
+
+.googleButton:focus-visible,
+.authModeSwitch button:focus-visible {
+  outline: 3px solid rgb(185 42 83 / 30%);
+  outline-offset: 2px;
+}
+
+.googleButton:disabled { cursor: wait; opacity: .65; }
+.googleButton svg { flex: 0 0 20px; height: 20px; width: 20px; }
+
+.authDivider {
+  align-items: center;
+  color: #76666a;
+  display: flex;
+  font: 500 12px var(--sans, Arial, sans-serif);
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.authDivider::before,
+.authDivider::after {
+  background: var(--line, #d9cdc4);
+  content: "";
+  height: 1px;
+  width: 100%;
+}
+
+.authDivider span { white-space: nowrap; }
+.emailHint { color: #76666a; font-size: 12px; line-height: 1.45; margin: -8px 0 14px; }
+
+.authModeSwitch {
+  color: #5b4a4f;
+  font-size: 14px;
+  margin: 22px 0 12px;
+  text-align: center;
+}
+
+.authModeSwitch button {
+  background: transparent;
+  border: 0;
+  color: var(--wine, #8b1739);
+  cursor: pointer;
+  font: 700 inherit;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.authModeSwitch button:disabled { cursor: wait; opacity: .65; }
