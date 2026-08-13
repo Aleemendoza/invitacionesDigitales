@@ -32,39 +32,6 @@
   text-shadow: 0 2px 14px rgb(0 0 0 / 35%);
 }
 
-.premiumInvite .piCountdownCard {
-  margin: 22px 22px 0 !important;
-  border: 0;
-  border-radius: 0 !important;
-  background: transparent !important;
-  color: var(--event-primary);
-  overflow: visible;
-}
-
-.premiumInvite .piCountdownCard > p { display: none; }
-.premiumInvite .piCountdownCard > div { gap: 8px; }
-
-.premiumInvite .piCountdownCard span {
-  padding: 8px 3px 7px;
-  border-radius: 12px;
-  background: var(--event-background);
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--event-primary) 14%, transparent);
-}
-
-.premiumInvite .piCountdownCard b {
-  color: var(--event-primary);
-  font: 500 31px / .9 var(--serif);
-}
-
-.premiumInvite .piCountdownCard small {
-  color: var(--event-primary);
-  font: 700 8px var(--sans);
-  letter-spacing: .04em;
-  text-transform: lowercase;
-}
-
 @media (max-width: 380px) {
   .premiumInvite .piHero { min-height: 530px; margin-inline: 16px; }
-  .premiumInvite .piCountdownCard { margin-inline: 16px !important; }
-  .premiumInvite .piCountdownCard b { font-size: 27px; }
 }
