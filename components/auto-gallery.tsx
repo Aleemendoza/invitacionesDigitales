@@ -18,7 +18,7 @@ export function AutoGallery({ photos }: { photos: GalleryPhoto[] }) {
       const next = firstCard.offsetWidth + 10;
       const atEnd = element.scrollLeft + element.clientWidth >= element.scrollWidth - 4;
       element.scrollTo({ left: atEnd ? 0 : element.scrollLeft + next, behavior: "smooth" });
-    }, 3200);
+    }, 2500);
 
     return () => window.clearInterval(timer);
   }, [paused, photos.length]);
@@ -27,6 +27,6 @@ export function AutoGallery({ photos }: { photos: GalleryPhoto[] }) {
     <div className="piGalleryTrack" ref={track} tabIndex={0} aria-label="Galería de fotos, se desplaza automáticamente">
       {photos.map((item, index) => <img key={item.storage_path} src={item.url} alt={"Foto " + (index + 1) + " del evento"} loading={index > 1 ? "lazy" : "eager"} />)}
     </div>
-    {photos.length > 1 && <span className="piGalleryHint">Deslizá para ver más</span>}
+    {photos.length > 1 }
   </div>;
 }
