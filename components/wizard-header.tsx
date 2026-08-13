@@ -1,3 +1,3 @@
 "use client";
-import { Header } from "@/components/celebra";
+import { Header } from "@/components/papeleta";
 export function WizardHeader() { return <Header />; }
