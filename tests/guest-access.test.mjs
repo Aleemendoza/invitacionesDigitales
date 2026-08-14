@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { lookupMatches, normalizeLookup, sessionAuthorizesGroup, toPublicLookupResult, validateLookup } from "../lib/guest-access.ts";
+import { lookupMatches, normalizeLookup, requiresAccessCode, sessionAuthorizesGroup, toPublicLookupResult, validateLookup } from "../lib/guest-access.ts";
 
 test("normalizes accents, punctuation and repeated whitespace", () => {
   assert.equal(normalizeLookup("  Lucía  Pérez-Gómez "), "lucia perez gomez");
@@ -31,4 +31,10 @@ test("guest session is scoped to its event and group and rejects expiration or r
   assert.equal(sessionAuthorizesGroup(active, "event-a", "group-b", now), false);
   assert.equal(sessionAuthorizesGroup({ ...active, revokedAt: now }, "event-a", "group-a", now), false);
   assert.equal(sessionAuthorizesGroup({ ...active, expiresAt: now }, "event-a", "group-a", now), false);
+});
+
+test("requires an access code only for the configured name-and-code mode", () => {
+  assert.equal(requiresAccessCode("name_lookup"), false);
+  assert.equal(requiresAccessCode("name_and_code"), true);
+  assert.equal(requiresAccessCode("open"), false);
 });
