@@ -1,24 +1,40 @@
 .page {
-  min-height: 100vh;
+  block-size: calc(100dvh - 74px);
   background: linear-gradient(120deg, #fffdfa 0%, #f8f1ed 100%);
   color: #171113;
+  overflow: clip;
 }
 
 .content {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: minmax(160px, 270px) minmax(0, 500px);
+  grid-template-rows: auto auto auto auto auto auto;
+  align-content: center;
   align-items: center;
-  width: min(100%, 540px);
-  min-height: calc(100vh - 74px);
+  column-gap: clamp(36px, 7vw, 88px);
+  width: min(100%, 900px);
+  block-size: 100%;
   margin: auto;
-  padding: 64px 28px 90px;
-  text-align: center;
+  text-align: left;
 }
 
 .artwork {
-  width: min(100%, 270px);
+  grid-column: 1;
+  grid-row: 1 / -1;
+  width: 100%;
+  max-block-size: min(44dvh, 270px);
   height: auto;
-  margin: 0 0 23px;
+  margin: 0;
+  object-fit: contain;
+}
+
+.eyebrow,
+.content h1,
+.divider,
+.message,
+.actions,
+.help {
+  grid-column: 2;
 }
 
 .eyebrow {
@@ -38,7 +54,7 @@
 .divider {
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   width: 138px;
   height: 18px;
   margin: 27px 0 20px;
@@ -70,7 +86,7 @@
 .actions {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 12px;
   margin: 30px 0 18px;
 }
@@ -85,14 +101,59 @@
 
 @media (max-width: 600px) {
   .content {
-    padding-top: 57px;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(7, auto);
+    align-content: center;
+    justify-items: center;
+    row-gap: clamp(0px, 1.2dvh, 8px);
+    width: min(100%, 420px);
+    text-align: center;
   }
 
   .artwork {
-    width: 242px;
+    grid-column: 1;
+    grid-row: 1;
+    width: min(100%, 155px);
+    max-block-size: min(25dvh, 155px);
+  }
+
+  .eyebrow,
+  .content h1,
+  .divider,
+  .message,
+  .actions,
+  .help {
+    grid-column: 1;
   }
 
   .content h1 {
-    font-size: 43px;
+    font-size: clamp(32px, 9vw, 43px);
+  }
+
+  .eyebrow {
+    margin-bottom: 6px;
+  }
+
+  .divider {
+    margin: 12px auto 8px;
+  }
+
+  .message {
+    font-size: 14px;
+  }
+
+  .actions {
+    justify-content: center;
+    margin: 16px 0 8px;
+  }
+
+  .help {
+    font-size: 12px;
+  }
+}
+
+@media (max-height: 650px) and (max-width: 600px) {
+  .artwork {
+    display: none;
   }
 }
