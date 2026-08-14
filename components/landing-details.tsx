@@ -55,16 +55,16 @@ const faqGroups: FaqGroup[] = [
     { question: "¿Cuánto demora la entrega?", answer: p("El plazo se confirma al iniciar cada proyecto según el modelo, el diseño y el material disponible. La invitación se entrega dentro del tiempo acordado.") },
     { question: "¿Puedo realizar ajustes en mi invitación una vez activada?", answer: p("Podés solicitar ajustes sobre información necesaria del evento. Te indicaremos qué cambios están contemplados antes de compartir el link.") },
   ] },
-  { title: "Sobre el Save the Date", questions: [
-    { question: "¿Qué versión del Save the Date se entrega?", answer: p("Se prepara como una versión breve y clara para anticipar la celebración: protagonistas, fecha y el tono visual del evento.") },
-    { question: "¿Cómo funciona el descuento en el Save the Date?", answer: p("Las promociones vigentes se confirman de forma personalizada antes de iniciar el proyecto, para que recibas las condiciones actuales aplicables.") },
-    { question: "¿Con cuánta anticipación tengo que encargar mi Save the Date?", answer: p("Conviene prepararlo antes de enviar la invitación completa, para que tus invitados puedan reservar la fecha con tiempo.") },
-  ] },
-  { title: "Invitación en dúo", questions: [
-    { question: "¿Qué es la invitación en dúo?", answer: p("Permite comunicar con claridad dos momentos del evento, por ejemplo cena y fiesta, según el acceso de cada invitado.") },
-    { question: "¿En qué casos se recomienda usarla?", answer: p("Es ideal cuando diferentes grupos participarán de instancias distintas o cuando necesitás organizar accesos y horarios de forma personalizada.") },
-    { question: "¿Cómo funciona el descuento en la segunda invitación?", answer: p("Las condiciones promocionales se confirman al momento de la consulta, de acuerdo con la propuesta elegida y la disponibilidad vigente.") },
-  ] },
+  // { title: "Sobre el Save the Date", questions: [
+  //   { question: "¿Qué versión del Save the Date se entrega?", answer: p("Se prepara como una versión breve y clara para anticipar la celebración: protagonistas, fecha y el tono visual del evento.") },
+  //   { question: "¿Cómo funciona el descuento en el Save the Date?", answer: p("Las promociones vigentes se confirman de forma personalizada antes de iniciar el proyecto, para que recibas las condiciones actuales aplicables.") },
+  //   { question: "¿Con cuánta anticipación tengo que encargar mi Save the Date?", answer: p("Conviene prepararlo antes de enviar la invitación completa, para que tus invitados puedan reservar la fecha con tiempo.") },
+  // ] },
+  // { title: "Invitación en dúo", questions: [
+  //   { question: "¿Qué es la invitación en dúo?", answer: p("Permite comunicar con claridad dos momentos del evento, por ejemplo cena y fiesta, según el acceso de cada invitado.") },
+  //   { question: "¿En qué casos se recomienda usarla?", answer: p("Es ideal cuando diferentes grupos participarán de instancias distintas o cuando necesitás organizar accesos y horarios de forma personalizada.") },
+  //   { question: "¿Cómo funciona el descuento en la segunda invitación?", answer: p("Las condiciones promocionales se confirman al momento de la consulta, de acuerdo con la propuesta elegida y la disponibilidad vigente.") },
+  // ] },
   { title: "Pagos", questions: [
     { question: "¿Cómo se realiza el pago?", answer: p("Al confirmar tu proyecto, recibirás las opciones de pago disponibles y los pasos necesarios para reservar el trabajo de tu invitación.") },
     { question: "¿Puedo congelar el precio aunque el evento sea más adelante?", answer: p("Las condiciones de reserva y vigencia se revisan en cada consulta para darte información actualizada antes de avanzar.") },
