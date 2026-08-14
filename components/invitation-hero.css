@@ -42,26 +42,45 @@
   z-index: 3;
   top: 66px;
   left: 20px;
-  min-width: 190px;
-  padding: 8px;
-  border: 1px solid rgb(255 255 255 / 25%);
-  border-radius: 12px;
-  background: rgb(25 18 22 / 88%);
-  box-shadow: 0 12px 26px rgb(0 0 0 / 28%);
-  backdrop-filter: blur(12px);
+  right: 20px;
+  display: grid;
+  gap: 2px;
+  padding: 7px;
+  border: 1px solid rgb(255 255 255 / 24%);
+  border-radius: 16px;
+  background: rgb(21 14 18 / 86%);
+  box-shadow: 0 18px 38px rgb(0 0 0 / 36%);
+  backdrop-filter: blur(16px);
 }
 
 .premiumInvite .piHeroMenu a {
-  display: block;
-  border-radius: 8px;
-  background: var(--event-accent);
-  color: var(--event-on-accent);
-  padding: 12px 14px;
-  font: 800 12px var(--sans);
-  letter-spacing: .02em;
-  text-align: center;
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 10px;
+  min-height: 58px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: transparent;
+  color: #fff;
   text-decoration: none;
+  transition: background .18s ease, transform .18s ease;
 }
+
+.premiumInvite .piHeroMenu a:hover,
+.premiumInvite .piHeroMenu a:focus-visible {
+  background: rgb(255 255 255 / 12%);
+  outline: none;
+}
+
+.premiumInvite .piHeroMenu a:active { transform: scale(.985); }
+.premiumInvite .piHeroMenu a>svg { color: var(--event-accent); }
+.premiumInvite .piHeroMenu span { display: grid; gap: 2px; min-width: 0; }
+.premiumInvite .piHeroMenu small { color: rgb(255 255 255 / 59%); font: 700 9px var(--sans); letter-spacing: 1.2px; text-transform: uppercase; }
+.premiumInvite .piHeroMenu b { overflow: hidden; color: #fff; font: 650 13px var(--sans); letter-spacing: -.01em; text-overflow: ellipsis; white-space: nowrap; }
+.premiumInvite .piHeroMenu i { color: rgb(255 255 255 / 52%); font-size: 18px; font-style: normal; }
+.premiumInvite .piHeroTools button { width: 40px; height: 40px; border-color: rgb(255 255 255 / 45%); background: rgb(22 14 18 / 70%); box-shadow: 0 5px 18px rgb(0 0 0 / 20%); }
+.premiumInvite .piHeroTools button.isMenuOpen { border-color: var(--event-accent); color: var(--event-accent); }
 
 @media (max-width: 380px) {
   .premiumInvite .piHero { min-height: 530px; margin-inline: 16px; }
