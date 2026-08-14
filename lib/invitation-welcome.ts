@@ -3,7 +3,7 @@ export type WelcomeConfig = { message?: string; backgroundPhotoPath?: string };
 export function welcomeMessageForEventType(eventType: string, title?: string) {
   const normalized = eventType.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
   const name = title?.trim() || "esta celebración";
-  if (normalized.includes("boda") || normalized.includes("casamiento")) return `Bienvenidos a nuestra historia. Gracias por acompañarnos a celebrar ${name}.`;
+  if (normalized.includes("boda") || normalized.includes("casamiento")) return `Bienvenidos a nuestra historia. Gracias por acompañarnos a celebrar nuestra boda.`;
   if (normalized.includes("xv") || normalized.includes("15")) return `Estás por entrar a una noche única. Gracias por ser parte de mis XV.`;
   if (normalized.includes("infantil")) return `Una gran aventura está por comenzar. ¡Vení a celebrar ${name}!`;
   if (normalized.includes("baby")) return `Una dulce espera merece ser celebrada. Gracias por acompañarnos.`;

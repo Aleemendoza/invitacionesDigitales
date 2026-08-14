@@ -5,6 +5,7 @@ import "./panels.css";
 import "./event-list.css";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { RoleBadge, useAccountRole } from "@/components/account-role";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { eventDateLabel, type StoredEvent } from "@/lib/event-types";
@@ -21,16 +22,16 @@ const eventState = (event: SummaryEvent) => event.payment_status === "approved" 
 
 export function OrganizerNav({ event }: { event?: StoredEvent }) {
   const { account } = useAccountRole();
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const plan = event?.plan as Plan | undefined;
   const close = () => setOpen(false);
+  const logout = async () => { try { await getBrowserSupabase()?.auth.signOut(); } finally { close(); router.replace("/"); } };
 
-  return <nav className="organizerNav" aria-label="Navegación del organizador">
-    <div className="organizerNavBar">
-      <Link className="organizerNavBrand" href="/mis-eventos" onClick={close}>Papeleta<span>✦</span></Link>
-      <button className="organizerNavToggle" type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="organizer-navigation" aria-label={open ? "Cerrar menú" : "Abrir menú"}><span /><span /><span /></button>
-    </div>
-    <div className={open ? "organizerNavLinks open" : "organizerNavLinks"} id="organizer-navigation">
+  return <header className="siteHeader">
+    <Link className="brand" href="/mis-eventos" onClick={close}>Papeleta<span>✦</span></Link>
+    <button className="siteMenuToggle" type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="organizer-navigation" aria-label={open ? "Cerrar menú" : "Abrir menú"}><span /><span /><span /></button>
+    <nav id="organizer-navigation" className={open ? "open" : ""} aria-label="Navegación del organizador">
       <Link href="/mis-eventos" onClick={close}>Mis eventos</Link>
       {!event && <><Link href="/crear" onClick={close}>Crear invitación</Link><Link href="/plantillas" onClick={close}>Plantillas</Link><Link href="/precios" onClick={close}>Precios</Link></>}
       {event && <>
@@ -41,10 +42,9 @@ export function OrganizerNav({ event }: { event?: StoredEvent }) {
         <Link href={`/eventos/${event.id}/vista-previa`} onClick={close}>Vista previa</Link>
         {event.payment_status === "approved" && <Link href={`/e/${event.slug}`} target="_blank" onClick={close}>Ver invitación ↗</Link>}
       </>}
-      {account?.role === "admin" && <Link href="/admin/pagos" onClick={close}>Administración</Link>}
-      {account && <RoleBadge role={account.role} />}
-    </div>
-  </nav>;
+      {account && <div className="accountMenu"><button type="button" onClick={() => void logout()}>Cerrar sesión</button></div>}
+    </nav>
+  </header>;
 }
 
 export function EventsPortal() {

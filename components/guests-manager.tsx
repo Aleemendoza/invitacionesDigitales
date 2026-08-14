@@ -1,6 +1,7 @@
 "use client";
 
 import "./guests-manager.css";
+import "./guests-manager-layout.css";
 import Link from "next/link";
 import { type FormEvent, useCallback, useEffect, useState } from "react";
 import { OrganizerNav } from "@/components/event-portal";
