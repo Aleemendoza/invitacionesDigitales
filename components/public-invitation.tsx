@@ -5,12 +5,14 @@ import "./agenda-timeline.css";
 import "./invitation-section-surfaces.css";
 import "./invitation-hero.css";
 import "./auto-gallery.css";
+import "./social-photos-section.css";
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { GiftSection } from "@/components/gift-section";
 import { AutoGallery } from "@/components/auto-gallery";
 import { Icon } from "@/components/icons";
 import { SocialPhotosSection } from "@/components/social-photos-section";
+import { InvitationWelcome } from "@/components/invitation-welcome";
 import { getCountdown } from "@/lib/countdown";
 import type { GiftSectionConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
 import { normalizeTheme, templateTheme, textColor } from "@/lib/event-theme";
@@ -27,6 +29,7 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
   const [countdown, setCountdown] = useState(() => getCountdown(event.starts_at, false));
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [hasStarted, setHasStarted] = useState(false);
   useEffect(() => { const interval = window.setInterval(() => setCountdown(getCountdown(event.starts_at, false)), 1000); return () => window.clearInterval(interval); }, [event.starts_at]);
   const theme = normalizeTheme(event.content.theme, templateTheme(template.theme));
   const style = { "--event-primary": theme.primaryColor, "--event-on-primary": textColor(theme.primaryColor), "--event-accent": theme.accentColor, "--event-on-accent": textColor(theme.accentColor), "--event-background": theme.backgroundColor, "--event-on-background": textColor(theme.backgroundColor), "--event-title": theme.titleColor, "--event-cover": `url(${event.event_media?.[0]?.url || template.coverImage})`, "--event-countdown": `url(${template.countdownImage})` } as CSSProperties;
@@ -37,12 +40,14 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
   const mapQuery = [event.content.venue, event.content.venueAddress].filter(Boolean).join(", "); const mapLink = event.content.mapUrl || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : "");
   const sectionPhoto = event.event_media?.find((item) => item.position > 0)?.url;
   const mediaUrlByPath = new Map((event.event_media ?? []).map((item) => [item.storage_path, item.url]));
+  const welcomeBackground = (event.content.welcome?.backgroundPhotoPath && mediaUrlByPath.get(event.content.welcome.backgroundPhotoPath)) || event.event_media?.[0]?.url || template.coverImage;
   const compactDate = event.starts_at ? new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "2-digit", year: "numeric" }).format(new Date(event.starts_at)) : "";
   const rsvpAvailable = hasPlanFeature(event.plan as Plan, "general-rsvp") && event.rsvp_enabled;
   const rsvpHref = `/e/${event.slug}/rsvp`;
   const panel = (section: InvitationSection) => panelProps(template.sections[section], sectionPhoto, section);
   const rsvpPanel = panel("rsvp");
   const showMenu = hasPublicMenuActions(event.plan as Plan, Boolean(event.rsvp_enabled));
+  if (!hasStarted) return <InvitationWelcome title={event.title} eventType={event.event_type} message={event.content.welcome?.message} backgroundUrl={welcomeBackground} accentColor={theme.accentColor} onStart={() => setHasStarted(true)} />;
   return <main className={`publicInvite premiumInvite ${template.theme}`} style={style}>
     <section className="piHero"><div className="piHeroTools">{showMenu && <button aria-label="Abrir menú" aria-expanded={menuOpen} onClick={() => setMenuOpen((current) => !current)}><Icon name="menu" size={19} /></button>}{musicId && <button className={musicPlaying ? "isPlaying" : ""} aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={() => setMusicPlaying((current) => !current)}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>}</div>{menuOpen && showMenu && <nav className="piHeroMenu" aria-label="Opciones de la invitación">{rsvpAvailable&&<Link href={rsvpHref}>Confirmar asistencia</Link>}{hasPlanFeature(event.plan as Plan,"qr-album")&&<Link href={`/e/${event.slug}/album`}>Álbum de fotos</Link>}{hasPlanFeature(event.plan as Plan,"trivia")&&<Link href={`/e/${event.slug}/trivia`}>Jugar trivia</Link>}</nav>}<div className="piHeroCopy"><h1>{event.title}</h1>{compactDate && <time>{compactDate}</time>}</div></section>
     {musicPlaying && musicId && <iframe className="publicMusicPlayer" title="Música del evento" src={youtubeEmbedUrl(musicId)} allow="autoplay; encrypted-media" />}

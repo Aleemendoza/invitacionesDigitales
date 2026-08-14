@@ -13,6 +13,7 @@ import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { templates } from "@/lib/templates";
 import { prepareImageUpload } from "@/lib/image-upload";
+import { welcomeMessageForEventType } from "@/lib/invitation-welcome";
 
 const blankGift: GiftSectionConfig = {
   enabled: false, title: "Regalos", message: GIFT_MESSAGE, type: "bank_transfer", protectedDetails: true,
@@ -47,6 +48,7 @@ function toDraft(event: any): EventDraftInput {
     theme: normalizeTheme(event.content.theme, templateTheme(template.theme)),
     rsvp: event.content.rsvp ?? { enabled: event.rsvp_enabled ?? true, deadline: event.rsvp_deadline?.slice(0, 16) ?? "", accessMode: event.guest_access_mode ?? "name_lookup", questions: [] },
     sectionStyles: event.content.sectionStyles ?? {},
+    welcome: event.content.welcome ?? { message: welcomeMessageForEventType(event.event_type, event.title) },
     sections: {
       gifts: { ...blankGift, ...(storedSections.gifts as Partial<GiftSectionConfig> | undefined) },
       socialPhotos: { ...blankSocial, ...(storedSections.social_photos as Partial<SocialPhotoSectionConfig> | undefined) },
@@ -164,14 +166,17 @@ export function EventEditor({ eventId }: { eventId: string }) {
   const template = templates.find((item) => item.slug === draft.templateSlug) ?? templates[0];
   const photos = event.event_media?.map((item: any) => item.url ?? "").filter(Boolean) ?? [];
   const photoOptions = event.event_media?.filter((item: any) => item.storage_path && item.url).map((item: any) => ({ path: item.storage_path, url: item.url })) ?? [];
+  const welcome = draft.welcome ?? { message: welcomeMessageForEventType(draft.eventType, draft.title) };
+  const welcomeBackgroundUrl = photoOptions.find((photo: { path: string; url: string }) => photo.path === welcome.backgroundPhotoPath)?.url;
   const preview = {
     title: draft.title,
     event_type: draft.eventType,
     starts_at: draft.date && draft.time ? new Date(`${draft.date}T${draft.time}:00-03:00`).toISOString() : null,
     template_slug: draft.templateSlug,
-    content: { venue: draft.venue, venueAddress: draft.venueAddress, mapUrl: draft.mapUrl, closingMessage: draft.closingMessage, wizard_step: 7, features: draft.features, agenda: draft.agenda, message: draft.message, dressCode: draft.dressCode, musicUrl: draft.musicUrl, theme: draft.theme, rsvp, sectionStyles: draft.sectionStyles },
+    content: { venue: draft.venue, venueAddress: draft.venueAddress, mapUrl: draft.mapUrl, closingMessage: draft.closingMessage, wizard_step: 7, features: draft.features, agenda: draft.agenda, message: draft.message, dressCode: draft.dressCode, musicUrl: draft.musicUrl, theme: draft.theme, rsvp, sectionStyles: draft.sectionStyles, welcome },
     sections: draft.sections,
     photos,
+    welcomeBackgroundUrl,
   };
 
   return <main className="editorPage">
@@ -191,6 +196,11 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <p className="editorHint">La primera imagen es la portada. Las siguientes aparecen en la galería de tu invitación.</p>
         <label className="galleryUploader">{uploading ? "Subiendo imágenes…" : "Agregar imágenes"}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={(item) => void uploadGallery(item.currentTarget.files)} /></label>
         {photos.length > 0 ? <div className="galleryGrid">{photos.map((photo: string, index: number) => <figure key={`${photo}-${index}`}><img src={photo} alt={index === 0 ? "Portada actual" : `Imagen de galería ${index}`} /><figcaption>{index === 0 ? "Portada" : `Galería ${index}`}</figcaption></figure>)}</div> : <p className="editorEmpty">Todavía no cargaste imágenes. Se usarán las imágenes de la plantilla.</p>}
+
+        <h3>Pantalla de bienvenida</h3>
+        <p className="editorHint">Se muestra antes de cada visita a la invitación. Si no elegís una foto, se usará la portada de la plantilla.</p>
+        <label>Mensaje de bienvenida<textarea value={welcome.message ?? ""} onChange={(item) => update("welcome", { ...welcome, message: item.currentTarget.value })} /></label>
+        <label>Fondo de bienvenida<select value={welcome.backgroundPhotoPath ?? ""} onChange={(item) => update("welcome", { ...welcome, backgroundPhotoPath: item.currentTarget.value || undefined })}><option value="">Usar portada de la plantilla</option>{photoOptions.map((photo: { path: string }, index: number) => <option key={photo.path} value={photo.path}>Imagen subida {index + 1}</option>)}</select></label>
 
         <h3>Información para tus invitados</h3>
         <label>Mensaje de bienvenida<textarea value={draft.message ?? ""} onChange={(item) => update("message", item.currentTarget.value)} /></label>
