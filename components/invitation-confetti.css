@@ -1,0 +1,35 @@
+.welcomeConfetti i {
+  top: -14svh;
+  left: var(--left);
+  transform: translate3d(0, 0, 0) rotate(var(--rotation));
+  animation: welcomeConfettiFall var(--duration) cubic-bezier(.28, .48, .7, 1) infinite;
+  animation-delay: var(--delay);
+  will-change: transform, opacity;
+}
+
+@keyframes welcomeConfettiFall {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 0, 0) rotate(var(--rotation));
+  }
+
+  7% {
+    opacity: .9;
+  }
+
+  92% {
+    opacity: .9;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate3d(var(--drift), 128svh, 0) rotate(var(--turns));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcomeConfetti i {
+    display: none;
+    animation: none;
+  }
+}

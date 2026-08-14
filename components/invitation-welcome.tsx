@@ -4,8 +4,27 @@ import { useState, type CSSProperties } from "react";
 import { Icon } from "@/components/icons";
 import { welcomeMessageForEventType, welcomeStyleForEventType, type WelcomeConfig } from "@/lib/invitation-welcome";
 import "./invitation-welcome.css";
+import "./invitation-confetti.css";
 
-const confetti = Array.from({ length: 22 }, (_, index) => index);
+const pseudoRandom = (seed: number) => {
+  const value = Math.sin(seed * 12.9898) * 43758.5453;
+  return value - Math.floor(value);
+};
+
+const confetti = Array.from({ length: 30 }, (_, index) => {
+  const duration = 7 + pseudoRandom(index + 11) * 4;
+  return {
+    index,
+    style: {
+      "--delay": `-${(pseudoRandom(index + 23) * duration).toFixed(2)}s`,
+      "--drift": `${Math.round(-18 + pseudoRandom(index + 37) * 36)}vw`,
+      "--duration": `${duration.toFixed(2)}s`,
+      "--left": `${(2 + pseudoRandom(index + 3) * 96).toFixed(2)}%`,
+      "--rotation": `${Math.round(pseudoRandom(index + 51) * 360)}deg`,
+      "--turns": `${Math.round(360 + pseudoRandom(index + 71) * 720)}deg`,
+    } as CSSProperties,
+  };
+});
 
 export function InvitationWelcome({ title, eventType, message, backgroundUrl, accentColor, onStart, musicEmbedUrl, musicPlaying = false, onToggleMusic, compact = false }: { title: string; eventType: string; message?: string; backgroundUrl: string; accentColor: string; onStart: () => void; musicEmbedUrl?: string; musicPlaying?: boolean; onToggleMusic?: () => void; compact?: boolean }) {
   const [isOpening, setIsOpening] = useState(false);
@@ -16,7 +35,7 @@ export function InvitationWelcome({ title, eventType, message, backgroundUrl, ac
     window.setTimeout(onStart, window.matchMedia("(prefers-reduced-motion: reduce)").matches ? 0 : 3000);
   };
   return <section className={`invitationWelcome welcome-${welcomeStyleForEventType(eventType)}${compact ? " isCompact" : ""}${isOpening ? " isOpening" : ""}`} style={style}>
-    <div className="welcomeConfetti" aria-hidden="true">{confetti.map((item) => <i key={item} style={{ "--piece": item } as CSSProperties} />)}</div>
+    <div className="welcomeConfetti" aria-hidden="true">{confetti.map(({ index, style }) => <i key={index} style={style} />)}</div>
     {musicEmbedUrl && onToggleMusic && <><button className={`welcomeMusicToggle${musicPlaying ? " isPlaying" : ""}`} type="button" aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={onToggleMusic}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>{musicPlaying && <iframe className="welcomeMusicPlayer" title="Música del evento" src={musicEmbedUrl} allow="autoplay; encrypted-media" />}</>}
     <div className="welcomeContent"><p className="eyebrow">TE DAMOS LA BIENVENIDA</p><h1>{title || "Tu celebración"}</h1><p>{message?.trim() || welcomeMessageForEventType(eventType, title)}</p><button type="button" disabled={isOpening} onClick={beginInvitation}>Comenzar <span aria-hidden="true">→</span></button></div>
   </section>;
