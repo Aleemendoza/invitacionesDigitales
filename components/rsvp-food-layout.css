@@ -1,0 +1,63 @@
+.premiumRsvp .memberMenu {
+  display: grid;
+  grid-template-columns: minmax(68px, .75fr) minmax(0, 2.15fr);
+  align-items: center;
+  gap: 12px;
+  margin: 9px 0;
+  padding: 11px 12px;
+  border: 1px solid #e6dde0;
+  border-radius: 13px;
+  background: #fff;
+}
+
+.premiumRsvp .memberMenu>div:first-child {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.premiumRsvp .memberMenu>div:first-child b,
+.premiumRsvp .memberMenu>div:first-child span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.premiumRsvp .memberMenu>div:first-child b { font-size: 14px; }
+.premiumRsvp .memberMenu>div:first-child span { color: var(--muted); font-size: 11px; }
+
+.premiumRsvp .memberMenu>div:last-child {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 5px;
+}
+
+.premiumRsvp .memberMenu button {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 3px;
+  min-height: 58px;
+  padding: 6px 3px;
+  border: 1px solid #e0d7da;
+  border-radius: 8px;
+  background: #fff;
+  color: var(--ink);
+  font-size: 8px;
+  line-height: 1.1;
+}
+
+.premiumRsvp .memberMenu button svg { width: 16px; color: var(--rsvp-accent); }
+
+.premiumRsvp .memberMenu button span {
+  overflow: hidden;
+  max-width: 100%;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.premiumRsvp .memberMenu button.selected {
+  border-color: var(--rsvp-accent);
+  background: #fff2f6;
+  box-shadow: 0 0 0 1px var(--rsvp-accent);
+}

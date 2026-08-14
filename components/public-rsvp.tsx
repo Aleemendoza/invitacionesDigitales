@@ -4,6 +4,7 @@ import "./public-event.css";
 import "./premium-rsvp.css";
 import "./rsvp-preferences.css";
 import "./rsvp-food.css";
+import "./rsvp-food-layout.css";
 import "./rsvp-success.css";
 import "./rsvp-lookup.css";
 import "./rsvp-stage.css";
