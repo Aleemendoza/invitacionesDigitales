@@ -192,15 +192,18 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <div className="fieldPair"><label>Fecha<input type="date" value={draft.date} onChange={(item) => update("date", item.currentTarget.value)} /></label><label>Hora<input type="time" value={draft.time} onChange={(item) => update("time", item.currentTarget.value)} /></label></div>
         <ThemeControls value={draft.theme!} defaults={templateTheme(template.theme)} onChange={(theme) => update("theme", theme)} />
 
+        <section className="box">
+          <p className="eyebrow">ANTES DE LA INVITACIÓN</p>
+          <h3>Pantalla de bienvenida</h3>
+          <p className="editorHint">Se muestra antes de cada visita. Si no elegís una foto, se usará la portada de la plantilla.</p>
+          <label>Mensaje de bienvenida<textarea value={welcome.message ?? ""} onChange={(item) => update("welcome", { ...welcome, message: item.currentTarget.value })} /></label>
+          <label>Fondo de bienvenida<select value={welcome.backgroundPhotoPath ?? ""} onChange={(item) => update("welcome", { ...welcome, backgroundPhotoPath: item.currentTarget.value || undefined })}><option value="">Usar portada de la plantilla</option>{photoOptions.map((photo: { path: string }, index: number) => <option key={photo.path} value={photo.path}>Imagen subida {index + 1}</option>)}</select></label>
+        </section>
+
         <h3>Portada y galería</h3>
         <p className="editorHint">La primera imagen es la portada. Las siguientes aparecen en la galería de tu invitación.</p>
         <label className="galleryUploader">{uploading ? "Subiendo imágenes…" : "Agregar imágenes"}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={uploading} onChange={(item) => void uploadGallery(item.currentTarget.files)} /></label>
         {photos.length > 0 ? <div className="galleryGrid">{photos.map((photo: string, index: number) => <figure key={`${photo}-${index}`}><img src={photo} alt={index === 0 ? "Portada actual" : `Imagen de galería ${index}`} /><figcaption>{index === 0 ? "Portada" : `Galería ${index}`}</figcaption></figure>)}</div> : <p className="editorEmpty">Todavía no cargaste imágenes. Se usarán las imágenes de la plantilla.</p>}
-
-        <h3>Pantalla de bienvenida</h3>
-        <p className="editorHint">Se muestra antes de cada visita a la invitación. Si no elegís una foto, se usará la portada de la plantilla.</p>
-        <label>Mensaje de bienvenida<textarea value={welcome.message ?? ""} onChange={(item) => update("welcome", { ...welcome, message: item.currentTarget.value })} /></label>
-        <label>Fondo de bienvenida<select value={welcome.backgroundPhotoPath ?? ""} onChange={(item) => update("welcome", { ...welcome, backgroundPhotoPath: item.currentTarget.value || undefined })}><option value="">Usar portada de la plantilla</option>{photoOptions.map((photo: { path: string }, index: number) => <option key={photo.path} value={photo.path}>Imagen subida {index + 1}</option>)}</select></label>
 
         <h3>Información para tus invitados</h3>
         <label>Mensaje de bienvenida<textarea value={draft.message ?? ""} onChange={(item) => update("message", item.currentTarget.value)} /></label>
