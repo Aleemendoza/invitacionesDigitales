@@ -33,7 +33,7 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
   const date = event.starts_at ? new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.starts_at)) : "Fecha a confirmar";
   const gifts = event.event_sections?.find((section) => section.kind === "gifts"); const social = event.event_sections?.find((section) => section.kind === "social_photos");
   const values = countdown.kind === "pending" ? [countdown.days, countdown.hours, countdown.minutes, countdown.seconds] : [0, 0, 0, 0];
-  const musicId = event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
+  const musicId = hasPlanFeature(event.plan as Plan, "music") && event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
   const mapQuery = [event.content.venue, event.content.venueAddress].filter(Boolean).join(", "); const mapLink = event.content.mapUrl || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : "");
   const sectionPhoto = event.event_media?.find((item) => item.position > 0)?.url;
   const mediaUrlByPath = new Map((event.event_media ?? []).map((item) => [item.storage_path, item.url]));

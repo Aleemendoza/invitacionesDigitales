@@ -26,7 +26,7 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
   const cover = photos[0] || template.coverImage;
   const theme = normalizeTheme(event.content.theme, templateTheme(template.theme));
   const [music, setMusic] = useState(false);
-  const musicId = event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
+  const musicId = hasPlanFeature(plan ?? template.plan, "music") && event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
   const date = event.starts_at ? new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.starts_at)) : "Fecha a confirmar";
   const preview = label.length > 0;
   const price = planDetails[plan ?? template.plan].price;
@@ -43,7 +43,7 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
     {event.content.message && <section {...panel("message")}><p className="eyebrow">Un mensaje especial</p><p>{event.content.message}</p></section>}
     <section {...panel("details")}><p className="eyebrow">Cuándo y dónde</p><strong>{date}</strong><span>{event.content.venue || "Lugar a confirmar"}</span>{event.content.venueAddress && <span>{event.content.venueAddress}</span>}{mapLink && <a href={mapLink} target="_blank" rel="noreferrer">Ver mapa y cómo llegar</a>}</section>
     {event.content.agenda.length > 0 && <section {...panel("agenda")}><p className="eyebrow">Agenda</p><div className="invitationAgenda">{event.content.agenda.map((item) => <p key={`${item.time}-${item.title}`}><b>{item.time}</b><span>{item.title}</span></p>)}</div></section>}
-    {photos.length > 1 && <section {...panel("gallery")}><p className="eyebrow">Galería</p><div className="invitationGallery">{photos.slice(1).map((photo, index) => <img alt={`Foto ${index + 1} de la galería`} key={`${photo}-${index}`} src={photo} />)}</div></section>}
+    {hasPlanFeature(plan ?? template.plan, "gallery") && photos.length > 1 && <section {...panel("gallery")}><p className="eyebrow">Galería</p><div className="invitationGallery">{photos.slice(1).map((photo, index) => <img alt={`Foto ${index + 1} de la galería`} key={`${photo}-${index}`} src={photo} />)}</div></section>}
     {event.content.dressCode && <section {...panel("dress")}><p className="eyebrow">Vestimenta</p><strong>{event.content.dressCode}</strong></section>}
     {event.sections?.gifts?.enabled && <section {...panel("gifts")}><p className="eyebrow">Regalos</p><p>{GIFT_MESSAGE}</p><button type="button">Ver datos del regalo</button></section>}
     {social?.enabled && <section {...panel("social")}><p className="eyebrow">Fotos sociales</p><p>{SOCIAL_PHOTOS_MESSAGE}</p>{socialValue && <strong>{socialValue}</strong>}</section>}

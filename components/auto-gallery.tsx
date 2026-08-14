@@ -1,32 +1,19 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-
 type GalleryPhoto = { storage_path: string; url?: string };
 
+/** A duplicated, CSS-driven rail avoids scroll resets and stays seamless at every loop. */
 export function AutoGallery({ photos }: { photos: GalleryPhoto[] }) {
-  const track = useRef<HTMLDivElement>(null);
-  const [paused, setPaused] = useState(false);
-
-  useEffect(() => {
-    const element = track.current;
-    if (!element || paused || photos.length < 2 || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-
-    const timer = window.setInterval(() => {
-      const firstCard = element.firstElementChild as HTMLElement | null;
-      if (!firstCard) return;
-      const next = firstCard.offsetWidth + 10;
-      const atEnd = element.scrollLeft + element.clientWidth >= element.scrollWidth - 4;
-      element.scrollTo({ left: atEnd ? 0 : element.scrollLeft + next, behavior: "smooth" });
-    }, 2500);
-
-    return () => window.clearInterval(timer);
-  }, [paused, photos.length]);
-
-  return <div className="piGalleryCarousel" onMouseEnter={() => setPaused(true)} onMouseLeave={() => setPaused(false)} onFocusCapture={() => setPaused(true)} onBlurCapture={() => setPaused(false)}>
-    <div className="piGalleryTrack" ref={track} tabIndex={0} aria-label="Galería de fotos, se desplaza automáticamente">
-      {photos.map((item, index) => <img key={item.storage_path} src={item.url} alt={"Foto " + (index + 1) + " del evento"} loading={index > 1 ? "lazy" : "eager"} />)}
+  const moving = photos.length > 1;
+  const items = moving ? [...photos, ...photos] : photos;
+  return <div className={`piGalleryCarousel ${moving ? "isMoving" : ""}`} aria-label="Galería de fotos">
+    <div className="piGalleryTrack">
+      <div className="piGalleryRail">
+        {items.map((item, index) => {
+          const duplicate = moving && index >= photos.length;
+          return <img key={`${item.storage_path}-${index}`} src={item.url} alt={duplicate ? "" : `Foto ${index + 1} del evento`} aria-hidden={duplicate || undefined} loading={index > 1 ? "lazy" : "eager"} />;
+        })}
+      </div>
     </div>
-    {photos.length > 1 }
   </div>;
 }

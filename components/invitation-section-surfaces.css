@@ -24,16 +24,18 @@
 
 .premiumInvite .piRsvp.sectionSurface {
   display: grid;
-  align-content: center;
+  gap: 20px;
   justify-items: center;
-  min-height: 0;
-  margin-top: 14px;
-  padding: 34px 30px 38px;
+  margin: 18px 12px;
+  padding: 32px 24px 26px;
+  background: linear-gradient(135deg,color-mix(in srgb,var(--event-primary) 97%,#000),color-mix(in srgb,var(--event-primary) 78%,var(--event-background))) !important;
+  color: var(--event-on-primary) !important;
   text-align: center;
 }
 
 .premiumInvite .piRsvp.sectionSurface .piRsvpCopy {
   display: grid;
+  gap: 8px;
   justify-items: center;
   max-width: 100%;
   text-align: center;
@@ -47,11 +49,10 @@
   text-align: center;
 }
 .premiumInvite .piRsvp.sectionSurface a {
-  justify-self: center;
-  border-radius: 999px;
-  min-width: min(100%, 250px);
-  padding-inline: 22px;
-  background: var(--surface-accent);
+  width: 100%;
+  min-height: 48px;
+  border-radius: 9px;
+  background: var(--event-accent);
   color: var(--event-on-accent);
 }
 
