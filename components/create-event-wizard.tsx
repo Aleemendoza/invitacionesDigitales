@@ -63,7 +63,7 @@ export function CreateEventWizard() {
     setDraft((current) => ({ ...current, eventType, templateSlug: template.slug, features: defaultFeatures(current.plan), theme: templateTheme(template.theme) }));
   };
   const chooseTemplate = (template: Template) => setDraft((current) => ({ ...current, templateSlug: template.slug, features: defaultFeatures(current.plan), theme: templateTheme(template.theme) }));
-  const valid = () => draft.step === 0 ? planChosen : draft.step === 1 ? Boolean(draft.eventType) : draft.step === 2 ? draft.title.trim().length > 1 : draft.step === 3 ? Boolean(draft.date && draft.time) : draft.step === 4 ? draft.venue.trim().length > 1 : draft.step === 5 ? draft.agenda.length > 0 && draft.agenda.every((item) => item.time && item.title.trim()) : draft.step === 6 ? Boolean(draft.templateSlug) : draft.step === 7 ? photos.length > 0 : true;
+  const valid = () => draft.step === 0 ? planChosen : draft.step === 1 ? Boolean(draft.eventType) : draft.step === 2 ? draft.title.trim().length > 1 : draft.step === 3 ? Boolean(draft.date && draft.time) : draft.step === 4 ? draft.venue.trim().length > 1 : draft.step === 5 ? draft.agenda.length > 0 && draft.agenda.every((item) => item.time && item.title.trim()) : draft.step === 6 ? Boolean(draft.templateSlug) : true;
   const next = () => { if (!valid()) return setNotice("Completá este paso para continuar."); setNotice(""); update("step", Math.min(8, draft.step + 1)); };
   const submit = async () => {
     if (submittingRef.current || saving) return;
@@ -114,7 +114,7 @@ function Fields({ draft, photos, update, choosePlan, chooseType, chooseTemplate,
 
 function PhotoPicker({ photos, setPhotos, plan }: { photos: Photo[]; setPhotos: (value: Photo[]) => void; plan: Plan }) {
   const [error, setError] = useState("");
-  const maxPhotos = planDetails[plan].galleryLimit ?? 10;
+  const maxPhotos = planDetails[plan].mediaLimit;
   const choose = async (event: ChangeEvent<HTMLInputElement>) => { try { setError(""); const files = Array.from(event.currentTarget.files ?? []).filter((file) => file.type.startsWith("image/")).slice(0, maxPhotos - photos.length); const prepared = await Promise.all(files.map(prepareImageUpload)); const added = prepared.map((file) => ({ file, preview: URL.createObjectURL(file) })); setPhotos([...photos, ...added]); } catch (reason) { setError(reason instanceof Error ? reason.message : "No pudimos preparar la imagen."); } finally { event.currentTarget.value = ""; } };
   return <div className="photoUploader"><p>{plan === "standard" ? "Subí una foto para la portada." : `Podés subir hasta ${maxPhotos} fotos.`}</p>{photos.length < maxPhotos && <label className="upload">{photos.length ? "Agregar fotos" : "Elegir fotos"}<input type="file" accept="image/jpeg,image/png,image/webp" multiple onChange={choose} /></label>}{error && <p className="wizardNotice">{error}</p>}<div className="photoThumbs">{photos.map((photo, index) => <figure key={photo.preview}><img src={photo.preview} alt={`Foto ${index + 1}`} /><button onClick={() => setPhotos(photos.filter((item) => item !== photo))}>×</button></figure>)}</div></div>;
 }

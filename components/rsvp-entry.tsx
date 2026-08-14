@@ -8,7 +8,7 @@ export function RsvpEntry({slug}:{slug:string}){
     fetch(`/api/public/events/${encodeURIComponent(slug)}/general-rsvp`)
       .then(async response=>{
         const body=await response.json();
-        setHasPremiumFlow(body.event?.plan==="premium"||body.event?.plan==="premium_plus");
+        setHasPremiumFlow(body.event?.plan==="premium_plus");
       })
       .catch(()=>setHasPremiumFlow(false));
   },[slug]);

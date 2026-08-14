@@ -6,15 +6,18 @@ export type Plan = "standard" | "premium" | "premium_plus";
 export type PaymentStatus = "unpaid" | "pending" | "approved" | "rejected";
 export type AgendaItem = { time: string; title: string };
 export type PlanFeature = "cover" | "agenda" | "map" | "message" | "dress-code" | "gifts" | "gallery" | "music" | "general-rsvp" | "custom-rsvp" | "csv-export" | "guest-list" | "individual-links" | "qr-album" | "trivia";
-export type PlanDefinition = { name: string; price: number; features: readonly PlanFeature[]; galleryLimit: number | null };
+export type PlanDefinition = { name: string; price: number; features: readonly PlanFeature[]; mediaLimit: number };
 
 export const planDetails: Record<Plan, PlanDefinition> = {
-  standard: { name: "Estándar", price: 18000, features: ["cover", "agenda", "map", "message", "dress-code", "gifts"], galleryLimit: 1 },
-  premium: { name: "Premium", price: 23000, features: ["cover", "agenda", "map", "message", "dress-code", "gifts", "gallery", "music", "general-rsvp", "custom-rsvp", "csv-export"], galleryLimit: 5 },
-  premium_plus: { name: "Premium Plus+", price: 28000, features: ["cover", "agenda", "map", "message", "dress-code", "gifts", "gallery", "music", "general-rsvp", "custom-rsvp", "csv-export", "guest-list", "individual-links", "qr-album", "trivia"], galleryLimit: null },
+  standard: { name: "Estándar", price: 18000, features: ["cover", "agenda", "map", "message", "dress-code", "gifts"], mediaLimit: 1 },
+  premium: { name: "Premium", price: 23000, features: ["cover", "agenda", "map", "message", "dress-code", "gifts", "gallery", "music", "general-rsvp", "custom-rsvp", "csv-export"], mediaLimit: 5 },
+  premium_plus: { name: "Premium Plus+", price: 28000, features: ["cover", "agenda", "map", "message", "dress-code", "gifts", "gallery", "music", "general-rsvp", "custom-rsvp", "csv-export", "guest-list", "individual-links", "qr-album", "trivia"], mediaLimit: 10 },
 };
 export const plans = Object.keys(planDetails) as Plan[];
 export const hasPlanFeature = (plan: Plan, feature: PlanFeature) => planDetails[plan].features.includes(feature);
+export const canManageGuests = (plan: Plan) => hasPlanFeature(plan, "guest-list");
+export const usesPersonalizedRsvp = (plan: Plan) => hasPlanFeature(plan, "guest-list") && hasPlanFeature(plan, "custom-rsvp");
+export const hasPublicMenuActions = (plan: Plan, rsvpEnabled: boolean) => (hasPlanFeature(plan, "general-rsvp") && rsvpEnabled) || hasPlanFeature(plan, "qr-album") || hasPlanFeature(plan, "trivia");
 export const isPlan = (value: unknown): value is Plan => typeof value === "string" && plans.includes(value as Plan);
 export const planRank = (plan: Plan) => plans.indexOf(plan);
 export const defaultFeatures = (plan: Plan): PlanFeature[] => [...planDetails[plan].features].filter((feature) => !["general-rsvp", "custom-rsvp", "csv-export", "guest-list", "individual-links", "qr-album", "trivia"].includes(feature));

@@ -16,15 +16,15 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     const { data: event } = await db.from("events").select("id,plan").eq("id", eventId).eq("owner_id", auth.user?.id ?? "").maybeSingle();
     if (!event) return NextResponse.json({ error: "Evento no encontrado." }, { status: 404 });
 
-    const form = await request.formData(); const maxFiles=planDetails[event.plan as Plan].galleryLimit;
-    const files = form.getAll("photos").filter((value): value is File => value instanceof File).slice(0, maxFiles ?? Number.MAX_SAFE_INTEGER);
+    const form = await request.formData(); const maxFiles=planDetails[event.plan as Plan].mediaLimit;
+    const files = form.getAll("photos").filter((value): value is File => value instanceof File).slice(0, maxFiles);
     if (!files.length || files.some((file) => !file.type.startsWith("image/") || file.size > MAX_BYTES)) {
       return NextResponse.json({ error: `Subí imágenes válidas de máximo 8 MB${maxFiles ? ` (hasta ${maxFiles} por carga)` : ""}.` }, { status: 400 });
     }
 
     const { data: existingMedia, error: existingMediaError } = await db.from("event_media").select("position").eq("event_id", eventId).order("position", { ascending: false }).limit(1);
     if (existingMediaError) throw existingMediaError;
-    const existingCount=existingMedia?.length??0; if(maxFiles!==null&&existingCount+files.length>maxFiles)return NextResponse.json({error:`Tu plan permite hasta ${maxFiles} imágenes.`},{status:400}); const firstUpload = !existingMedia?.length;
+    const existingCount=existingMedia?.length??0; if(existingCount+files.length>maxFiles)return NextResponse.json({error:`Tu plan permite hasta ${maxFiles} imágenes.`},{status:400}); const firstUpload = !existingMedia?.length;
     const nextPosition = existingMedia?.[0]?.position ?? -1;
     const uploaded: { path: string; url: string }[] = [];
 

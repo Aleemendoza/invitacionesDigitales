@@ -136,7 +136,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
 
   const uploadGallery = async (files: FileList | null) => {
     if (!files?.length) return;
-    const selected = Array.from(files).slice(0, 5);
+    const selected = Array.from(files).slice(0, Math.max(0, planDetails[draft.plan].mediaLimit - (event.event_media?.length ?? 0)));
     const access = await token();
     if (!access) return setNotice("Iniciá sesión para subir imágenes.");
     setUploading(true);
