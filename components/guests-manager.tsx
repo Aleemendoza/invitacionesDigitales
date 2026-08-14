@@ -10,8 +10,21 @@ import { getBrowserSupabase } from "@/lib/supabase-browser";
 
 type Member = { id: string; name: string; attending: boolean | null; foodPreference: string | null };
 type Guest = { id: string; display_name: string; seats: number; status: string; confirmed_seats: number | null; members?: Member[] };
-type EventInfo = Pick<StoredEvent, "id" | "slug" | "title" | "payment_status">;
+type EventInfo = Pick<StoredEvent, "id" | "slug" | "title" | "event_type" | "payment_status">;
 type InviteLink = { url: string; code: string };
+
+function celebrationType(value: string | undefined) {
+  const normalized = value?.trim().toLocaleLowerCase("es-AR");
+  const labels: Record<string, string> = {
+    boda: "casamiento",
+    xv: "festejo de 15 años",
+    cumpleaños: "cumpleaños",
+    infantil: "evento infantil",
+    "baby shower": "baby shower",
+    corporativo: "evento corporativo",
+  };
+  return labels[normalized ?? ""] ?? normalized ?? "celebración";
+}
 
 async function api(path: string, init?: RequestInit) {
   const token = (await getBrowserSupabase()?.auth.getSession())?.data.session?.access_token;
@@ -20,12 +33,15 @@ async function api(path: string, init?: RequestInit) {
 
 export function GuestsManager({ eventId }: { eventId: string }) {
   const [event, setEvent] = useState<EventInfo>(); const [guests, setGuests] = useState<Guest[]>([]); const [name, setName] = useState(""); const [seats, setSeats] = useState(1); const [notice, setNotice] = useState("Cargando invitados…"); const [busy, setBusy] = useState(false); const [links, setLinks] = useState<Record<string, InviteLink>>({}); const [editing, setEditing] = useState<Guest>();
-  const load = useCallback(async () => { try { const response = await api(`/api/events/${eventId}/guests`); const body = await response.json(); if (!response.ok) throw new Error(body.error); setGuests(body.guests); setEvent({ id: eventId, slug: body.eventSlug, title: body.eventTitle, payment_status: body.paymentStatus }); setNotice(""); } catch (error) { setNotice(error instanceof Error ? error.message : "No pudimos cargar los invitados."); } }, [eventId]);
+  const load = useCallback(async () => { try { const response = await api(`/api/events/${eventId}/guests`); const body = await response.json(); if (!response.ok) throw new Error(body.error); setGuests(body.guests); setEvent({ id: eventId, slug: body.eventSlug, title: body.eventTitle, event_type: body.eventType, payment_status: body.paymentStatus }); setNotice(""); } catch (error) { setNotice(error instanceof Error ? error.message : "No pudimos cargar los invitados."); } }, [eventId]);
   useEffect(() => { void load(); }, [load]);
   const save = async (submitEvent: FormEvent) => { submitEvent.preventDefault(); setBusy(true); try { const response = await api(`/api/events/${eventId}/guests`, { method: editing ? "PATCH" : "POST", body: JSON.stringify(editing ? { guestId: editing.id, name, seats } : { name, seats }) }); const body = await response.json(); if (!response.ok) throw new Error(body.error); setName(""); setSeats(1); setEditing(undefined); await load(); } catch (error) { setNotice(error instanceof Error ? error.message : "No pudimos guardar el invitado."); } finally { setBusy(false); } };
   const remove = async (id: string) => { if (!confirm("¿Eliminar este invitado y su enlace?")) return; setBusy(true); try { const response = await api(`/api/events/${eventId}/guests?guestId=${id}`, { method: "DELETE" }); const body = await response.json(); if (!response.ok) throw new Error(body.error); setGuests((current) => current.filter((guest) => guest.id !== id)); } catch (error) { setNotice(error instanceof Error ? error.message : "No pudimos eliminar el invitado."); } finally { setBusy(false); } };
   const issue = async (id: string) => { setBusy(true); try { const response = await api(`/api/events/${eventId}/guests/${id}/link`, { method: "POST" }); const body = await response.json(); if (!response.ok) throw new Error(body.error); setLinks((current) => ({ ...current, [id]: body })); } catch (error) { setNotice(error instanceof Error ? error.message : "No pudimos generar el enlace."); } finally { setBusy(false); } };
-  const inviteMessage = (guest: Guest, link: InviteLink) => `¡Hola, ${guest.display_name}!\n\nEstás invitado/a a *${event?.title ?? "nuestra celebración"}*.\n\nTu tarjeta digital:\n${link.url}\n\nCódigo de acceso: *${link.code}*\n\n¡Te esperamos!`;
+  const inviteMessage = (guest: Guest, link: InviteLink) => {
+    const invitation = guest.seats > 1 ? "Están invitados" : "Estás invitado/a";
+    return `¡Hola, ${guest.display_name}!\n\n${invitation} al ${celebrationType(event?.event_type)} de *${event?.title ?? "nuestra celebración"}*.\n\nTu tarjeta digital:\n${link.url}\n\nCódigo de acceso: *${link.code}*\n\n¡Te esperamos!`;
+  };
   const copy = async (guest: Guest, link: InviteLink) => { await navigator.clipboard.writeText(inviteMessage(guest, link)); setNotice("Mensaje copiado, listo para enviar."); };
   const paid = event?.payment_status === "approved";
   return <main className="appPage guestManager"><OrganizerNav event={event as StoredEvent} /><section className="guestIntro"><div><p className="eyebrow">INVITADOS</p><h1>Tu lista, bajo control.</h1><p>Creá grupos, asigná cupos y enviá una invitación personal a cada uno.</p></div><div className="guestMetric"><Icon name="users" /><b>{guests.length}</b><span>grupos</span></div></section>{!paid && <div className="guestGate"><Icon name="link" /><div><b>{event?.payment_status === "pending" ? "Pago en verificación" : "Los enlaces se habilitan al publicar"}</b><span>Podés preparar tu lista ahora.</span></div><Link href={`/eventos/${eventId}/vista-previa`}>Publicar</Link></div>}<form className="guestForm" onSubmit={save}><div className="formTitle"><Icon name={editing ? "edit" : "plus"} /><b>{editing ? "Editar invitado" : "Agregar invitado"}</b>{editing && <button type="button" onClick={() => { setEditing(undefined); setName(""); setSeats(1); }}>Cancelar</button>}</div><label>Nombre o grupo<input value={name} onChange={(input) => setName(input.target.value)} placeholder="Ej.: Familia Pérez" maxLength={120} required /></label><label>Cupos<select value={seats} onChange={(input) => setSeats(+input.target.value)}>{Array.from({ length: 12 }, (_, index) => <option key={index} value={index + 1}>{index + 1} {index ? "personas" : "persona"}</option>)}</select></label><button className="button dark" disabled={busy}><Icon name={editing ? "check" : "plus"} size={17} />{editing ? "Guardar cambios" : "Agregar"}</button></form>{notice && <p className="guestNotice" role="status">{notice}</p>}<section className="guestList">{guests.length === 0 ? <div className="emptyGuests"><Icon name="users" size={32} /><b>Tu lista está vacía</b><span>Agregá el primer grupo para empezar.</span></div> : guests.map((guest) => <GuestCard key={guest.id} guest={guest} link={links[guest.id]} paid={paid} onEdit={() => { setEditing(guest); setName(guest.display_name); setSeats(guest.seats); }} onDelete={() => void remove(guest.id)} onIssue={() => void issue(guest.id)} onCopy={() => links[guest.id] && void copy(guest, links[guest.id])} message={links[guest.id] ? inviteMessage(guest, links[guest.id]) : ""} />)}</section><MenuSummary guests={guests} /></main>;
