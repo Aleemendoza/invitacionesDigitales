@@ -1,0 +1,122 @@
+.publicRsvpPage.rsvpSuccessPage {
+  display: grid;
+  place-items: center;
+  min-height: calc(100dvh - 74px);
+  height: calc(100dvh - 74px);
+  padding: 20px max(16px, calc((100vw - 560px) / 2));
+  overflow: hidden;
+  background-image: linear-gradient(135deg, rgb(12 8 10 / 83%), rgb(43 22 29 / 86%)), var(--rsvp-cover);
+}
+
+.rsvpSuccessPage .success {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  gap: 13px;
+  width: min(100%, 440px);
+  margin: 0;
+  padding: 38px 29px 28px !important;
+  overflow: hidden;
+  border: 1px solid rgb(255 255 255 / 70%);
+  border-radius: 26px;
+  background: linear-gradient(150deg, #fffefd 0%, #fcf7f5 100%);
+  box-shadow: 0 28px 70px rgb(0 0 0 / 45%), inset 0 1px #fff;
+  text-align: center;
+}
+
+.rsvpSuccessPage .success::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: 4px;
+  content: "";
+  background: linear-gradient(90deg, #e8c48d, var(--rsvp-accent, #db3473), #e8c48d);
+}
+
+.rsvpSuccessPage .successMark {
+  display: grid;
+  place-items: center;
+  width: 68px;
+  height: 68px;
+  border: 5px solid #fff;
+  border-radius: 50%;
+  background: var(--rsvp-accent, #db3473);
+  box-shadow: 0 9px 22px color-mix(in srgb, var(--rsvp-accent, #db3473) 33%, transparent), 0 0 0 1px color-mix(in srgb, var(--rsvp-accent, #db3473) 25%, transparent);
+  color: #fff;
+}
+
+.rsvpSuccessPage .successMark svg { width: 29px; }
+.rsvpSuccessPage .success .eyebrow { margin: 7px 0 -2px; color: var(--rsvp-accent, #db3473); font-size: 9px; letter-spacing: 1.8px; }
+.rsvpSuccessPage .success h1 { margin: 0 !important; color: #24191e; font: 600 clamp(31px, 8vw, 40px) / 1.02 var(--serif); letter-spacing: -.04em; }
+.rsvpSuccessPage .success>p:not(.eyebrow) { max-width: 29ch; margin: 0; color: #55474c; font-size: 14px; line-height: 1.5; }
+.rsvpSuccessPage .success .successRedirect { color: #907b82; font-size: 11px; }
+
+.rsvpSuccessPage .success .successClose {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: grid !important;
+  place-items: center;
+  width: 34px !important;
+  min-height: 34px !important;
+  height: 34px;
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 1px solid #eadfe2 !important;
+  border-radius: 50% !important;
+  background: #fff !important;
+  color: #5b494f;
+  font-size: 23px;
+  line-height: 1;
+  text-align: center !important;
+}
+
+.rsvpSuccessPage .success .successClose:hover { border-color: var(--rsvp-accent, #db3473) !important; color: var(--rsvp-accent, #db3473); }
+
+.successActions {
+  display: grid;
+  width: 100%;
+  gap: 10px;
+  margin-top: 5px;
+}
+
+.rsvpSuccessPage .success .calendarAction,
+.rsvpSuccessPage .success .rsvpAction {
+  min-height: 50px;
+  margin: 0;
+  border-radius: 12px;
+}
+
+.rsvpSuccessPage .success .calendarAction {
+  justify-content: center;
+  border-color: #e6dadd;
+  background: #fff;
+  font-size: 13px;
+}
+
+.rsvpSuccessPage .success .calendarAction svg {
+  width: 18px;
+  height: 18px;
+  padding: 7px;
+  border-radius: 8px;
+}
+
+.rsvpSuccessPage .success .rsvpAction {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  background: var(--rsvp-accent, #db3473);
+  font-size: 13px;
+}
+
+@media (max-height: 640px) {
+  .publicRsvpPage.rsvpSuccessPage { padding-block: 10px; }
+  .rsvpSuccessPage .success { gap: 9px; padding: 27px 24px 20px !important; }
+  .rsvpSuccessPage .successMark { width: 56px; height: 56px; }
+  .rsvpSuccessPage .success .eyebrow { margin-top: 2px; }
+  .rsvpSuccessPage .success h1 { font-size: 30px; }
+  .rsvpSuccessPage .success .successRedirect { display: none; }
+  .rsvpSuccessPage .success .calendarAction,.rsvpSuccessPage .success .rsvpAction { min-height: 44px; }
+}
