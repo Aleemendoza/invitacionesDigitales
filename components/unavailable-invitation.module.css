@@ -67,6 +67,22 @@
   line-height: 1.55;
 }
 
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+  margin: 30px 0 18px;
+}
+
+.help {
+  max-width: 390px;
+  margin: 0;
+  color: #746569;
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 @media (max-width: 600px) {
   .content {
     padding-top: 57px;

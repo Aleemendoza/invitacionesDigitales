@@ -1,17 +1,33 @@
 "use client";
+
 import { useEffect, useState } from "react";
 import { GeneralRsvp } from "@/components/general-rsvp";
 import { PublicRsvp } from "@/components/public-rsvp";
-export function RsvpEntry({slug}:{slug:string}){
-  const [hasPremiumFlow,setHasPremiumFlow]=useState<boolean>();
-  useEffect(()=>{
-    fetch(`/api/public/events/${encodeURIComponent(slug)}/general-rsvp`)
-      .then(async response=>{
-        const body=await response.json();
-        setHasPremiumFlow(body.event?.plan==="premium_plus");
+import { UnavailableInvitation } from "@/components/single-link-invitation";
+
+type RsvpFlow = "loading" | "general" | "group" | "unavailable";
+
+export function RsvpEntry({ slug }: { slug: string }) {
+  const [flow, setFlow] = useState<RsvpFlow>("loading");
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetch(`/api/public/events/${encodeURIComponent(slug)}/general-rsvp`, { signal: controller.signal })
+      .then(async response => {
+        const body = await response.json().catch(() => null) as { event?: { plan?: string } } | null;
+        if (!response.ok) {
+          setFlow("unavailable");
+          return;
+        }
+        setFlow(body?.event?.plan === "premium_plus" ? "group" : body?.event?.plan === "premium" ? "general" : "unavailable");
       })
-      .catch(()=>setHasPremiumFlow(false));
-  },[slug]);
-  if(hasPremiumFlow===undefined)return null;
-  return hasPremiumFlow?<PublicRsvp slug={slug}/>:<GeneralRsvp slug={slug}/>;
+      .catch(() => {
+        if (!controller.signal.aborted) setFlow("unavailable");
+      });
+    return () => controller.abort();
+  }, [slug]);
+
+  if (flow === "loading") return null;
+  if (flow === "unavailable") return <UnavailableInvitation rsvp />;
+  return flow === "group" ? <PublicRsvp slug={slug} /> : <GeneralRsvp slug={slug} />;
 }
