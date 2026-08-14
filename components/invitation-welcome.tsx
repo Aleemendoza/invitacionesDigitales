@@ -36,7 +36,7 @@ export function InvitationWelcome({ title, eventType, message, backgroundUrl, ac
   };
   return <section className={`invitationWelcome welcome-${welcomeStyleForEventType(eventType)}${compact ? " isCompact" : ""}${isOpening ? " isOpening" : ""}`} style={style}>
     <div className="welcomeConfetti" aria-hidden="true">{confetti.map(({ index, style }) => <i key={index} style={style} />)}</div>
-    {musicEmbedUrl && onToggleMusic && <><button className={`welcomeMusicToggle${musicPlaying ? " isPlaying" : ""}`} type="button" aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={onToggleMusic}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>{musicPlaying && <iframe className="welcomeMusicPlayer" title="Música del evento" src={musicEmbedUrl} allow="autoplay; encrypted-media" />}</>}
+    {musicEmbedUrl && onToggleMusic && <button className={`welcomeMusicToggle${musicPlaying ? " isPlaying" : ""}`} type="button" aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={onToggleMusic}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>}
     <div className="welcomeContent"><p className="eyebrow">TE DAMOS LA BIENVENIDA</p><h1>{title || "Tu celebración"}</h1><p>{message?.trim() || welcomeMessageForEventType(eventType, title)}</p><button type="button" disabled={isOpening} onClick={beginInvitation}>Comenzar <span aria-hidden="true">→</span></button></div>
   </section>;
 }

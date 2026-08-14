@@ -3,6 +3,7 @@
 import { useEffect, useState, type CSSProperties } from "react";
 import { Icon } from "@/components/icons";
 import { InvitationWelcome } from "@/components/invitation-welcome";
+import { YouTubeMusicPlayer } from "@/components/youtube-music-player";
 import { SocialPhotosSection } from "@/components/social-photos-section";
 import { getCountdown } from "@/lib/countdown";
 import { normalizeTheme, templateTheme, textColor } from "@/lib/event-theme";
@@ -41,10 +42,9 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
   const panel = (section: InvitationSection) => previewPanelProps(template.sections[section], photos[1], section);
   const style = { "--cover-image": `url(${cover})`, "--theme-primary": theme.primaryColor, "--theme-on-primary": textColor(theme.primaryColor), "--theme-accent": theme.accentColor, "--theme-on-accent": textColor(theme.accentColor), "--theme-background": theme.backgroundColor, "--theme-on-background": textColor(theme.backgroundColor), "--theme-title": theme.titleColor, "--theme-font": theme.fontStyle === "princesa" ? "cursive" : theme.fontStyle === "refinada" ? "Georgia,serif" : "var(--serif)" } as CSSProperties;
   const welcomeBackground = event.welcomeBackgroundUrl || cover;
-  if (showWelcome) return <aside className="invitationPreview" style={style}><span>{label}</span><div className="phoneFrame"><div className="phoneScreen"><InvitationWelcome compact title={event.title} eventType={event.event_type} message={event.content.welcome?.message} backgroundUrl={welcomeBackground} accentColor={theme.accentColor} musicEmbedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} musicPlaying={music} onToggleMusic={() => setMusic((current) => !current)} onStart={() => setShowWelcome(false)} /></div></div></aside>;
-  return <aside className="invitationPreview" style={style}><span>{label}</span><div className="phoneFrame"><div className="phoneScreen"><div className={`eventInvitation ${template.theme}`}>
+  if (showWelcome) return <><YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={music} /><aside className="invitationPreview" style={style}><span>{label}</span><div className="phoneFrame"><div className="phoneScreen"><InvitationWelcome compact title={event.title} eventType={event.event_type} message={event.content.welcome?.message} backgroundUrl={welcomeBackground} accentColor={theme.accentColor} musicEmbedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} musicPlaying={music} onToggleMusic={() => setMusic((current) => !current)} onStart={() => setShowWelcome(false)} /></div></div></aside></>;
+  return <><YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={music} /><aside className="invitationPreview" style={style}><span>{label}</span><div className="phoneFrame"><div className="phoneScreen"><div className={`eventInvitation ${template.theme}`}>
     <section className="eventCover">{musicId && <button className={`musicToggle ${music ? "isPlaying" : ""}`} aria-label={music ? "Silenciar música" : "Activar música"} aria-pressed={music} onClick={() => setMusic((current) => !current)}><Icon name={music ? "music" : "musicOff"} size={18} /></button>}<div><small>{event.event_type}</small><h2>{event.title || "Tu celebración"}</h2></div></section>
-    {music && musicId && <iframe className="musicPlayer" title="Música" src={youtubeEmbedUrl(musicId)} allow="autoplay; encrypted-media" />}
     <Countdown startsAt={event.starts_at} image={template.countdownImage} preview={preview} />
     {event.content.message && <section {...panel("message")}><p className="eyebrow">Un mensaje especial</p><p>{event.content.message}</p></section>}
     <section {...panel("details")}><p className="eyebrow">Cuándo y dónde</p><strong>{date}</strong><span>{event.content.venue || "Lugar a confirmar"}</span>{event.content.venueAddress && <span>{event.content.venueAddress}</span>}{mapLink && <a href={mapLink} target="_blank" rel="noreferrer">Ver mapa y cómo llegar</a>}</section>
@@ -55,6 +55,6 @@ export function EventInvitationPreview({ event, label = "Vista previa", plan, on
     {social?.enabled && <div {...panel("social")}><SocialPhotosSection config={social} theme={template.theme} photoUrl={photos[1]} /></div>}
     {hasPlanFeature(plan ?? template.plan, "general-rsvp") && event.content.rsvp?.enabled !== false && <section {...panel("rsvp")}><p className="eyebrow">RSVP</p><h3>Confirmá tu asistencia</h3><button>Confirmar asistencia</button></section>}
     {preview && <section className="previewCheckout"><p className="eyebrow">¿Te gusta cómo quedó?</p><button onClick={onCheckout}>Publicar — ${price.toLocaleString("es-AR")} →</button><button className="previewEdit" onClick={onEdit}>← Editar invitación</button></section>}
-  </div></div></div></aside>;
+  </div></div></div></aside></>;
 }
 function previewPanelProps(visual: SectionVisual, photo: string | undefined, section: InvitationSection) { const baseClass = { message: "invitationMessage", details: "invitationWhere", agenda: "invitationAgendaPanel", gallery: "invitationGalleryPanel", dress: "invitationDress", gifts: "invitationGift", social: "invitationSocial", rsvp: "invitationRsvp" }[section]; return { className: `${baseClass} previewPanel previewPanel--${visual.tone}`, style: { "--section-gradient": visual.gradient, "--section-art": `url(${visual.decorativeImage})`, "--section-photo": visual.photoEnabled && photo ? `url(${photo})` : "none" } as CSSProperties }; }
