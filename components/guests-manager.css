@@ -4,3 +4,39 @@
 @media(max-width:430px){.guestDashboardActions{gap:7px}.newGuestButton{font-size:0}.newGuestButton svg{margin:0}.guestStats{grid-template-columns:repeat(4,minmax(0,1fr))}.dashboardMetric span{max-width:42px}.guestDetailActions{grid-template-columns:1fr}.guestDirectoryHeading h2{font-size:16px}}
 
 .groupMenuPills{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px}.groupMenuPills>span{display:inline-flex;padding:3px 5px;border-radius:99px;background:#f8edf2;color:#8e2147;font-size:9px;font-weight:700;white-space:nowrap}.groupMenuPills.empty{color:#95898d;font-size:9px;font-weight:600}.groupMenuSummary{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:12px;padding:10px 11px;border-radius:8px;background:#fcf8f9}.groupMenuSummary>b{font-size:11px}.groupMenuSummary .groupMenuPills{justify-content:flex-end;margin:0}.menuCoverage{display:block;margin-top:8px;color:#7a6f72;font-size:11px}@media(max-width:900px){.guestRowToggle .groupMenuPills{max-width:190px}.groupMenuSummary{align-items:flex-start;flex-direction:column}.groupMenuSummary .groupMenuPills{justify-content:flex-start}}
+
+/* The dashboard styles live in the root bundle so desktop layout is stable before hydration. */
+@media (min-width:901px){
+  .guestManager{width:100%;max-width:none!important;margin:0!important;padding:0 48px 72px 276px!important}
+  .guestManager>.guestWorkspace{width:min(1180px,100%);max-width:none;margin:0 auto;padding:42px 0 56px}
+  .guestManager>.siteHeader{width:228px!important;padding:26px 14px 18px!important}
+  .guestDashboardHeader{min-height:86px;align-items:center;margin-bottom:24px;padding-bottom:0}
+  .guestDashboardHeader h1{font-size:30px!important;line-height:1!important}
+  .guestDashboardHeader p:not(.eyebrow){font-size:13px!important}
+}
+
+.menuSummary{grid-template-columns:minmax(220px,.75fr) minmax(380px,1.25fr);gap:18px;padding:24px}.menuSummaryIntro{align-self:center}.menuSummary h2{font-size:29px;line-height:1.03}.menuCoverage{line-height:1.35}.responseBreakdown{display:flex;grid-column:2;flex-wrap:wrap;gap:7px;align-self:end}.responseBreakdown span{display:inline-flex;align-items:baseline;gap:4px;padding:6px 8px;border-radius:7px;font-size:10px;font-weight:600}.responseBreakdown b{font-size:14px}.responseBreakdown .confirmed{background:#e8f7ed}.responseBreakdown .pending{background:#fff2df}.responseBreakdown .declined{background:#fde9ed}.menuTotals{grid-column:2;grid-row:1;align-self:start}.menuTotals article{position:relative;gap:3px;min-height:96px;padding:15px 16px;border:1px solid #f1e9e6;background:#fdfaf9}.menuTotals article::before{position:absolute;top:15px;right:15px;width:7px;height:7px;border-radius:50%;background:#b1285e;content:""}.menuTotals article:nth-child(2)::before{background:#4d9268}.menuTotals article:nth-child(3)::before{background:#bc7c31}.menuTotals b{font-size:31px}.menuTotals span{font-weight:700}.menuTotals small{color:#82777a;font-size:10px}.menuTable{margin-top:4px}.menuEmpty{padding:12px 0 0}
+@media(max-width:900px){.menuSummary{grid-template-columns:1fr;gap:14px}.responseBreakdown{grid-column:auto;grid-row:auto}.menuTotals{grid-column:auto;grid-row:auto}.responseBreakdown span{flex:1;justify-content:center}.menuTotals article{min-height:82px;padding:12px}.menuTotals b{font-size:26px}.menuTotals article::before{top:12px;right:12px}}
+
+/* The generic header rule must never size the dashboard section header. */
+.guestDashboardHeader{position:static!important;height:auto!important;padding:0!important;border:0!important;background:transparent!important;backdrop-filter:none!important}
+@media(max-width:900px){
+  .guestWorkspace{padding:18px 12px 82px!important}
+  .guestDashboardHeader{display:grid!important;grid-template-columns:1fr;gap:12px!important;margin:0 0 14px!important;padding:12px 14px!important;border:1px solid #eee7e4!important;border-radius:10px!important;background:#faf7f5!important}
+  .guestDashboardHeader .eyebrow{margin:0 0 4px;font-size:8px}
+  .guestDashboardHeader h1{margin:0!important;font-size:21px!important;line-height:1!important}
+  .guestDashboardActions{display:flex!important;gap:8px!important}
+  .guestSearch{height:38px!important;padding:0 10px!important}
+  .newGuestButton{min-width:42px!important;height:38px!important;padding:0 11px!important;box-shadow:0 6px 13px #7e154724!important}
+  .guestStats{gap:6px!important;margin-bottom:12px!important}
+  .dashboardMetric{min-height:66px!important;padding:7px 3px!important;gap:3px!important}
+  .dashboardMetric>svg{padding:4px!important}
+  .dashboardMetric b{font-size:16px!important}.dashboardMetric span{font-size:8px!important;line-height:1.15!important}
+  .guestDirectoryHeading{padding:14px!important}.guestDirectoryHeading h2{font-size:15px!important}
+  .guestTableRow{min-height:70px!important;padding:0 12px!important}.guestRowToggle b{font-size:11px!important}.guestStatus{font-size:9px!important}
+  .guestRowToggle .groupMenuPills{display:none!important}.guestAvatar{width:25px!important;height:25px!important}.guestSeatCount{font-size:11px!important}
+  .menuSummary{margin-top:14px!important;padding:16px 14px!important}.menuSummary h2{font-size:24px!important}.menuCoverage{font-size:10px!important}
+  .responseBreakdown{display:grid!important;grid-template-columns:repeat(3,1fr);gap:5px!important}.responseBreakdown span{display:grid!important;justify-items:center;gap:1px;padding:6px 3px!important;font-size:8px!important;text-align:center}.responseBreakdown b{font-size:13px!important}
+  .menuTotals article{min-height:74px!important;padding:10px 7px!important}.menuTotals b{font-size:23px!important}.menuTotals span,.menuTotals small{font-size:9px!important}.menuTotals small{display:none}
+  .guestMobileNav{display:grid!important}
+}

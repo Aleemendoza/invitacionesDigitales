@@ -28,7 +28,7 @@ export function OrganizerNav({ event }: { event?: StoredEvent }) {
   const close = () => setOpen(false);
   const logout = async () => { try { await getBrowserSupabase()?.auth.signOut(); } finally { close(); router.replace("/"); } };
 
-  return <header className="siteHeader">
+  return <header className="siteHeader organizerHeader">
     <Link className="brand" href="/mis-eventos" onClick={close}>Papeleta<span>✦</span></Link>
     <button className="siteMenuToggle" type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="organizer-navigation" aria-label={open ? "Cerrar menú" : "Abrir menú"}><span /><span /><span /></button>
     <nav id="organizer-navigation" className={open ? "open" : ""} aria-label="Navegación del organizador">

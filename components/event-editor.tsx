@@ -179,7 +179,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
     welcomeBackgroundUrl,
   };
 
-  return <main className="editorPage">
+  return <main className="editorPage organizerShell">
     <OrganizerNav event={event} />
     <div className="editorContextBar"><b>/{event.slug}</b><Link className="button outline" href={`/e/${event.slug}`}>Ver enlace público</Link></div>
     <div className="editorWorkspace">
