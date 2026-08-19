@@ -39,4 +39,8 @@
   .responseBreakdown{display:grid!important;grid-template-columns:repeat(3,1fr);gap:5px!important}.responseBreakdown span{display:grid!important;justify-items:center;gap:1px;padding:6px 3px!important;font-size:8px!important;text-align:center}.responseBreakdown b{font-size:13px!important}
   .menuTotals article{min-height:74px!important;padding:10px 7px!important}.menuTotals b{font-size:23px!important}.menuTotals span,.menuTotals small{font-size:9px!important}.menuTotals small{display:none}
   .guestMobileNav{display:grid!important}
+  .guestManager .guestMobileNav>a:not(.button){display:grid!important;justify-items:center!important;align-content:center!important;gap:3px!important;color:#6d6165!important;font-size:9px!important}
+  .guestManager .guestMobileNav>a.active{color:#a51e54!important}
+  .guestManager .guestMobileNav>a>span{display:block!important;font-size:9px!important}
 }
+@media(max-width:430px){.guestManager .newGuestButton::after{content:"Nueva";font-size:11px;font-weight:700}.guestManager .newGuestButton{min-width:74px!important;font-size:0!important}.guestManager .newGuestButton svg{margin:0!important}}
