@@ -1,13 +1,1 @@
-.guestManager > .siteHeader {
-  width: 100vw;
-  margin: -100px calc(50% - 50vw) 42px;
-  padding-inline: max(20px, 7vw);
-}
-
-@media (max-width: 800px) {
-  .guestManager > .siteHeader {
-    margin-top: -70px;
-    margin-bottom: 40px;
-    padding-inline: 20px;
-  }
-}
+/* Layout is intentionally scoped in guests-manager.css with the dashboard itself. */
