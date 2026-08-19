@@ -25,4 +25,10 @@
   .organizerHeader .siteMenuToggle{position:absolute;left:14px;display:block;width:36px;height:36px;padding:7px;border:0;background:transparent}
   .organizerHeader .siteMenuToggle span{width:17px;margin:4px auto}
   .organizerHeader nav{top:64px;padding:10px 18px 18px;background:#fff}
+  .organizerMobileNav{position:fixed;z-index:60;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));height:66px;padding:7px 8px max(7px,env(safe-area-inset-bottom));border-top:1px solid #ebe4e2;background:#fff;box-shadow:0 -10px 24px #30182112}
+  .organizerMobileNav>a{display:grid!important;justify-items:center;align-content:center;gap:4px;min-width:0;color:#6d6165;font-size:9px;font-weight:600}
+  .organizerMobileNav>a svg{color:#5e4a51}.organizerMobileNav>a span{display:block!important;overflow:hidden;max-width:100%;text-overflow:ellipsis;white-space:nowrap}
+  .organizerMobileNav>a.active,.organizerMobileNav>a.active svg{color:#b2235c}
+  .panelShell:has(.organizerHeader),.draftPreview:has(.organizerHeader),.appPage:has(.organizerHeader),.editorPage.organizerShell{padding-bottom:88px!important}
+  .guestManager .guestMobileNav{display:none!important}
 }

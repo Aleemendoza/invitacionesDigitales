@@ -5,7 +5,8 @@ import "./panels.css";
 import "./event-list.css";
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { Icon } from "@/components/icons";
 import { RoleBadge, useAccountRole } from "@/components/account-role";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 import { eventDateLabel, type StoredEvent } from "@/lib/event-types";
@@ -28,7 +29,7 @@ export function OrganizerNav({ event }: { event?: StoredEvent }) {
   const close = () => setOpen(false);
   const logout = async () => { try { await getBrowserSupabase()?.auth.signOut(); } finally { close(); router.replace("/"); } };
 
-  return <header className="siteHeader organizerHeader">
+  return <><header className="siteHeader organizerHeader">
     <Link className="brand" href="/mis-eventos" onClick={close}>Papeleta<span>✦</span></Link>
     <button className="siteMenuToggle" type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="organizer-navigation" aria-label={open ? "Cerrar menú" : "Abrir menú"}><span /><span /><span /></button>
     <nav id="organizer-navigation" className={open ? "open" : ""} aria-label="Navegación del organizador">
@@ -44,7 +45,23 @@ export function OrganizerNav({ event }: { event?: StoredEvent }) {
       </>}
       {account && <div className="accountMenu"><button type="button" onClick={() => void logout()}>Cerrar sesión</button></div>}
     </nav>
-  </header>;
+  </header><OrganizerMobileNav event={event} /></>;
+}
+
+function OrganizerMobileNav({ event }: { event?: StoredEvent }) {
+  const pathname = usePathname();
+  const items = event ? [
+    { href: `/eventos/${event.id}`, label: "Resumen", icon: "timeline" as const },
+    { href: `/eventos/${event.id}/invitados`, label: "Invitados", icon: "users" as const },
+    { href: `/eventos/${event.id}/rsvp`, label: "Confirmar", icon: "rsvp" as const },
+    { href: `/eventos/${event.id}/vista-previa`, label: "Vista previa", icon: "sparkles" as const },
+  ] : [
+    { href: "/mis-eventos", label: "Mis eventos", icon: "timeline" as const },
+    { href: "/crear", label: "Crear", icon: "plus" as const },
+    { href: "/plantillas", label: "Plantillas", icon: "sparkles" as const },
+    { href: "/precios", label: "Planes", icon: "check" as const },
+  ];
+  return <div className="organizerMobileNav" aria-label="Navegación del organizador">{items.map((item) => <Link className={pathname === item.href ? "active" : ""} href={item.href} key={item.href}><Icon name={item.icon} size={17} /><span>{item.label}</span></Link>)}</div>;
 }
 
 export function EventsPortal() {
