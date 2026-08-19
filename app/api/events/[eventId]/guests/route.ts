@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { ownerContext } from "@/lib/event-owner";
 import { canManageGuests, type Plan } from "@/lib/event-drafts";
+import { memberFoodPreference } from "@/lib/member-food-preference";
 
 export const runtime = "nodejs";
 const MAX_SEATS = 50;
@@ -14,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
   const result = await context(request, params); if ("error" in result) return result.error; if (!allowed(result.event)) return NextResponse.json({ error: "La lista de invitados es exclusiva de Premium Plus+." }, { status: 403 });
   const { data, error } = await result.db.from("guest_groups").select(`${fields},guest_members(id,name,attending,guest_member_food_preferences(food_preference))`).eq("event_id", result.event.id).order("display_name");
   if (error) return NextResponse.json({ error: "No pudimos cargar los invitados." }, { status: 500 });
-  const guests = (data ?? []).map((guest: any) => ({ ...guest, members: (guest.guest_members ?? []).map((member: any) => ({ id: member.id, name: member.name, attending: member.attending, foodPreference: member.guest_member_food_preferences?.[0]?.food_preference ?? null })) }));
+  const guests = (data ?? []).map((guest: any) => ({ ...guest, members: (guest.guest_members ?? []).map((member: any) => ({ id: member.id, name: member.name, attending: member.attending, foodPreference: memberFoodPreference(member.guest_member_food_preferences) })) }));
   return NextResponse.json({ guests, paymentStatus: result.event.payment_status, eventSlug: result.event.slug, eventTitle: result.event.title, eventType: result.event.event_type });
 }
 export async function POST(request: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
