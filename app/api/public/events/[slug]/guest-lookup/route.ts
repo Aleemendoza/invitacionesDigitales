@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
-import { badRequest, enforceRateLimit, getAdminSupabase, signLookupToken, unavailable } from "@/lib/public-guest-server";
+import { badRequest, getAdminSupabase, signLookupToken, unavailable } from "@/lib/public-guest-server";
+import { enforceSharedRateLimit } from "@/lib/server-rate-limit";
 import { validateLookup } from "@/lib/guest-access";
 
 export const runtime = "nodejs";
 
 export async function POST(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
-  const throttled = enforceRateLimit(request, "lookup", slug); if (throttled) return throttled;
+  const throttled = await enforceSharedRateLimit(request, "lookup", slug); if (throttled) return throttled;
   let body: { query?: unknown }; try { body = await request.json(); } catch { return badRequest("Ingresá un nombre o apellido."); }
   if (typeof body.query !== "string") return badRequest("Ingresá un nombre o apellido.");
   const query = validateLookup(body.query); if (!query) return badRequest("Usá entre 2 y 80 caracteres para buscar.");

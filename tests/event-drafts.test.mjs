@@ -1,13 +1,15 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { defaultAgenda, defaultFeatures, hasPlanFeature, hasPublicMenuActions, nextAvailableSlug, planDetails, slugify, validateDraft, validatePlanFeatures } from "../lib/event-drafts.ts";
+import { defaultAgenda, defaultFeatures, formatPlanPrice, hasPlanFeature, hasPublicMenuActions, nextAvailableSlug, planDetails, slugify, validateDraft, validatePlanFeatures } from "../lib/event-drafts.ts";
 
 test("creates URL-safe slugs from event titles",()=>{assert.equal(slugify("Sofía & Mateo — Boda 2027"),"sofia-mateo-boda-2027")});
 test("keeps the clean event URL until its name is already in use",()=>{assert.equal(nextAvailableSlug("sofia",[]),"sofia");assert.equal(nextAvailableSlug("sofia",["sofia"]),"sofia-2")});
 test("has one canonical public plan catalog",()=>{assert.equal(planDetails.standard.price,18000);assert.equal(planDetails.premium.price,23000);assert.equal(planDetails.premium_plus.price,28000)});
+test("formats plan labels and prices for every commercial surface",()=>{assert.equal(planDetails.premium_plus.name,"Premium Plus+");assert.equal(formatPlanPrice("standard"),"$18.000");assert.match(planDetails.standard.marketingFeatures.join(" "),/Sin confirmaciones/)});
 test("keeps the confirmed total photo limits",()=>{assert.equal(planDetails.standard.mediaLimit,1);assert.equal(planDetails.premium.mediaLimit,5);assert.equal(planDetails.premium_plus.mediaLimit,10)});
 test("does not allow features outside the selected plan",()=>{assert.equal(validatePlanFeatures("standard",planDetails.standard.features),true);assert.equal(validatePlanFeatures("standard",["gallery"]),false)});
 test("standard is valid without an organizer WhatsApp number",()=>{assert.equal(validateDraft({title:"Sofía y Mateo",eventType:"Boda",templateSlug:"dinner-club",plan:"standard",agenda:defaultAgenda(),features:defaultFeatures("standard")}),null)});
+test("rejects malformed or oversized location fields",()=>{const base={title:"Sofía y Mateo",eventType:"Boda",templateSlug:"dinner-club",plan:"standard",agenda:defaultAgenda(),features:defaultFeatures("standard")};assert.match(validateDraft({...base,venue:{name:"Salón"}}),/lugar/i);assert.match(validateDraft({...base,venue:"A"}),/lugar/i);assert.match(validateDraft({...base,venue:"Salón",venueAddress:"x".repeat(241)}),/dirección/i);assert.match(validateDraft({...base,venue:"Salón",mapUrl:`https://maps.google.com/${"x".repeat(2049)}`}),/2048/i)});
 test("only Premium plans offer internal RSVP",()=>{assert.equal(hasPlanFeature("standard","general-rsvp"),false);assert.equal(hasPlanFeature("premium","general-rsvp"),true);assert.equal(hasPlanFeature("premium_plus","general-rsvp"),true)});
 test("keeps public menu actions out of Standard invitations",()=>{assert.equal(hasPublicMenuActions("standard",true),false);assert.equal(hasPublicMenuActions("premium",false),false);assert.equal(hasPublicMenuActions("premium",true),true);assert.equal(hasPublicMenuActions("premium_plus",false),true)});
 test("reserves individual invitations and QR album for Premium Plus",()=>{assert.equal(hasPlanFeature("premium","individual-links"),false);assert.equal(hasPlanFeature("premium_plus","individual-links"),true);assert.equal(hasPlanFeature("premium_plus","qr-album"),true)});

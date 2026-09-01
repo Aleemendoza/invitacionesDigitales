@@ -5,29 +5,12 @@ import { createClient } from "@supabase/supabase-js";
 
 export const GUEST_SESSION_COOKIE = "papeleta_guest_session";
 const SESSION_DAYS = 30;
-const tokenSecret = () => process.env.GUEST_ACCESS_TOKEN_SECRET || process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+const tokenSecret = () => process.env.GUEST_ACCESS_TOKEN_SECRET || "";
 
-type RateLimitKey = "lookup" | "code" | "rsvp";
-const limits: Record<RateLimitKey, { max: number; windowMs: number }> = {
-  lookup: { max: 10, windowMs: 60_000 },
-  code: { max: 5, windowMs: 10 * 60_000 },
-  rsvp: { max: 12, windowMs: 60_000 },
-};
-const buckets = new Map<string, { count: number; resetAt: number }>();
-
-/** Process-local guard. Deployments should replace this with Redis/edge KV for shared throttling. */
-export function enforceRateLimit(request: NextRequest, kind: RateLimitKey, scope: string) {
-  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
-  const key = `${kind}:${scope}:${ip}`;
-  const rule = limits[kind], now = Date.now();
-  const bucket = buckets.get(key);
-  if (!bucket || bucket.resetAt <= now) {
-    buckets.set(key, { count: 1, resetAt: now + rule.windowMs });
-    return null;
-  }
-  bucket.count++;
-  if (bucket.count <= rule.max) return null;
-  return NextResponse.json({ error: "Demasiados intentos. Esperá unos minutos e intentá nuevamente." }, { status: 429, headers: { "Retry-After": String(Math.ceil((bucket.resetAt - now) / 1000)) } });
+/** Compatibility wrapper for compact routes; callers may return the promise directly. */
+export async function enforceRateLimit(request:NextRequest,kind:"lookup"|"code"|"rsvp",scope:string){
+  const { enforceSharedRateLimit }=await import("./server-rate-limit");
+  return enforceSharedRateLimit(request,kind,scope);
 }
 
 export function sha256(value: string) { return createHash("sha256").update(value).digest("hex"); }

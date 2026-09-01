@@ -7,6 +7,7 @@
 .confirmationTable .confirmationTableHead { min-height: 25px; padding-block: 5px; background: #fcf8f8; color: #87777c; font: 700 9px var(--mono); letter-spacing: .5px; text-transform: uppercase; }
 .confirmationTable b { overflow: hidden; color: #3c3034; font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
 .confirmationTable strong { padding: 4px 7px; border-radius: 999px; background: #fbedf1; color: #9f2750; font-size: 10px; white-space: nowrap; }
+.confirmationEmpty { margin: 0; padding: 12px; color: #76676c; font-size: 12px; line-height: 1.45; }
 .calendarEventAction { justify-content: flex-start !important; min-height: 76px; margin-top: 14px !important; padding: 11px 13px !important; text-align: left; }
 .calendarEventAction > span { display: grid; min-width: 0; gap: 2px; flex: 1; }
 .calendarEventAction small { color: var(--rsvp-accent, #db3473); font: 700 9px var(--mono); letter-spacing: .65px; }

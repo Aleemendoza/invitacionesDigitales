@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createGuestSession, enforceRateLimit, getAdminSupabase, hashAccessCode, sha256, unavailable } from "@/lib/public-guest-server";
+import { createGuestSession, getAdminSupabase, hashAccessCode, sha256, unavailable } from "@/lib/public-guest-server";
+import { enforceSharedRateLimit } from "@/lib/server-rate-limit";
 
 /** Compatibility bridge for legacy personal links. It never bypasses the configured access mode. */
 export async function POST(request: NextRequest, { params }: { params: Promise<{ slug: string }> }) {
@@ -17,13 +18,13 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
     if (event.guest_access_mode === "name_and_code") {
       if (group.code_locked_until && new Date(group.code_locked_until) > new Date()) return NextResponse.json({ error: "Esperá unos minutos antes de volver a intentar.", requiresCode: true }, { status: 429 });
       if (typeof body.code !== "string") return NextResponse.json({ error: "Ingresá el código de acceso.", requiresCode: true }, { status: 401 });
-      const throttled = enforceRateLimit(request, "code", `${slug}:${invite.guest_group_id}`); if (throttled) return throttled;
+      const throttled = await enforceSharedRateLimit(request, "code", `${slug}:${invite.guest_group_id}`); if (throttled) return throttled;
       if (!/^[A-Za-z0-9]{4,12}$/.test(body.code) || !group.access_code_hash || hashAccessCode(body.code) !== group.access_code_hash) {
         const attempts = group.code_failed_attempts + 1;
-        await db.from("guest_groups").update({ code_failed_attempts: attempts, code_locked_until: attempts >= 5 ? new Date(Date.now() + 10 * 60_000).toISOString() : null }).eq("id", invite.guest_group_id);
+        await db.rpc("record_guest_code_attempt", { p_group_id: invite.guest_group_id, p_success: false });
         return NextResponse.json({ error: attempts >= 5 ? "Esperá unos minutos antes de volver a intentar." : "El código no coincide con esta invitación.", requiresCode: true }, { status: attempts >= 5 ? 429 : 401 });
       }
-      await db.from("guest_groups").update({ code_failed_attempts: 0, code_locked_until: null }).eq("id", invite.guest_group_id);
+      await db.rpc("record_guest_code_attempt", { p_group_id: invite.guest_group_id, p_success: true });
     }
     const response = NextResponse.json({ ok: true, canonicalUrl: `/e/${slug}` });
     await createGuestSession(response, event.id, invite.guest_group_id);

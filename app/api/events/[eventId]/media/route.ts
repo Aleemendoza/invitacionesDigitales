@@ -1,52 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAdminSupabase } from "@/lib/public-guest-server";
 import { planDetails, type Plan } from "@/lib/event-drafts";
+import { getAdminSupabase } from "@/lib/public-guest-server";
+import { validateAndSanitizeImage } from "@/lib/server-image-validation";
 
-export const runtime = "nodejs";
-const MAX_BYTES = 3_500_000;
-
-export async function POST(request: NextRequest, { params }: { params: Promise<{ eventId: string }> }) {
-  try {
-    const token = request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-    if (!token) return NextResponse.json({ error: "Iniciá sesión para subir fotos." }, { status: 401 });
-
-    const db = getAdminSupabase();
-    const { data: auth } = await db.auth.getUser(token);
-    const { eventId } = await params;
-    const { data: event } = await db.from("events").select("id,plan").eq("id", eventId).eq("owner_id", auth.user?.id ?? "").maybeSingle();
-    if (!event) return NextResponse.json({ error: "Evento no encontrado." }, { status: 404 });
-
-    const form = await request.formData(); const maxFiles=planDetails[event.plan as Plan].mediaLimit;
-    const files = form.getAll("photos").filter((value): value is File => value instanceof File).slice(0, maxFiles);
-    if (!files.length || files.some((file) => !file.type.startsWith("image/") || file.size > MAX_BYTES)) {
-      return NextResponse.json({ error: `Subí imágenes válidas de máximo 8 MB${maxFiles ? ` (hasta ${maxFiles} por carga)` : ""}.` }, { status: 400 });
-    }
-
-    const { data: existingMedia, error: existingMediaError } = await db.from("event_media").select("position").eq("event_id", eventId).order("position", { ascending: false }).limit(1);
-    if (existingMediaError) throw existingMediaError;
-    const existingCount=existingMedia?.length??0; if(existingCount+files.length>maxFiles)return NextResponse.json({error:`Tu plan permite hasta ${maxFiles} imágenes.`},{status:400}); const firstUpload = !existingMedia?.length;
-    const nextPosition = existingMedia?.[0]?.position ?? -1;
-    const uploaded: { path: string; url: string }[] = [];
-
-    for (const [offset, file] of files.entries()) {
-      const extension = file.name.split(".").pop()?.replace(/[^a-z0-9]/gi, "") || "jpg";
-      const path = `${eventId}/${crypto.randomUUID()}.${extension}`;
-      const { error: storageError } = await db.storage.from("event-media").upload(path, file, { contentType: file.type, upsert: false });
-      if (storageError) throw storageError;
-      const { data: signed } = await db.storage.from("event-media").createSignedUrl(path, 60 * 60);
-      const { error: insertError } = await db.from("event_media").insert({
-        event_id: eventId,
-        storage_path: path,
-        kind: firstUpload && offset === 0 ? "cover" : "gallery",
-        position: nextPosition + offset + 1,
-      });
-      if (insertError) throw insertError;
-      uploaded.push({ path, url: signed?.signedUrl ?? "" });
-    }
-
-    return NextResponse.json({ media: uploaded });
-  } catch (error) {
-    console.error("upload event media", error);
-    return NextResponse.json({ error: "No pudimos subir las fotos." }, { status: 500 });
+export const runtime="nodejs";const MAX_BYTES=3_500_000;
+export async function POST(request:NextRequest,{params}:{params:Promise<{eventId:string}>}){try{
+  const token=request.headers.get("authorization")?.replace(/^Bearer\s+/i,"");if(!token)return NextResponse.json({error:"Iniciá sesión para subir fotos."},{status:401});
+  const db=getAdminSupabase(),{data:{user}}=await db.auth.getUser(token),{eventId}=await params;if(!user)return NextResponse.json({error:"Sesión vencida."},{status:401});
+  const{data:event}=await db.from("events").select("id,plan").eq("id",eventId).eq("owner_id",user.id).maybeSingle();if(!event)return NextResponse.json({error:"Evento no encontrado."},{status:404});
+  const maxFiles=planDetails[event.plan as Plan].mediaLimit,form=await request.formData(),files=form.getAll("photos").filter((value):value is File=>value instanceof File);
+  if(!files.length||files.length>maxFiles)return NextResponse.json({error:`Tu plan permite hasta ${maxFiles} imágenes.`},{status:400});
+  const{count}=await db.from("event_media").select("id",{count:"exact",head:true}).eq("event_id",eventId);let nextPosition=count??0;const uploaded:{path:string;url:string}[]=[];
+  for(const file of files){let safe;try{safe=await validateAndSanitizeImage(file,MAX_BYTES)}catch{return NextResponse.json({error:"Subí archivos JPEG, PNG o WebP válidos de hasta 3,5 MB."},{status:400})}
+    const path=`${eventId}/${crypto.randomUUID()}.${safe.extension}`,blob=new Blob([safe.bytes as BlobPart],{type:safe.contentType});
+    const{error:storageError}=await db.storage.from("event-media").upload(path,blob,{contentType:safe.contentType,upsert:false});if(storageError)throw storageError;
+    const{error:registerError}=await db.rpc("register_event_media",{p_event_id:eventId,p_storage_path:path,p_kind:nextPosition===0?"cover":"gallery",p_position:nextPosition,p_limit:maxFiles});
+    if(registerError){await db.storage.from("event-media").remove([path]);if(registerError.message.includes("media_quota_exceeded"))return NextResponse.json({error:`Tu plan permite hasta ${maxFiles} imágenes.`},{status:409});throw registerError}
+    const{data:signed}=await db.storage.from("event-media").createSignedUrl(path,3600);uploaded.push({path,url:signed?.signedUrl??""});nextPosition++;
   }
-}
+  return NextResponse.json({media:uploaded});
+}catch(error){console.error("upload event media",error instanceof Error?error.message:"unknown");return NextResponse.json({error:"No pudimos subir las fotos."},{status:500})}}

@@ -7,7 +7,8 @@ import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { GooglePlacePicker } from "@/components/google-place-picker";
 import { ThemeControls } from "@/components/theme-controls";
 import { WizardHeader } from "@/components/wizard-header";
-import { defaultAgenda, defaultFeatures, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
+import { defaultAgenda, defaultFeatures, isPlan, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
+import { trackAnalyticsEvent } from "@/lib/analytics";
 import { defaultTheme, normalizeTheme, templateTheme, type EventTheme } from "@/lib/event-theme";
 import { clearPendingEventDraft, readPendingEventDraft, savePendingEventDraft } from "@/lib/pending-event-draft";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
@@ -20,6 +21,7 @@ type Photo = { file: File; preview: string };
 const initial: Draft = { title: "", eventType: "", date: "", time: "", venue: "", venueAddress: "", mapUrl: "", closingMessage: "", templateSlug: "", plan: "standard", step: 0, agenda: defaultAgenda(), features: defaultFeatures("standard"), message: "", dressCode: "", musicUrl: "", theme: defaultTheme };
 const types = ["Boda", "XV", "Cumpleaños", "Infantil", "Baby Shower", "Corporativo"];
 const category = (type: string) => type === "Boda" ? "Bodas" : type === "Infantil" ? "Infantiles" : type === "Corporativo" ? "Corporativos" : type;
+const typeForCategory = (value: string) => value === "Bodas" ? "Boda" : value === "Infantiles" ? "Infantil" : value === "Corporativos" ? "Corporativo" : value;
 const options = (type: string) => type === "Baby Shower" ? templates.filter((item) => item.slug === "dreamscape") : templates.filter((item) => item.category === category(type));
 const planBenefits: Record<Plan, string[]> = {
   standard: ["Portada personalizada", "Agenda, mapa y regalos", "Sin confirmaciones de asistencia"],
@@ -38,24 +40,34 @@ export function CreateEventWizard() {
   const [planChosen, setPlanChosen] = useState(false);
   const submittingRef = useRef(false);
   const resume = params.get("resume") === "1";
+  const requestedTemplate = templates.find((item) => item.slug === params.get("template"));
+  const requestedPlan = isPlan(params.get("plan")) ? params.get("plan") as Plan : undefined;
+  const templateLocked = Boolean(requestedTemplate);
 
   useEffect(() => {
     void (async () => {
       try {
-        if (resume) {
-          const pending = await readPendingEventDraft();
-          if (pending) {
-            const pendingTemplate = templates.find((item) => item.slug === pending.draft.templateSlug) ?? templates[0];
-            setDraft({ ...pending.draft, theme: normalizeTheme(pending.draft.theme, templateTheme(pendingTemplate.theme)) } as Draft);
-            setPlanChosen(true);
-            setPhotos(pending.photos.map((file) => ({ file, preview: URL.createObjectURL(file) })));
-            setNotice("Recuperamos tu borrador para que puedas guardarlo.");
-          }
-        } else await clearPendingEventDraft();
-      } catch { if (resume) setNotice("No pudimos recuperar el borrador anterior."); }
+        const pending = await readPendingEventDraft();
+        let nextDraft = pending?.draft ? { ...pending.draft } : { ...initial };
+        if (requestedPlan) nextDraft = { ...nextDraft, plan: requestedPlan, features: defaultFeatures(requestedPlan), step: pending ? nextDraft.step : 1 };
+        if (requestedTemplate) nextDraft = { ...nextDraft, plan: requestedTemplate.plan, eventType: typeForCategory(requestedTemplate.category), templateSlug: requestedTemplate.slug, features: defaultFeatures(requestedTemplate.plan), theme: templateTheme(requestedTemplate.theme), step: pending ? nextDraft.step : 2 };
+        const selected = templates.find((item) => item.slug === nextDraft.templateSlug) ?? requestedTemplate ?? templates.find((item) => item.plan === nextDraft.plan) ?? templates[0];
+        setDraft({ ...nextDraft, theme: normalizeTheme(nextDraft.theme, templateTheme(selected.theme)) } as Draft);
+        setPlanChosen(Boolean(pending || requestedPlan || requestedTemplate));
+        if (pending) {
+          setPhotos(pending.photos.map((file) => ({ file, preview: URL.createObjectURL(file) })));
+          setNotice(resume ? "Recuperamos tu borrador para que puedas continuar." : "Tu borrador anterior está listo para continuar.");
+        }
+      } catch { setNotice("No pudimos recuperar el borrador anterior."); }
       finally { setReady(true); }
     })();
-  }, [resume]);
+  }, [requestedPlan, requestedTemplate, resume]);
+
+  useEffect(() => {
+    if (!ready || submittingRef.current) return;
+    const timer = window.setTimeout(() => { void savePendingEventDraft({ draft, photos: photos.map((item) => item.file) }).catch(() => setNotice("No pudimos guardar el borrador en este dispositivo.")); }, 250);
+    return () => window.clearTimeout(timer);
+  }, [draft, photos, ready]);
 
   const update = <K extends keyof Draft>(key: K, value: Draft[K]) => setDraft((current) => ({ ...current, [key]: value }));
   const choosePlan = (plan: Plan) => { const previewTemplate = templates.find((item) => item.plan === plan) ?? templates[0]; setPlanChosen(true); setDraft((current) => ({ ...current, plan, eventType: "", templateSlug: "", features: defaultFeatures(plan), theme: templateTheme(previewTemplate.theme) })); };
@@ -66,7 +78,8 @@ export function CreateEventWizard() {
   };
   const chooseTemplate = (template: Template) => setDraft((current) => ({ ...current, templateSlug: template.slug, features: defaultFeatures(current.plan), theme: templateTheme(template.theme) }));
   const valid = () => draft.step === 0 ? planChosen : draft.step === 1 ? Boolean(draft.eventType) : draft.step === 2 ? draft.title.trim().length > 1 : draft.step === 3 ? Boolean(draft.date && draft.time) : draft.step === 4 ? draft.venue.trim().length > 1 : draft.step === 5 ? draft.agenda.length > 0 && draft.agenda.every((item) => item.time && item.title.trim()) : draft.step === 6 ? Boolean(draft.templateSlug) : true;
-  const next = () => { if (!valid()) return setNotice("Completá este paso para continuar."); setNotice(""); update("step", Math.min(8, draft.step + 1)); };
+  const next = () => { if (!valid()) return setNotice("Completá este paso para continuar."); trackAnalyticsEvent({ name:"wizard_step_completed", step:draft.step + 1, plan:draft.plan, eventType:draft.eventType || undefined, templateSlug:draft.templateSlug || undefined }); setNotice(""); update("step", templateLocked && draft.step === 5 ? 7 : Math.min(8, draft.step + 1)); };
+  const previous = () => update("step", templateLocked && draft.step === 7 ? 5 : Math.max(0, draft.step - 1));
   const submit = async () => {
     if (submittingRef.current || saving) return;
     if (!valid()) return setNotice("Completá este paso para crear el evento.");
@@ -87,6 +100,7 @@ export function CreateEventWizard() {
           if (!media.ok) throw new Error("El evento se creó, pero falló la carga de una foto.");
         }
       }
+      trackAnalyticsEvent({ name:"draft_created", eventId:body.event.id, plan:draft.plan, eventType:draft.eventType, templateSlug:draft.templateSlug });
       await clearPendingEventDraft(); router.replace(`/eventos/${body.event.id}/editar`);
     } catch (error) {
       if (createdEventId) { await clearPendingEventDraft(); router.replace(`/eventos/${createdEventId}/editar?media=error`); return; }
@@ -98,7 +112,7 @@ export function CreateEventWizard() {
   const selectedTemplate = templates.find((item) => item.slug === draft.templateSlug) ?? templates.find((item) => item.plan === draft.plan) ?? templates[0];
   const preview = { title: draft.title, event_type: draft.eventType, starts_at: draft.date && draft.time ? new Date(`${draft.date}T${draft.time}:00-03:00`).toISOString() : null, template_slug: selectedTemplate.slug, content: { venue: draft.venue, venueAddress: draft.venueAddress, mapUrl: draft.mapUrl, closingMessage: draft.closingMessage, wizard_step: draft.step, features: draft.features, agenda: draft.agenda, message: draft.message, dressCode: draft.dressCode, musicUrl: draft.musicUrl, theme: draft.theme }, photos: photos.map((photo) => photo.preview) };
   const heading = ["Elegí tu plan.", "¿Qué vamos a celebrar?", "Contanos quiénes son los protagonistas.", "¿Cuándo empieza?", "¿Dónde se encuentran?", "¿Cuál es la agenda?", "Elegí una plantilla.", "Subí tus fotos.", "Últimos detalles."][draft.step];
-  return <main><WizardHeader /><div className="progress"><span>Paso {draft.step + 1} de 9</span><progress value={draft.step + 1} max="9" /></div><section className="wizard photoWizard"><div className="wizardPanel"><p className="eyebrow">Tu celebración</p><h1>{heading}</h1><Fields draft={draft} photos={photos} update={update} choosePlan={choosePlan} chooseType={chooseType} chooseTemplate={chooseTemplate} setPhotos={setPhotos} />{draft.step === 8 && <ThemeControls value={draft.theme} defaults={templateTheme(selectedTemplate.theme)} onChange={(theme) => update("theme", theme)} />}{notice && <p className="wizardNotice">{notice}</p>}<div className="wizardActions"><button className="button outline" disabled={!draft.step || saving} onClick={() => update("step", draft.step - 1)}>Volver</button><button className="button dark" disabled={saving} onClick={draft.step === 8 ? submit : next}>{saving ? "Guardando…" : draft.step === 8 ? "Crear mi evento" : "Continuar →"}</button></div></div><EventInvitationPreview event={preview} plan={draft.plan} /></section></main>;
+  return <main><WizardHeader /><div className="progress"><span>Paso {draft.step + 1} de 9</span><progress value={draft.step + 1} max="9" aria-label={`Paso ${draft.step + 1} de 9`} /></div><section className="wizard photoWizard"><div className="wizardPanel"><p className="eyebrow">Tu celebración</p><h1 tabIndex={-1}>{heading}</h1>{templateLocked && <p className="wizardHint">Elegiste {requestedTemplate?.name}. Conservamos esta plantilla y su plan compatible.</p>}<Fields draft={draft} photos={photos} update={update} choosePlan={choosePlan} chooseType={chooseType} chooseTemplate={chooseTemplate} setPhotos={setPhotos} />{draft.step === 8 && <ThemeControls value={draft.theme} defaults={templateTheme(selectedTemplate.theme)} onChange={(theme) => update("theme", theme)} />}{notice && <p className="wizardNotice" role="alert">{notice}</p>}<div className="wizardActions"><button type="button" className="button outline" disabled={!draft.step || saving} onClick={previous}>Volver</button><button type="button" className="button dark" disabled={saving} onClick={draft.step === 8 ? submit : next}>{saving ? "Guardando…" : draft.step === 8 ? "Crear mi evento" : "Continuar →"}</button></div></div><details className="mobilePreview"><summary>Ver vista previa</summary><EventInvitationPreview event={preview} plan={draft.plan} /></details><div className="desktopPreview"><EventInvitationPreview event={preview} plan={draft.plan} /></div></section></main>;
 }
 
 function Fields({ draft, photos, update, choosePlan, chooseType, chooseTemplate, setPhotos }: { draft: Draft; photos: Photo[]; update: <K extends keyof Draft>(key: K, value: Draft[K]) => void; choosePlan: (plan: Plan) => void; chooseType: (value: string) => void; chooseTemplate: (value: Template) => void; setPhotos: (value: Photo[]) => void }) {
