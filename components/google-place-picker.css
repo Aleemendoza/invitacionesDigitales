@@ -7,7 +7,8 @@
 .placeSearch { display: flex !important; align-items: center; gap: 10px; margin: 0 !important; padding: 0 13px; border: 1px solid #dfd4d6; border-radius: 12px; background: #fff; color: var(--pink); transition: border-color .18s ease, box-shadow .18s ease; }
 .placeSearch:focus-within { border-color: var(--pink); box-shadow: 0 0 0 4px #ea4d7817; }
 .placeSearch svg { width: 19px; flex: none; }
-.placeSearch input { width: 100%; height: 50px; padding: 0 !important; margin: 0 !important; border: 0 !important; outline: 0; background: transparent !important; }
+.placeAutocompleteHost { min-width: 0; width: 100%; }
+.placeAutocompleteHost > * { display: block; width: 100%; min-height: 48px; border: 0; background: transparent; color: inherit; }
 .placeMap { position: relative; min-height: 225px; overflow: hidden; border: 1px solid #e6dcda; border-radius: 16px; background: linear-gradient(135deg, #f7edeb, #eee6e1); }
 /* Google Maps owns every descendant of this empty host. React only owns the sibling status overlay. */
 .placeMapHost { position: absolute; inset: 0; }

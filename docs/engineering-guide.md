@@ -34,7 +34,8 @@ producción durante desarrollo local.
 | `NEXT_PUBLIC_GOOGLE_ADS_ID` | Pública | No | Google Ads. |
 | `NEXT_PUBLIC_META_PIXEL_ID` | Pública | No | Meta Pixel. |
 | `NEXT_PUBLIC_CONCIERGE_FROM_PRICE` | Pública | No | Precio inicial de concierge. |
-| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Pública restringida | Para mapas | Places/Maps, restringida por dominio/API. |
+| `NEXT_PUBLIC_GOOGLE_MAPS_API_KEY` | Pública restringida | Para mapas | Maps JavaScript, Places API (New) y Geocoding, restringida por dominio/API. |
+| `NEXT_PUBLIC_GOOGLE_MAPS_MAP_ID` | Pública | Para mapas | Map ID de producción requerido por Advanced Markers. |
 | `VALIDATE_ENV_ON_START` | Servidor | Recomendado | Fuerza validación temprana. |
 | `PAPELETA_ENV` | Servidor | Recomendado | Usar `production` fuera de Vercel si corresponde. |
 

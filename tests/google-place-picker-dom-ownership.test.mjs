@@ -35,3 +35,18 @@ test("recovers from Maps load failures and keeps manual location edits coherent"
     "reverse geocoding must preserve an existing venue name",
   );
 });
+
+test("uses the current Places and Advanced Marker APIs without legacy widgets", async () => {
+  const source = await readFile(new URL("../components/google-place-picker.tsx", import.meta.url), "utf8");
+
+  assert.match(source, /PlaceAutocompleteElement/, "new Google Cloud projects require the current autocomplete widget");
+  assert.match(source, /AdvancedMarkerElement/, "the map must use the supported advanced marker");
+  assert.match(source, /gmp-select/, "the current autocomplete selection event must be handled");
+  assert.doesNotMatch(source, /new google\.maps\.places\.Autocomplete\b/, "legacy Places Autocomplete must not return");
+  assert.doesNotMatch(source, /new google\.maps\.Marker\b/, "deprecated markers must not return");
+  assert.match(
+    source,
+    /<div\b[^>]*\bref=\{autocompleteHostRef\}[^>]*\/>/,
+    "React must leave the autocomplete host empty for the Google web component",
+  );
+});
