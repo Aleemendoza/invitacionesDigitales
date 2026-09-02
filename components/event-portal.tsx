@@ -21,6 +21,12 @@ async function authFetch(path: string) {
 
 const eventState = (event: SummaryEvent) => event.payment_status === "approved" ? "Publicado" : event.payment_status === "pending" ? "Pago pendiente" : event.payment_status === "rejected" ? "Pago rechazado" : "Borrador";
 
+function OrganizerLink({ href, label, close, exact = false, target }: { href: string; label: string; close: () => void; exact?: boolean; target?: "_blank" }) {
+  const pathname = usePathname();
+  const active = pathname === href || (!exact && pathname.startsWith(`${href}/`));
+  return <Link href={href} className={active ? "active" : undefined} aria-current={active ? "page" : undefined} target={target} onClick={close}>{label}</Link>;
+}
+
 export function OrganizerNav({ event }: { event?: StoredEvent }) {
   const { account } = useAccountRole();
   const router = useRouter();
@@ -28,22 +34,24 @@ export function OrganizerNav({ event }: { event?: StoredEvent }) {
   const plan = event?.plan as Plan | undefined;
   const close = () => setOpen(false);
   const logout = async () => { try { await getBrowserSupabase()?.auth.signOut(); } finally { close(); router.replace("/"); } };
+  const initials = account?.fullName.split(/\s+|@/).filter(Boolean).slice(0, 2).map((part) => part[0]?.toUpperCase()).join("") || "P";
 
   return <><header className="siteHeader organizerHeader">
     <Link className="brand" href="/mis-eventos" onClick={close}>Papeleta<span>✦</span></Link>
     <button className="siteMenuToggle" type="button" onClick={() => setOpen((current) => !current)} aria-expanded={open} aria-controls="organizer-navigation" aria-label={open ? "Cerrar menú" : "Abrir menú"}><span /><span /><span /></button>
     <nav id="organizer-navigation" className={open ? "open" : ""} aria-label="Navegación del organizador">
-      <Link href="/mis-eventos" onClick={close}>Mis eventos</Link>
-      {!event && <><Link href="/crear" onClick={close}>Crear invitación</Link><Link href="/plantillas" onClick={close}>Plantillas</Link><Link href="/precios" onClick={close}>Precios</Link></>}
+      <OrganizerLink href="/mis-eventos" label="Mis eventos" close={close} exact />
+      {!event && <><OrganizerLink href="/crear" label="Crear invitación" close={close} /><OrganizerLink href="/plantillas" label="Plantillas" close={close} /><OrganizerLink href="/precios" label="Precios" close={close} /></>}
       {event && <>
-        <Link href={`/eventos/${event.id}`} onClick={close}>Resumen</Link>
-        <Link href={`/eventos/${event.id}/editar`} onClick={close}>Editar invitación</Link>
-        {plan && canManageGuests(plan) && <Link href={`/eventos/${event.id}/invitados`} onClick={close}>Invitados</Link>}
-        {plan && hasPlanFeature(plan, "general-rsvp") && <Link href={`/eventos/${event.id}/rsvp`} onClick={close}>Confirmaciones</Link>}
-        <Link href={`/eventos/${event.id}/vista-previa`} onClick={close}>Vista previa</Link>
-        {event.payment_status === "approved" && <Link href={`/e/${event.slug}`} target="_blank" onClick={close}>Ver invitación ↗</Link>}
+        <OrganizerLink href={`/eventos/${event.id}`} label="Resumen" close={close} exact />
+        <OrganizerLink href={`/eventos/${event.id}/editar`} label="Editar invitación" close={close} />
+        {plan && canManageGuests(plan) && <OrganizerLink href={`/eventos/${event.id}/invitados`} label="Invitados" close={close} />}
+        {plan && hasPlanFeature(plan, "general-rsvp") && <OrganizerLink href={`/eventos/${event.id}/rsvp`} label="Confirmaciones" close={close} />}
+        <OrganizerLink href={`/eventos/${event.id}/vista-previa`} label="Vista previa" close={close} />
+        {event.payment_status === "approved" && <OrganizerLink href={`/e/${event.slug}`} label="Ver invitación ↗" close={close} target="_blank" />}
       </>}
-      {account && <div className="accountMenu"><button type="button" onClick={() => void logout()}>Cerrar sesión</button></div>}
+      {account?.role === "admin" && <OrganizerLink href="/admin/pagos" label="Administración" close={close} />}
+      {account && <div className={`accountMenu ${account.role}`}><div className="accountProfile"><span className="accountAvatar" aria-hidden="true">{initials}</span><div className="accountIdentity"><span>{account.role === "admin" ? "Administrador" : "Organizador"}</span><b title={account.fullName}>{account.fullName}</b></div></div><button type="button" onClick={() => void logout()}>Cerrar sesión</button></div>}
     </nav>
   </header><OrganizerMobileNav event={event} /></>;
 }
@@ -61,7 +69,7 @@ function OrganizerMobileNav({ event }: { event?: StoredEvent }) {
     { href: "/plantillas", label: "Plantillas", icon: "sparkles" as const },
     { href: "/precios", label: "Planes", icon: "check" as const },
   ];
-  return <div className="organizerMobileNav" aria-label="Navegación del organizador">{items.map((item) => <Link className={pathname === item.href ? "active" : ""} href={item.href} key={item.href}><Icon name={item.icon} size={17} /><span>{item.label}</span></Link>)}</div>;
+  return <nav className="organizerMobileNav" aria-label="Accesos rápidos del organizador">{items.map((item) => <Link className={pathname === item.href ? "active" : ""} href={item.href} key={item.href}><Icon name={item.icon} size={17} /><span>{item.label}</span></Link>)}</nav>;
 }
 
 export function EventsPortal() {
@@ -78,7 +86,7 @@ export function EventsPortal() {
 
   return <main className="panelShell">
     <OrganizerNav />
-    <header className="panelTop"><div><p className="eyebrow">PANEL DE ORGANIZADOR</p><h1>Tus celebraciones</h1><p>Todo lo importante de cada invitación, ordenado para que avances sin perder tiempo.</p></div><div>{account && <RoleBadge role={account.role} />}<Link className="button pink" href="/crear">Crear invitación</Link></div></header>
+    <header className="panelTop"><div><p className="eyebrow">{account?.role === "admin" ? "PANEL DE ADMINISTRADOR" : "PANEL DE ORGANIZADOR"}</p><h1>Tus celebraciones</h1><p>Todo lo importante de cada invitación, ordenado para que avances sin perder tiempo.</p></div><div className="panelTopActions">{account && <RoleBadge role={account.role} />}<Link className="button pink" href="/crear">Crear invitación</Link></div></header>
     {(roleError || notice) && <p className="notice">{roleError || notice}</p>}
     {latest ? <Featured event={latest} /> : !notice && <div className="panelCard emptyState"><b>Tu próxima celebración empieza acá.</b><span>Creá una invitación y te ayudaremos a prepararla paso a paso.</span><Link className="button pink" href="/crear">Crear invitación</Link></div>}
     <section className="metricsGrid">{[[events.length, "Eventos"], [events.filter(event => event.payment_status === "approved").length, "Publicados"], [events.reduce((total, event) => total + event.rsvp.confirmed, 0), "Confirmados"], [events.reduce((total, event) => total + event.rsvp.pending, 0), "Respuestas pendientes"]].map(([value, label]) => <Metric value={value as number} label={label as string} key={label as string} />)}</section>

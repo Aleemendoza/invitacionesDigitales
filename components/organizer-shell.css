@@ -1,12 +1,20 @@
+/* Quick access belongs exclusively to compact layouts. */
+.organizerMobileNav{display:none!important}
+
 @media (min-width:901px){
   .organizerHeader{position:fixed!important;inset:0 auto 0 0;z-index:50;display:flex!important;flex-direction:column;align-items:stretch!important;width:252px!important;height:100vh!important;padding:30px 18px 20px!important;border:0!important;border-right:1px solid #512638!important;background:linear-gradient(165deg,#32121f 0%,#1b0a13 100%)!important;backdrop-filter:none!important}
   .organizerHeader .brand{margin:0 12px 34px!important;color:#fff!important;font-size:29px!important}
   .organizerHeader .brand span{color:#f48cad!important}
   .organizerHeader nav{display:flex!important;flex:1;flex-direction:column;align-items:stretch!important;gap:4px!important}
   .organizerHeader nav>a{padding:11px 12px!important;border-radius:8px!important;color:#f7eaf0!important;font-size:12px!important;font-weight:600!important}
-  .organizerHeader nav>a:hover{background:#6f2947!important;color:#fff!important}
+  .organizerHeader nav>a:hover,.organizerHeader nav>a.active{background:#6f2947!important;color:#fff!important}
   .organizerHeader .accountMenu{display:grid!important;gap:8px;margin-top:auto!important;padding:13px 12px!important;border:1px solid #ffffff2b!important;border-radius:9px!important;color:#fff!important}
-  .organizerHeader .accountMenu::before{content:"Organizador";color:#edb9cb;font-size:10px;font-weight:700}
+  .organizerHeader .accountProfile{display:flex;align-items:center;gap:9px;min-width:0}
+  .organizerHeader .accountAvatar{display:grid;flex:none;width:29px;height:29px;border-radius:50%;background:#f48cad;color:#32121f;font-size:10px;font-weight:800;place-items:center}
+  .organizerHeader .accountIdentity{display:grid;gap:3px;min-width:0}
+  .organizerHeader .accountIdentity span{color:#edb9cb;font-size:10px;font-weight:700}
+  .organizerHeader .accountIdentity b{overflow:hidden;color:#fff;font-size:11px;font-weight:600;text-overflow:ellipsis;white-space:nowrap}
+  .organizerHeader .accountMenu.admin{border-color:#f48cad66;background:#6f294733}
   .organizerHeader .accountMenu button{padding:0!important;color:#fff!important;font-size:11px!important;text-align:left!important}
   .organizerHeader .siteMenuToggle{display:none!important}
   .panelShell:has(.organizerHeader),.draftPreview:has(.organizerHeader),.appPage:has(.organizerHeader),.editorPage.organizerShell{width:100%;max-width:none!important;min-height:100vh;margin:0!important;padding-left:300px!important;padding-right:48px!important}
@@ -25,7 +33,7 @@
   .organizerHeader .siteMenuToggle{position:absolute;left:14px;display:block;width:36px;height:36px;padding:7px;border:0;background:transparent}
   .organizerHeader .siteMenuToggle span{width:17px;margin:4px auto}
   .organizerHeader nav{top:64px;padding:10px 18px 18px;background:#fff}
-  .organizerMobileNav{position:fixed;z-index:60;right:0;bottom:0;left:0;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));height:66px;padding:7px 8px max(7px,env(safe-area-inset-bottom));border-top:1px solid #ebe4e2;background:#fff;box-shadow:0 -10px 24px #30182112}
+  .organizerMobileNav{position:fixed;z-index:60;right:0;bottom:0;left:0;display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));height:66px;padding:7px 8px max(7px,env(safe-area-inset-bottom));border-top:1px solid #ebe4e2;background:#fff;box-shadow:0 -10px 24px #30182112}
   .organizerMobileNav>a{display:grid!important;justify-items:center;align-content:center;gap:4px;min-width:0;color:#6d6165;font-size:9px;font-weight:600}
   .organizerMobileNav>a svg{color:#5e4a51}.organizerMobileNav>a span{display:block!important;overflow:hidden;max-width:100%;text-overflow:ellipsis;white-space:nowrap}
   .organizerMobileNav>a.active,.organizerMobileNav>a.active svg{color:#b2235c}

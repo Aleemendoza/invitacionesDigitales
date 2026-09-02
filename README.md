@@ -1,23 +1,45 @@
 # Papeleta
 
-Plataforma de invitaciones digitales con una URL pública canónica por evento: `https://dominio/e/{slug}`. Las personas ven la invitación sin registrarse e identifican su grupo sólo al confirmar RSVP.
+Papeleta es una plataforma argentina de invitaciones digitales autogestionables.
+Una persona elige una plantilla, configura su evento, crea una cuenta, paga con
+Mercado Pago y publica una URL canónica `https://dominio/e/{slug}`.
 
-## Desarrollo
+## Estado del proyecto
 
-```bash
-pnpm install
-cp .env.example .env.local
+El producto cuenta con funnel de creación, editor, invitaciones públicas,
+pagos B2C, planes, RSVP según plan, panel del organizador, administración,
+controles de seguridad, migraciones Supabase y CI inicial. Antes de producción
+deben cerrarse los gates externos y de pipeline indicados en
+[Preparación para producción](docs/production-readiness.md).
+
+## Inicio rápido
+
+Requisitos: Node.js 24 y pnpm 11.19.0.
+
+```powershell
+pnpm install --frozen-lockfile
+Copy-Item .env.example .env.local
 pnpm dev
 ```
 
-Ejecutá `supabase db push` tras configurar el proyecto Supabase para aplicar las migraciones. `pnpm typecheck`, `pnpm test` y `pnpm build` validan la app.
+Validación local:
 
-## Arquitectura de acceso
+```powershell
+pnpm typecheck
+pnpm lint
+pnpm test
+pnpm build
+```
 
-- `open`: RSVP directo, para eventos abiertos.
-- `name_lookup`: búsqueda segura de grupo y sesión temporal.
-- `name_and_code`: búsqueda + código por grupo, recomendado para bodas y XV.
+Para crear la base de datos, seguir [supabase/README.md](supabase/README.md) y
+aplicar las migraciones `001` a `018` en orden.
 
-Los links personalizados `/e/{slug}/i/{token}` se mantienen como capacidad secundaria para automatizaciones y check-in. Nunca reemplazan la URL pública del evento.
+## Documentación
 
-Las variables de entorno requeridas están en `.env.example`. Ninguna clave de servicio debe exponerse al navegador.
+La fuente de verdad del proyecto comienza en [docs/README.md](docs/README.md).
+Allí se documentan negocio, producto, arquitectura, datos, seguridad, APIs,
+variables, pipeline, despliegue y preparación para producción.
+
+Las claves `SUPABASE_SERVICE_ROLE_KEY`, `GUEST_ACCESS_TOKEN_SECRET`,
+`RATE_LIMIT_SECRET` y credenciales de Mercado Pago son exclusivamente de
+servidor. Nunca deben llegar al navegador, al repositorio ni a los logs.

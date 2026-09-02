@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import "./panels.css";
 import { RoleBadge, useAccountRole } from "@/components/account-role";
+import { OrganizerNav } from "@/components/event-portal";
 import { getBrowserSupabase } from "@/lib/supabase-browser";
 
 type Payment = { id: string; plan: string; amount: number; status: string; provider?: string; receipt_url?: string; events?: { title: string; slug: string } };
@@ -33,7 +34,7 @@ export function AdminPayments() {
   if (loading) return <main className="panelShell"><Loading label="Comprobando permisos…" /></main>;
   if (error || account?.role !== "admin") return <main className="panelShell"><AccessDenied message={error} /></main>;
   const paymentMetrics = summary?.metrics.payments ?? {};
-  return <main className="panelShell adminShell"><header className="panelTop"><div><p className="eyebrow">PANEL DE ADMINISTRADOR</p><h1>Administración</h1><p>Gestioná operaciones, eventos y cuentas desde un solo lugar.</p></div><RoleBadge role={account.role} /></header><nav className="adminTabs" aria-label="Secciones de administración">{(["overview", "operations", "events", "users"] as const).map((item) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}>{({ overview: "Resumen", operations: "Operaciones", events: "Eventos", users: "Usuarios" })[item]}</button>)}</nav>{notice && <p className="notice" role="status">{notice}</p>}
+  return <main className="panelShell adminShell"><OrganizerNav /><header className="panelTop"><div><p className="eyebrow">PANEL DE ADMINISTRADOR</p><h1>Administración</h1><p>Gestioná operaciones, eventos y cuentas desde un solo lugar.</p></div><RoleBadge role={account.role} /></header><nav className="adminTabs" aria-label="Secciones de administración">{(["overview", "operations", "events", "users"] as const).map((item) => <button className={tab === item ? "active" : ""} onClick={() => setTab(item)} key={item}>{({ overview: "Resumen", operations: "Operaciones", events: "Eventos", users: "Usuarios" })[item]}</button>)}</nav>{notice && <p className="notice" role="status">{notice}</p>}
     {tab === "overview" && <Overview days={days} setDays={setDays} summary={summary} paymentMetrics={paymentMetrics} goTo={setTab} />}
     {tab === "operations" && <Operations payments={payments} upgrades={upgrades} review={review} />}
     {tab === "events" && <Events events={filteredEvents} query={eventQuery} setQuery={setEventQuery} status={eventStatus} setStatus={setEventStatus} publish={publish} />}

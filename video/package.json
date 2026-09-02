@@ -1,0 +1,24 @@
+{
+  "name": "papeleta-launch-reel",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "studio": "remotion studio --no-open",
+    "audio": "node scripts/generate-soundtrack.mjs",
+    "render": "remotion render src/index.ts PapeletaLaunch out/papeleta-launch-reel.mp4 --codec=h264 --crf=17 --pixel-format=yuv420p",
+    "still": "remotion still src/index.ts PapeletaLaunch out/papeleta-preview.png --frame=660"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.506",
+    "@remotion/media": "4.0.506",
+    "@remotion/transitions": "4.0.506",
+    "remotion": "4.0.506",
+    "react": "19.2.0",
+    "react-dom": "19.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "typescript": "^5.9.0"
+  }
+}

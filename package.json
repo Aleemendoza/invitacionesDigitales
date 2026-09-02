@@ -8,6 +8,7 @@
     "pnpm": "11.19.0"
   },
   "scripts": {
+    "account:create-admin": "node scripts/create-admin-account.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
