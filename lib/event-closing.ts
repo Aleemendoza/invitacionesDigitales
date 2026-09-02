@@ -7,3 +7,7 @@ export function closingMessageForEventType(eventType: string) {
   if (normalized.includes("infantil")) return "Gracias por ser parte de esta gran aventura.";
   return "Gracias por ser parte de este día tan especial.";
 }
+
+export function resolveClosingMessage(customMessage: string | undefined, eventType: string) {
+  return customMessage?.trim() || closingMessageForEventType(eventType);
+}

@@ -11,7 +11,9 @@ export type EventContent = {
   message?: string; dressCode?: string; musicUrl?: string; theme?: EventTheme; rsvp?: RsvpConfig; sectionStyles?: InvitationSectionStyles; welcome?: WelcomeConfig;
 };
 export type EventSections = { gifts?: GiftSectionConfig; socialPhotos?: SocialPhotoSectionConfig };
-export type StoredEvent = { id: string; slug: string; title: string; event_type: string; starts_at: string | null; status: "draft" | "published" | "finished"; template_slug: string; plan: Plan; payment_status: PaymentStatus; rsvp_enabled?: boolean; content: EventContent; sections?: EventSections; event_media?: { storage_path: string; kind: string; position: number; url?: string }[] };
+export type StoredEventSection = { kind: "gifts" | "social_photos" | string; content: Record<string, unknown> };
+export type StoredEventMedia = { storage_path: string; kind: string; position: number; url?: string };
+export type StoredEvent = { id: string; slug: string; title: string; event_type: string; starts_at: string | null; status: "draft" | "published" | "finished"; template_slug: string; plan: Plan; payment_status: PaymentStatus; rsvp_enabled?: boolean; content: EventContent; sections?: EventSections; event_sections?: StoredEventSection[]; event_media?: StoredEventMedia[] };
 
 export function eventDateLabel(event: Pick<StoredEvent, "starts_at">) {
   return event.starts_at ? new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.starts_at)) : "Fecha a confirmar";

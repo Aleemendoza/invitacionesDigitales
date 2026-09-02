@@ -20,7 +20,7 @@
   max-width: 100%;
   margin: 0;
   color: var(--event-title);
-  font: 500 clamp(38px, min(13vw, 62px), 72px) / .92 var(--serif);
+  font: 500 clamp(38px, min(13cqw, 62px), 72px) / .92 var(--serif);
   letter-spacing: -.05em;
   overflow-wrap: anywhere;
   text-shadow: 0 2px 14px rgb(0 0 0 / 35%);
@@ -82,6 +82,6 @@
 .premiumInvite .piHeroTools button { width: 40px; height: 40px; border-color: rgb(255 255 255 / 45%); background: rgb(22 14 18 / 70%); box-shadow: 0 5px 18px rgb(0 0 0 / 20%); }
 .premiumInvite .piHeroTools button.isMenuOpen { border-color: var(--event-accent); color: var(--event-accent); }
 
-@media (max-width: 380px) {
+@container (max-width: 380px) {
   .premiumInvite .piHero { min-height: 530px; margin-inline: 16px; }
 }

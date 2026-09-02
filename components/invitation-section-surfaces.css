@@ -68,7 +68,7 @@
 
 .premiumInvite .piClosing h2 {
   color: inherit;
-  font: 500 clamp(34px, 9vw, 50px)/.95 var(--serif);
+  font: 500 clamp(34px, 9cqw, 50px)/.95 var(--serif);
   letter-spacing: -.045em;
   text-wrap: balance;
 }

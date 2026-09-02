@@ -11,4 +11,10 @@ export function normalizeAlias(value: string) { return value.trim().toUpperCase(
 export function isValidArgentineAccount(value: string) { return /^\d{22}$/.test(value.replace(/\D/g, "")); }
 export function isSafeExternalUrl(value: string) { try { return new URL(value).protocol === "https:"; } catch { return false; } }
 export function normalizeInstagramHandle(value: string) { return value.trim().replace(/^@+/, "").replace(/\s/g, "").toLowerCase(); }
+export function socialDisplayValue(config: SocialPhotoSectionConfig, mode: "preview" | "public") {
+  if (!config.enabled || config.socialType === "collaborative_album" || (mode === "public" && !config.socialValue.trim())) return null;
+  const rawValue = config.socialValue.trim() || (config.socialType === "hashtag" ? "tuevento" : "tuusuario");
+  if (config.socialType === "instagram_handle") return `@${normalizeInstagramHandle(rawValue)}`;
+  return rawValue.startsWith("#") ? rawValue : `#${rawValue}`;
+}
 export function formatAccount(value?: string) { const digits = (value ?? "").replace(/\D/g, ""); return digits ? digits.replace(/(.{4})/g, "$1 ").trim() : ""; }

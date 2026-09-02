@@ -8,13 +8,18 @@ import { GIFT_MESSAGE } from "@/lib/invitation-copy";
 
 type GiftLoadState = "loading" | "ready" | "error";
 
-export function GiftSection({ slug, fallback, theme = "ivory", photoUrl }: { slug: string; fallback: GiftSectionConfig; theme?: string; photoUrl?: string }) {
+export function GiftSection({ slug, fallback, theme = "ivory", photoUrl, mode = "public" }: { slug: string; fallback: GiftSectionConfig; theme?: string; photoUrl?: string; mode?: "preview" | "public" }) {
   const [config, setConfig] = useState<GiftSectionConfig>();
   const [state, setState] = useState<GiftLoadState>("loading");
   const [open, setOpen] = useState(false);
   const trigger = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
+    if (mode === "preview") {
+      setConfig(undefined);
+      setState("ready");
+      return;
+    }
     const controller = new AbortController();
     fetch(`/api/public/events/${encodeURIComponent(slug)}/gift-details`, { signal: controller.signal })
       .then(async (response) => {
@@ -27,13 +32,13 @@ export function GiftSection({ slug, fallback, theme = "ivory", photoUrl }: { slu
         setState("error");
       });
     return () => controller.abort();
-  }, [slug]);
+  }, [mode, slug]);
 
   const preview = config ?? fallback;
   if (!preview.enabled || preview.type === "none") return null;
   const isTransfer = preview.type === "bank_transfer";
   const account = config?.accounts?.[0];
-  const canOpen = isTransfer && state === "ready" && Boolean(account?.accountAlias);
+  const canOpen = mode === "preview" || (isTransfer && state === "ready" && Boolean(account?.accountAlias));
   const style = surfaceStyle(preview.visual, photoUrl);
   const body = <><p className="giftLabel"><Icon name="gift" size={20} /><span>Regalos</span></p><h2>{preview.title || "Un detalle para recordar"}</h2><p className="giftMessage">{preview.message || GIFT_MESSAGE}</p></>;
 
@@ -42,10 +47,10 @@ export function GiftSection({ slug, fallback, theme = "ivory", photoUrl }: { slu
 
   return <section id="regalos" className={`giftSection premiumGift gift-${theme} sectionSurface`} style={style}>
     {body}
-    <button ref={trigger} className="giftCta" disabled={!canOpen} onClick={() => setOpen(true)}>
+    <button ref={trigger} className="giftCta" disabled={!canOpen} aria-disabled={mode === "preview" || undefined} onClick={() => mode === "public" && setOpen(true)}>
       <Icon name="gift" size={16} />{state === "loading" ? "Preparando datos" : canOpen ? "Ver datos del regalo" : "Datos no disponibles"}
     </button>
-    {state === "error" && <p className="giftStatus">No pudimos obtener los datos del regalo. Probá de nuevo más tarde.</p>}
+    {mode === "public" && state === "error" && <p className="giftStatus">No pudimos obtener los datos del regalo. Probá de nuevo más tarde.</p>}
     {open && account && <GiftDialog account={account} onClose={() => { setOpen(false); trigger.current?.focus(); }} />}
   </section>;
 }

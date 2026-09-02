@@ -21,17 +21,22 @@ import type { StoredEvent } from "@/lib/event-types";
 import { templates, type InvitationSection, type SectionVisual } from "@/lib/templates";
 import { getYouTubeVideoId, youtubeEmbedUrl } from "@/lib/youtube";
 import { hasPlanFeature, hasPublicMenuActions, type Plan } from "@/lib/event-drafts";
-import { closingMessageForEventType } from "@/lib/event-closing";
+import { resolveClosingMessage } from "@/lib/event-closing";
 import type { SectionVisualConfig } from "@/lib/event-sections";
-type Section = { kind: string; content: Record<string, unknown> };
 const format = (value: number) => String(value).padStart(2, "0");
-export function PublicInvitation({ event }: { event: StoredEvent & { event_sections?: Section[] } }) {
+export type InvitationRenderMode = "preview" | "public";
+
+export function PublicInvitation({ event }: { event: StoredEvent }) {
+  return <InvitationExperience event={event} mode="public" />;
+}
+
+export function InvitationExperience({ event, mode }: { event: StoredEvent; mode: InvitationRenderMode }) {
   const template = templates.find((item) => item.slug === event.template_slug) ?? templates[0];
-  const [countdown, setCountdown] = useState(() => getCountdown(event.starts_at, false));
+  const [countdown, setCountdown] = useState(() => getCountdown(event.starts_at, mode === "preview"));
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
-  useEffect(() => { const interval = window.setInterval(() => setCountdown(getCountdown(event.starts_at, false)), 1000); return () => window.clearInterval(interval); }, [event.starts_at]);
+  useEffect(() => { const interval = window.setInterval(() => setCountdown(getCountdown(event.starts_at, mode === "preview")), 1000); return () => window.clearInterval(interval); }, [event.starts_at, mode]);
   const theme = normalizeTheme(event.content.theme, templateTheme(template.theme));
   const style = { "--event-primary": theme.primaryColor, "--event-on-primary": textColor(theme.primaryColor), "--event-accent": theme.accentColor, "--event-on-accent": textColor(theme.accentColor), "--event-background": theme.backgroundColor, "--event-on-background": textColor(theme.backgroundColor), "--event-title": theme.titleColor, "--event-cover": `url(${event.event_media?.[0]?.url || template.coverImage})`, "--event-countdown": `url(${template.countdownImage})` } as CSSProperties;
   const date = event.starts_at ? new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.starts_at)) : "Fecha a confirmar";
@@ -48,7 +53,7 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
   const panel = (section: InvitationSection) => panelProps(template.sections[section], sectionPhoto, section);
   const rsvpPanel = panel("rsvp");
   const showMenu = hasPublicMenuActions(event.plan as Plan, Boolean(event.rsvp_enabled));
-  if (!hasStarted) return <><YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={musicPlaying} /><InvitationWelcome title={event.title} eventType={event.event_type} message={event.content.welcome?.message} backgroundUrl={welcomeBackground} accentColor={theme.accentColor} musicEmbedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} musicPlaying={musicPlaying} onToggleMusic={() => setMusicPlaying((current) => !current)} onStart={() => setHasStarted(true)} /></>;
+  if (!hasStarted) return <><YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={musicPlaying} /><InvitationWelcome compact={mode === "preview"} title={event.title} eventType={event.event_type} message={event.content.welcome?.message} backgroundUrl={welcomeBackground} accentColor={theme.accentColor} musicEmbedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} musicPlaying={musicPlaying} onToggleMusic={() => setMusicPlaying((current) => !current)} onStart={() => setHasStarted(true)} /></>;
   return <><YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={musicPlaying} /><main className={`publicInvite premiumInvite ${template.theme}`} style={style}>
     <section className="piHero"><div className="piHeroTools">{showMenu && <button className={menuOpen ? "isMenuOpen" : ""} aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"} aria-expanded={menuOpen} onClick={() => setMenuOpen((current) => !current)}><Icon name="menu" size={19} /></button>}{musicId && <button className={musicPlaying ? "isPlaying" : ""} aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={() => setMusicPlaying((current) => !current)}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>}</div>{menuOpen && showMenu && <nav className="piHeroMenu" aria-label="Opciones de la invitación">{rsvpAvailable&&<Link href={rsvpHref}><Icon name="mail" size={17} /><span><small>RSVP</small><b>Confirmar asistencia</b></span><i aria-hidden="true">→</i></Link>}{hasPlanFeature(event.plan as Plan,"qr-album")&&<Link href={`/e/${event.slug}/album`}><Icon name="camera" size={17} /><span><small>Recuerdos</small><b>Álbum de fotos</b></span><i aria-hidden="true">→</i></Link>}{hasPlanFeature(event.plan as Plan,"trivia")&&<Link href={`/e/${event.slug}/trivia`}><Icon name="trivia" size={17} /><span><small>Para jugar</small><b>Trivia del evento</b></span><i aria-hidden="true">→</i></Link>}</nav>}<div className="piHeroCopy"><h1>{event.title}</h1>{compactDate && <time>{compactDate}</time>}</div></section>
     <section className="piCountdownCard"><p>Falta muy poco</p><div>{values.map((value, index) => <span key={index}><b>{format(value)}</b><small>{["Días", "Horas", "Minutos", "Segundos"][index]}</small></span>)}</div></section>
@@ -58,9 +63,9 @@ export function PublicInvitation({ event }: { event: StoredEvent & { event_secti
     {event.content.agenda.length > 0 && <section className="piAgenda" {...panel("agenda")}><header><p className="eyebrow">La noche</p><span>Así se vive cada momento</span></header><ol>{event.content.agenda.map((item, index) => <li key={item.time + "-" + item.title}><AgendaIcon index={index} /><div className="piAgendaDot" /><article><time>{item.time}</time><h2>{item.title}</h2></article></li>)}</ol></section>}
     {hasPlanFeature(event.plan as Plan, "gallery") && event.event_media && event.event_media.length > 1 && <section className="piGallery" {...panel("gallery")}><SectionHeader icon="gallery" label="Galería" /><AutoGallery photos={event.event_media.slice(1)} /></section>}
     {event.content.dressCode && <section className="piDress" {...panel("dress")}><Icon name="dress" className="piDressIcon piDressIconLeft" /><div><small>Vestimenta</small><h2>{event.content.dressCode}</h2><span>Elegí tu mejor look para la ocasión</span></div><Icon name="suit" className="piDressIcon piDressIconRight" /></section>}
-    {gifts && <div {...panel("gifts")}><GiftSection slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((gifts.content as GiftSectionConfig).visual?.photoPath ?? "")} /></div>}{social && <div {...panel("social")}><SocialPhotosSection config={social.content as SocialPhotoSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((social.content as SocialPhotoSectionConfig).visual?.photoPath ?? "")} /></div>}
+    {gifts && <div {...panel("gifts")}><GiftSection mode={mode} slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((gifts.content as GiftSectionConfig).visual?.photoPath ?? "")} /></div>}{social && <div {...panel("social")}><SocialPhotosSection mode={mode} config={social.content as SocialPhotoSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((social.content as SocialPhotoSectionConfig).visual?.photoPath ?? "")} /></div>}
     {rsvpAvailable && <section className="piRsvp sectionSurface" {...rsvpPanel} style={{ ...rsvpPanel.style, ...surfaceStyle(event.content.sectionStyles?.rsvp, mediaUrlByPath) }}><div className="piRsvpCopy"><Icon name="mail" /><div><p className="eyebrow">Asistencia</p><h2>¿Nos acompañás?</h2><p>{event.content.rsvp?.deadline ? `Confirmá antes del ${new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.content.rsvp.deadline))}` : "Tu respuesta es muy importante"}</p></div></div><Link href={rsvpHref}>Confirmar asistencia</Link></section>}
-    <footer className="piClosing sectionSurface" style={surfaceStyle(event.content.sectionStyles?.closing, mediaUrlByPath)}><h2>{event.title}</h2><p>{closingMessageForEventType(event.event_type)}</p></footer>
+    <footer className="piClosing sectionSurface" style={surfaceStyle(event.content.sectionStyles?.closing, mediaUrlByPath)}><h2>{event.title}</h2><p>{resolveClosingMessage(event.content.closingMessage, event.event_type)}</p></footer>
   </main></>;
 }
 function panelProps(visual: SectionVisual, photo: string | undefined, section: InvitationSection) {

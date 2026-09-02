@@ -176,6 +176,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
     content: { venue: draft.venue, venueAddress: draft.venueAddress, mapUrl: draft.mapUrl, closingMessage: draft.closingMessage, wizard_step: 7, features: draft.features, agenda: draft.agenda, message: draft.message, dressCode: draft.dressCode, musicUrl: draft.musicUrl, theme: draft.theme, rsvp, sectionStyles: draft.sectionStyles, welcome },
     sections: draft.sections,
     photos,
+    media: event.event_media,
     welcomeBackgroundUrl,
   };
 
@@ -210,7 +211,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label>Lugar<input value={draft.venue} onChange={(item) => update("venue", item.currentTarget.value)} /></label>
         <label>Dirección<input value={draft.venueAddress ?? ""} onChange={(item) => update("venueAddress", item.currentTarget.value)} /></label>
         <label>Enlace de Google Maps<input type="url" value={draft.mapUrl ?? ""} placeholder="https://maps.google.com/..." onChange={(item) => update("mapUrl", item.currentTarget.value)} /></label>
-        <div className="fixedCopy"><b>Mensaje final según el tipo de evento</b><p>La invitación mostrará una despedida fija adaptada al tipo de celebración.</p></div>
+        <label>Mensaje final<textarea value={draft.closingMessage ?? ""} placeholder="Si lo dejás vacío, usamos una despedida acorde al tipo de evento." onChange={(item) => update("closingMessage", item.currentTarget.value)} /></label>
 
         <SectionVisualControls label="mensaje final" value={draft.sectionStyles?.closing} photos={photoOptions} onChange={(closing) => update("sectionStyles", { ...draft.sectionStyles, closing })} />
 
@@ -238,7 +239,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
         <label>Acceso<select value={rsvp.accessMode} onChange={(item) => update("rsvp", { ...rsvp, accessMode: item.currentTarget.value as typeof rsvp.accessMode })}><option value="name_lookup">Búsqueda por nombre</option><option value="name_and_code">Nombre y código</option></select></label></>}
         <div className="editorPaymentActions"><button className="button dark" type="button" disabled={saving || paying} onClick={() => void save()}>{saving ? "Guardando…" : "Guardar cambios"}</button>{event.payment_status === "approved" ? <Link className="button pink" href={`/e/${event.slug}`} target="_blank">Ver invitación publicada</Link> : event.payment_status === "pending" ? <button className="button outline" type="button" disabled>Pago en verificación</button> : <button className="button pink" type="button" disabled={saving || paying} onClick={() => void checkout()}>{paying ? "Abriendo Mercado Pago…" : `Pagar y publicar — $${planDetails[draft.plan].price.toLocaleString("es-AR")} →`}</button>}</div><p className="wizardNotice">{notice}</p>
       </section>
-      <EventInvitationPreview event={preview} />
+      <EventInvitationPreview event={preview} plan={draft.plan} />
     </div>
   </main>;
 }
