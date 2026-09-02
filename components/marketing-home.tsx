@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { AnalyticsLink } from "@/components/analytics-link";
+import { EventInvitationPreview, type InvitationPreviewData } from "@/components/event-invitation-preview";
 import { SiteFooter, SiteHeader } from "@/components/site-shell";
 import { TemplateCard } from "@/components/template-card";
 import { TestimonialsShowcase } from "@/components/testimonials-showcase";
-import { planDetails } from "@/lib/event-drafts";
+import { defaultFeatures, planDetails } from "@/lib/event-drafts";
 import { templates } from "@/lib/templates";
+import styles from "./marketing-home.module.css";
 
 const steps = [
   ["01", "Elegí una plantilla", "Encontrá un diseño pensado para tu tipo de celebración."],
@@ -13,8 +15,89 @@ const steps = [
   ["04", "Publicá y compartí", "Recibí tu enlace listo para enviar por WhatsApp, sin que tus invitados instalen una app."],
 ] as const;
 
+const heroInvitation: InvitationPreviewData = {
+  title: "Sofía & Mateo",
+  event_type: "Boda",
+  starts_at: "2027-12-12T18:30:00-03:00",
+  template_slug: "eclat",
+  photos: ["/images/templates/eclat-cover.webp", "/images/sections/wedding-editorial.webp"],
+  content: {
+    venue: "Estancia La Candelaria",
+    venueAddress: "Lobos, Buenos Aires",
+    closingMessage: "Gracias por ser parte de nuestra historia.",
+    wizard_step: 8,
+    features: defaultFeatures("premium"),
+    agenda: [
+      { time: "18:30", title: "Ceremonia" },
+      { time: "20:00", title: "Recepción" },
+      { time: "22:00", title: "Cena y fiesta" },
+    ],
+    message: "Nos emociona compartir este día con vos.",
+    dressCode: "Elegante",
+    theme: { primaryColor: "#38242b", accentColor: "#b7795f", backgroundColor: "#f7efe8", titleColor: "#fffaf7", fontStyle: "refinada" },
+    rsvp: { enabled: true, deadline: "2027-11-30T23:59:00-03:00", accessMode: "name_lookup", questions: [] },
+    sectionStyles: {
+      closing: { backgroundColor: "#38242b", textColor: "#fffaf7", accentColor: "#d6a88f", photoOverlay: 0.48 },
+    },
+  },
+  sections: {
+    gifts: {
+      enabled: true,
+      title: "Regalos",
+      message: "Tu presencia es nuestro mejor regalo.",
+      type: "bank_transfer",
+      protectedDetails: true,
+      accounts: [],
+      styleVariant: "editorial",
+      visual: { backgroundColor: "#38242b", textColor: "#fffaf7", accentColor: "#d6a88f" },
+    },
+    socialPhotos: {
+      enabled: true,
+      title: "Compartí tus fotos",
+      description: "Ayudanos a guardar cada momento de esta noche.",
+      socialType: "hashtag",
+      socialValue: "SofiYMateo",
+      ctaLabel: "Ver fotos",
+      showCopyButton: true,
+      visual: { backgroundColor: "#f7efe8", textColor: "#38242b", accentColor: "#b7795f" },
+    },
+  },
+};
+
 export function MarketingHome() {
-  return <main><SiteHeader/><section className="hero"><div><p className="eyebrow">INVITACIONES DIGITALES AUTOGESTIONABLES</p><h1>Tu invitación, lista para compartir <em>en pocos pasos.</em></h1><p className="lead">Elegí un diseño, cargá los datos de tu evento, pagá online y publicá. Todo desde Papeleta y a tu ritmo.</p><p><AnalyticsLink className="button dark" href="/crear" analytics={{ name: "create_start" }}>Crear mi invitación <span aria-hidden="true">→</span></AnalyticsLink> <Link className="button outline" href="/plantillas">Explorar plantillas</Link></p><div className="heroTrust"><span>✓ Borrador guardado</span><span>✓ Pago con Mercado Pago</span><span>✓ Sin app para invitados</span></div></div><div className="heroPreview" aria-label="Vista previa de plantillas"><TemplateCard template={templates[2]}/></div></section>
+  return <main><SiteHeader/><section className={`${styles.hero} hero`}>
+      <div className={styles.heroCopy}>
+        <p className="eyebrow">TU INVITACIÓN, TAL COMO LA VAN A VIVIR</p>
+        <h1>Empezá a emocionar <em>desde la invitación.</em></h1>
+        <p className={`lead ${styles.heroLead}`}>Diseñá, personalizá y mirá el resultado real antes de publicar. La misma experiencia que reciben tus invitados, sin sorpresas.</p>
+        <div className={styles.heroActions}>
+          <AnalyticsLink className="button dark" href="/crear" analytics={{ name: "create_start" }}>Crear mi invitación <span aria-hidden="true">→</span></AnalyticsLink>
+          <Link className="button outline" href="/plantillas">Ver diseños</Link>
+        </div>
+        <ul className={styles.heroTrust} aria-label="Beneficios principales">
+          <li><span aria-hidden="true">✓</span><strong>Vista previa real</strong><small>Antes de pagar</small></li>
+          <li><span aria-hidden="true">✓</span><strong>Todo editable</strong><small>Textos, fotos y colores</small></li>
+          <li><span aria-hidden="true">✓</span><strong>Lista para compartir</strong><small>Sin instalar una app</small></li>
+        </ul>
+      </div>
+      <div className={styles.heroProduct} aria-label="Ejemplo real de una invitación digital">
+        <div className={styles.previewHeading}><span>VISTA PREVIA REAL</span><strong>Así la reciben tus invitados</strong></div>
+        <div className={styles.previewPhone}>
+          <EventInvitationPreview event={heroInvitation} label="" plan="premium" initiallyStarted />
+        </div>
+        <div className={`${styles.previewDetail} ${styles.dateDetail}`}>
+          <span>12 DIC · 18:30</span>
+          <strong>Sofía &amp; Mateo</strong>
+          <small>Estancia La Candelaria</small>
+        </div>
+        <div className={`${styles.previewDetail} ${styles.featureDetail}`}>
+          <span>TODO EN UN SOLO LINK</span>
+          <strong>Mapa · agenda · regalos</strong>
+          <small>Fotos sociales y confirmación RSVP</small>
+        </div>
+        <p className={styles.scrollHint}>Deslizá dentro del teléfono para explorarla <span aria-hidden="true">↓</span></p>
+      </div>
+    </section>
     <section className="band">Diseños para cada celebración.<span>Bodas</span><span>XV</span><span>Cumpleaños</span><span>Infantiles</span><span>Corporativos</span></section>
     <section className="section howItWorks" id="como-funciona"><div className="sectionHeading"><div><p className="eyebrow">CÓMO FUNCIONA</p><h2>De la idea al link,<br/><em>sin vueltas.</em></h2></div><p>Tu borrador queda guardado mientras avanzás. Podés crear la invitación primero y pagar cuando esté lista para publicar.</p></div><ol>{steps.map(([number,title,copy])=><li key={number}><span>{number}</span><h3>{title}</h3><p>{copy}</p></li>)}</ol></section>
     <section className="section templateShowcase"><div className="sectionHeading"><div><p className="eyebrow">PLANTILLAS PARA CADA HISTORIA</p><h2>Elegí el estilo<br/><em>que se sienta tuyo.</em></h2></div><Link className="textLink" href="/plantillas">Ver catálogo completo <span aria-hidden="true">→</span></Link></div><div className="grid">{templates.slice(0,4).map((template)=><TemplateCard template={template} key={template.slug}/>)}</div></section>

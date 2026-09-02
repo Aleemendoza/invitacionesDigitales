@@ -1,0 +1,397 @@
+.hero {
+  position: relative;
+  grid-template-columns: minmax(0, .92fr) minmax(420px, 1.08fr);
+  gap: clamp(42px, 7vw, 112px);
+  width: min(100%, 1500px);
+  min-height: min(850px, calc(100svh - 74px));
+  padding-block: clamp(48px, 7vh, 82px);
+  overflow: hidden;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: min(52vw, 720px);
+  aspect-ratio: 1;
+  right: -7%;
+  top: 5%;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ebc8bd80 0, #f5e6df55 43%, transparent 70%);
+}
+
+.heroCopy {
+  position: relative;
+  z-index: 2;
+  max-width: 650px;
+}
+
+.heroCopy h1 {
+  max-width: 11ch;
+  font-size: clamp(50px, 5.4vw, 78px);
+  line-height: .94;
+  text-wrap: balance;
+}
+
+.heroLead {
+  max-width: 570px;
+  margin: 25px 0 0;
+  font-size: clamp(16px, 1.35vw, 18px);
+}
+
+.heroActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.heroActions :global(.button) {
+  min-height: 50px;
+  padding-inline: 21px;
+}
+
+.heroTrust {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 38px 0 0;
+  padding: 22px 0 0;
+  border-top: 1px solid var(--line);
+  list-style: none;
+}
+
+.heroTrust li {
+  position: relative;
+  display: grid;
+  gap: 2px;
+  padding-left: 24px;
+}
+
+.heroTrust li > span {
+  position: absolute;
+  left: 0;
+  top: 1px;
+  display: grid;
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  background: #ead2ca;
+  color: #6e2d40;
+  place-items: center;
+  font-size: 10px;
+  font-weight: 800;
+}
+
+.heroTrust strong {
+  font-size: 12px;
+}
+
+.heroTrust small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.4;
+}
+
+.heroProduct {
+  position: relative;
+  display: grid;
+  min-height: 700px;
+  place-items: center;
+  isolation: isolate;
+}
+
+.heroProduct::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  width: 78%;
+  aspect-ratio: 1;
+  border: 1px solid #d7bcb4;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #fffaf6c9, #ecd8d0b5);
+  box-shadow: 0 35px 90px #6d35421c;
+}
+
+.previewPhone {
+  width: min(334px, 70%);
+  filter: drop-shadow(0 26px 25px #31151e26);
+}
+
+.previewPhone :global(.phoneFrame) {
+  width: 100% !important;
+  margin: 0;
+}
+
+.previewPhone :global(.eventCover) {
+  height: 390px !important;
+}
+
+.previewHeading {
+  position: absolute;
+  z-index: 3;
+  top: 2.5%;
+  left: 4%;
+  display: grid;
+  gap: 5px;
+  padding: 13px 16px;
+  border: 1px solid #ffffffc9;
+  border-radius: 12px;
+  background: #fffdfbe8;
+  box-shadow: 0 13px 32px #30182118;
+  backdrop-filter: blur(10px);
+}
+
+.previewHeading span,
+.previewDetail span {
+  color: #9c3452;
+  font: 700 9px var(--mono);
+  letter-spacing: 1px;
+}
+
+.previewHeading strong {
+  font: 500 18px var(--serif);
+}
+
+.previewDetail {
+  position: absolute;
+  z-index: 3;
+  display: grid;
+  gap: 5px;
+  min-width: 210px;
+  padding: 17px 18px;
+  border: 1px solid #e7d8d3;
+  border-radius: 14px;
+  background: #fffdfbf2;
+  box-shadow: 0 18px 38px #30182120;
+  backdrop-filter: blur(12px);
+}
+
+.previewDetail strong {
+  font: 500 20px/1.1 var(--serif);
+}
+
+.previewDetail small {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.dateDetail {
+  left: 0;
+  bottom: 16%;
+}
+
+.featureDetail {
+  right: -2%;
+  top: 34%;
+}
+
+.scrollHint {
+  position: absolute;
+  right: 1%;
+  bottom: 7%;
+  max-width: 145px;
+  margin: 0;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.45;
+}
+
+.scrollHint span {
+  color: var(--pink);
+  font-size: 15px;
+}
+
+@media (max-width: 1120px) {
+  .hero {
+    grid-template-columns: minmax(0, .9fr) minmax(390px, 1.1fr);
+    gap: 30px;
+    padding-inline: 6vw;
+  }
+
+  .previewPhone {
+    width: min(310px, 72%);
+  }
+
+  .featureDetail {
+    right: -5%;
+  }
+
+  .dateDetail {
+    left: -3%;
+  }
+}
+
+@media (max-width: 800px) {
+  .hero {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 44px;
+    min-height: 0;
+    padding: 52px 20px 64px;
+    overflow: clip;
+  }
+
+  .hero::before {
+    width: 120vw;
+    right: -55vw;
+    top: 38%;
+  }
+
+  .heroCopy {
+    max-width: 640px;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .heroCopy h1 {
+    max-width: 12ch;
+    margin-inline: auto;
+    font-size: clamp(45px, 13vw, 64px);
+  }
+
+  .heroLead {
+    margin-inline: auto;
+  }
+
+  .heroActions {
+    justify-content: center;
+  }
+
+  .heroTrust {
+    text-align: left;
+  }
+
+  .heroProduct {
+    width: min(100%, 580px);
+    min-height: 690px;
+    margin: 0 auto;
+  }
+
+  .previewPhone {
+    width: min(300px, 68vw);
+  }
+
+  .previewHeading {
+    left: 0;
+    top: 3%;
+  }
+
+  .dateDetail {
+    left: 0;
+    bottom: 12%;
+  }
+
+  .featureDetail {
+    right: 0;
+    top: 35%;
+  }
+
+  .scrollHint {
+    right: 0;
+    bottom: 5%;
+  }
+}
+
+@media (max-width: 540px) {
+  .hero {
+    gap: 28px;
+    padding-top: 34px;
+  }
+
+  .heroCopy h1 {
+    font-size: clamp(41px, 12.5vw, 52px);
+  }
+
+  .heroLead {
+    margin-top: 18px;
+    font-size: 15px;
+  }
+
+  .heroActions {
+    margin-top: 22px;
+  }
+
+  .heroActions {
+    display: grid;
+  }
+
+  .heroActions :global(.button) {
+    width: 100%;
+  }
+
+  .heroTrust {
+    display: none;
+  }
+
+  .heroProduct {
+    display: flex;
+    min-height: 0;
+    padding-top: 58px;
+    flex-direction: column;
+  }
+
+  .heroProduct::before {
+    width: 125%;
+    top: 11%;
+  }
+
+  .previewHeading {
+    top: 0;
+    left: 0;
+    right: 0;
+    width: max-content;
+    max-width: 94%;
+    margin-inline: auto;
+    text-align: center;
+  }
+
+  .previewPhone {
+    width: min(284px, 84vw);
+  }
+
+  .previewDetail {
+    position: relative;
+    width: min(100%, 340px);
+    min-width: 0;
+  }
+
+  .dateDetail,
+  .featureDetail {
+    inset: auto;
+    margin-top: -8px;
+  }
+
+  .featureDetail {
+    margin-top: 10px;
+  }
+
+  .scrollHint {
+    position: static;
+    max-width: none;
+    margin: 14px 0 0;
+    text-align: center;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .previewPhone {
+    animation: phoneEnter 700ms cubic-bezier(.2,.8,.2,1) both;
+  }
+
+  .previewHeading,
+  .previewDetail {
+    animation: detailEnter 600ms 180ms ease-out both;
+  }
+
+  @keyframes phoneEnter {
+    from { opacity: 0; transform: translateY(22px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  @keyframes detailEnter {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

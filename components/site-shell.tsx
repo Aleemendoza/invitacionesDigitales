@@ -17,7 +17,7 @@ export function SiteHeader() {
       <Link href="/plantillas" onClick={close}>Plantillas</Link><Link href="/#como-funciona" onClick={close}>Cómo funciona</Link><Link href="/precios" onClick={close}>Precios</Link><Link href="/la-armamos-por-vos" onClick={close}>La armamos por vos</Link><Link href="/partner" onClick={close}>Partner</Link>
       <AnalyticsLink className="button pink" href="/crear" analytics={{name:"create_start"}} onClick={close}>Crear invitación</AnalyticsLink><Link className="accountLogin" href="/login" onClick={close}>Ingresar</Link>
     </nav>
-  </header><nav className={styles.consumerBar} aria-label="Derechos del consumidor"><Link href="/arrepentimiento">BOTÓN DE ARREPENTIMIENTO</Link><Link href="/baja">BAJA DEL SERVICIO</Link></nav></>;
+  </header></>;
 }
 
 export function SiteFooter() {
