@@ -113,6 +113,11 @@ export function GooglePlacePicker({
         requestedLanguage: "es",
         requestedRegion: "AR",
       });
+      // The widget otherwise follows the device theme. Keep its closed popup and
+      // input in the same light palette as the creation wizard.
+      autocomplete.style.colorScheme = "only light";
+      autocomplete.style.backgroundColor = "#ffffff";
+      autocomplete.style.color = "#342c2f";
       autocompleteHost.replaceChildren(autocomplete);
 
       const setLocation = (values: PlaceValues, location?: GoogleMapsApi) => {

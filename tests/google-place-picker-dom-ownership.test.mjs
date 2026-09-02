@@ -64,3 +64,13 @@ test("keeps the new autocomplete widget inside narrow wizard viewports", async (
   assert.match(styles, /gmp-place-autocomplete[^}]*min-width:\s*0\s*!important/s, "the widget must shrink on mobile");
   assert.match(styles, /gmp-place-autocomplete[^}]*max-width:\s*100%\s*!important/s, "the widget must stay inside the form");
 });
+
+test("keeps Google place predictions readable in the light wizard theme", async () => {
+  const source = await readFile(new URL("../components/google-place-picker.tsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../components/google-place-picker.css", import.meta.url), "utf8");
+
+  assert.match(source, /autocomplete\.style\.colorScheme\s*=\s*"only light"/, "the runtime widget must not follow a dark device theme");
+  assert.match(styles, /::part\(prediction-list\)[^{]*\{[^}]*background:\s*#fff/s, "the prediction popup must have a light background");
+  assert.match(styles, /::part\(prediction-item-main-text\)[\s\S]*color:\s*#211b1d/, "place names must retain strong contrast");
+  assert.match(styles, /::part\(prediction-item-secondary-text\)[^{]*\{[^}]*color:\s*#655a5e/s, "addresses must remain readable");
+});

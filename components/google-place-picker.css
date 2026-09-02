@@ -6,8 +6,17 @@
 .placePickerIntro p { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
 .placeSearch { display: block !important; width: 100%; min-width: 0; max-width: 100%; margin: 0 !important; padding: 0; border: 0; background: transparent; }
 /* The new Google widget already owns its icon, border and focus treatment. Inline containment prevents its intrinsic size from widening the wizard. */
-.placeAutocompleteHost { width: 100%; min-width: 0; max-width: 100%; contain: inline-size; color-scheme: light; }
-.placeAutocompleteHost > gmp-place-autocomplete { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; min-height: 48px; box-sizing: border-box; border: 1px solid #dfd4d6; border-radius: 12px; background: #fff; color: #342c2f; }
+.placeAutocompleteHost { width: 100%; min-width: 0; max-width: 100%; contain: inline-size; color-scheme: only light; }
+.placeAutocompleteHost > gmp-place-autocomplete { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; min-height: 48px; box-sizing: border-box; border: 1px solid #dfd4d6; border-radius: 12px; background: #fff !important; color: #342c2f !important; color-scheme: only light !important; }
+/* PlaceAutocompleteElement exposes these parts specifically for safe visual customization. */
+.placeAutocompleteHost > gmp-place-autocomplete::part(input) { background: #fff; color: #342c2f; caret-color: #342c2f; }
+.placeAutocompleteHost > gmp-place-autocomplete::part(prediction-list) { background: #fff; color: #342c2f; border-color: #d8cdcf; }
+.placeAutocompleteHost > gmp-place-autocomplete::part(prediction-item) { background: #fff; color: #655a5e; border-color: #e7dfe1; }
+.placeAutocompleteHost > gmp-place-autocomplete::part(prediction-item-main-text),
+.placeAutocompleteHost > gmp-place-autocomplete::part(prediction-item-match),
+.placeAutocompleteHost > gmp-place-autocomplete::part(prediction-item-nonmatch) { color: #211b1d; }
+.placeAutocompleteHost > gmp-place-autocomplete::part(prediction-item-secondary-text) { color: #655a5e; }
+.placeAutocompleteHost > gmp-place-autocomplete::part(prediction-item-selected) { background: #f7e9ee; color: #211b1d; }
 .placeMap { position: relative; min-height: 225px; overflow: hidden; border: 1px solid #e6dcda; border-radius: 16px; background: linear-gradient(135deg, #f7edeb, #eee6e1); }
 /* Google Maps owns every descendant of this empty host. React only owns the sibling status overlay. */
 .placeMapHost { position: absolute; inset: 0; }
