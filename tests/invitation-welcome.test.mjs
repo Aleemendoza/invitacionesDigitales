@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { welcomeMessageForEventType, welcomeStyleForEventType } from "../lib/invitation-welcome.ts";
 
 test("provides a safe welcome fallback for every event type", () => {
-  assert.match(welcomeMessageForEventType("Boda", "Sofía y Mateo"), /Sofía y Mateo/);
+  assert.match(welcomeMessageForEventType("Boda", "Valeria y Julian"), /Valeria y Julian/);
   assert.match(welcomeMessageForEventType("XV"), /mis XV/);
   assert.match(welcomeMessageForEventType("Infantil"), /aventura/);
   assert.match(welcomeMessageForEventType("Baby Shower"), /celebrada/);

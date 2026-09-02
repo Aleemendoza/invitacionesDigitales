@@ -57,4 +57,4 @@ export const templates: Template[] = raw.map(([slug, name, category, style, plan
   sections: sectionFamilies[familyFor(category)],
 }));
 
-export const demoEvent = { id: "sofia-mateo", slug: "sofia-y-mateo", title: "Sofía & Mateo", date: "12 de diciembre de 2026", venue: "Estancia La Candelaria", template: templates[0] };
+export const demoEvent = { id: "emilce-Julian", slug: "emilce-y-Julian", title: "Valeria & Julian", date: "12 de diciembre de 2026", venue: "Estancia La Candelaria", template: templates[0] };

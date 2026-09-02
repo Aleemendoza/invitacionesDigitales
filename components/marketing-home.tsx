@@ -16,7 +16,7 @@ const steps = [
 ] as const;
 
 const heroInvitation: InvitationPreviewData = {
-  title: "Sofía & Mateo",
+  title: "Valeria & Julian",
   event_type: "Boda",
   starts_at: "2027-12-12T18:30:00-03:00",
   template_slug: "eclat",
@@ -56,7 +56,7 @@ const heroInvitation: InvitationPreviewData = {
       title: "Compartí tus fotos",
       description: "Ayudanos a guardar cada momento de esta noche.",
       socialType: "hashtag",
-      socialValue: "SofiYMateo",
+      socialValue: "SofiYJulian",
       ctaLabel: "Ver fotos",
       showCopyButton: true,
       visual: { backgroundColor: "#f7efe8", textColor: "#38242b", accentColor: "#b7795f" },
@@ -87,7 +87,7 @@ export function MarketingHome() {
         </div>
         <div className={`${styles.previewDetail} ${styles.dateDetail}`}>
           <span>12 DIC · 18:30</span>
-          <strong>Sofía &amp; Mateo</strong>
+          <strong>Valeria &amp; Julian</strong>
           <small>Estancia La Candelaria</small>
         </div>
         <div className={`${styles.previewDetail} ${styles.featureDetail}`}>

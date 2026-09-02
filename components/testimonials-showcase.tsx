@@ -3,7 +3,7 @@ import "./testimonials-showcase.css";
 import { useEffect, useState } from "react";
 
 const examples = [
-  ["Sofía M.", "El diseño quedó precioso y mis invitados pudieron confirmar sin preguntarme nada por WhatsApp."],
+  ["Valeria M.", "El diseño quedó precioso y mis invitados pudieron confirmar sin preguntarme nada por WhatsApp."],
   ["Carla R.", "Pudimos ordenar todos los detalles en un solo link. Fue muy simple de preparar."],
   ["Familia Álvarez", "La invitación se veía genial desde el celular y la agenda fue súper clara."],
   ["Vale G.", "Nos encantó poder elegir una estética que realmente se sintiera nuestra."],
@@ -39,7 +39,7 @@ export function TestimonialsShowcase() {
 
       <div className="testimonialsContent">
         <p className="eyebrow">OPINIONES</p>
-        
+
         <article className="testimonialCard" aria-live="polite">
           <div className="testimonialAvatar" aria-hidden="true">{name[0]}</div>
           <div>
