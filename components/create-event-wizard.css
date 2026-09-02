@@ -1,4 +1,7 @@
 .wizardPanel {
+  width: 100%;
+  min-width: 0;
+  max-width: 100%;
   align-self: start;
   padding: 34px;
   border: 1px solid #e2d8d3;
@@ -35,7 +38,45 @@
 .wizardActions .button:disabled { cursor: not-allowed; opacity: .45; }
 .wizardActions .button.dark:disabled { background: #776a6f; }
 
+.photoWizard,
+.wizardPanel > *,
+.wizardFields,
+.wizardField,
+.wizardChoiceGroup,
+.planPicker,
+.templatePicker,
+.agendaEditor,
+.mobilePreview,
+.desktopPreview { min-width: 0; max-width: 100%; }
+
+/* The floating sales CTA covers fields and navigation on the multi-step mobile form. */
+main:has(> .photoWizard) > .whatsappContact { display: none; }
+
 @media (max-width: 800px) {
-  .wizardPanel { padding: 25px 20px; }
-  .wizardPanel h1 { font-size: 42px; }
+  .photoWizard {
+    width: 100%;
+    max-width: 100%;
+    padding: 28px max(14px, env(safe-area-inset-right)) 48px max(14px, env(safe-area-inset-left)) !important;
+    overflow-x: clip;
+  }
+  .wizardPanel { padding: 24px 18px 28px; border-radius: 14px; }
+  .wizardPanel h1 { max-width: 100%; font-size: clamp(34px, 10vw, 42px); overflow-wrap: anywhere; }
+  .wizardStepLead { margin-bottom: 21px; }
+  .fieldPair { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .wizardActions { width: 100%; }
+  .wizardActions .button { min-width: 0; padding-inline: 10px; }
+  .photoThumbs { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .mobilePreview { width: 100%; }
+  .themeControls > .themeControlsHeading { display: grid; gap: 9px; }
+  .themeControls > .themeControlsHeading .textButton { justify-self: start; }
+  .themeControls > .themeColorFields { display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; }
+}
+
+@media (max-width: 360px) {
+  .photoWizard { padding-inline: 10px !important; }
+  .wizardPanel { padding-inline: 15px; }
+  .wizardPanel h1 { font-size: 34px; }
+  .choices { grid-template-columns: minmax(0, 1fr); }
+  .wizardActions { gap: 7px; }
+  .wizardActions .button { font-size: 12px; }
 }

@@ -1,14 +1,13 @@
-.placePicker { display: grid; gap: 13px; }
+.placePicker { display: grid; width: 100%; min-width: 0; max-width: 100%; gap: 13px; }
 .placePickerIntro { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; gap: 11px; margin: 1px 0 3px; }
 .placePickerIcon { display: grid; place-items: center; width: 40px; height: 40px; border-radius: 13px; background: #f9e7ee; color: var(--pink); }
 .placePickerIcon svg { width: 21px; }
 .placePickerIntro b { font-size: 14px; }
 .placePickerIntro p { margin: 3px 0 0; color: var(--muted); font-size: 12px; line-height: 1.4; }
-.placeSearch { display: flex !important; align-items: center; gap: 10px; margin: 0 !important; padding: 0 13px; border: 1px solid #dfd4d6; border-radius: 12px; background: #fff; color: var(--pink); transition: border-color .18s ease, box-shadow .18s ease; }
-.placeSearch:focus-within { border-color: var(--pink); box-shadow: 0 0 0 4px #ea4d7817; }
-.placeSearch svg { width: 19px; flex: none; }
-.placeAutocompleteHost { min-width: 0; width: 100%; }
-.placeAutocompleteHost > * { display: block; width: 100%; min-height: 48px; border: 0; background: transparent; color: inherit; }
+.placeSearch { display: block !important; width: 100%; min-width: 0; max-width: 100%; margin: 0 !important; padding: 0; border: 0; background: transparent; }
+/* The new Google widget already owns its icon, border and focus treatment. Inline containment prevents its intrinsic size from widening the wizard. */
+.placeAutocompleteHost { width: 100%; min-width: 0; max-width: 100%; contain: inline-size; color-scheme: light; }
+.placeAutocompleteHost > gmp-place-autocomplete { display: block !important; width: 100% !important; min-width: 0 !important; max-width: 100% !important; min-height: 48px; box-sizing: border-box; border: 1px solid #dfd4d6; border-radius: 12px; background: #fff; color: #342c2f; }
 .placeMap { position: relative; min-height: 225px; overflow: hidden; border: 1px solid #e6dcda; border-radius: 16px; background: linear-gradient(135deg, #f7edeb, #eee6e1); }
 /* Google Maps owns every descendant of this empty host. React only owns the sibling status overlay. */
 .placeMapHost { position: absolute; inset: 0; }
@@ -19,4 +18,10 @@
 .placeMapLink { display: flex; align-items: center; justify-content: space-between; min-height: 43px; padding: 0 13px; border: 1px solid #e7dce0; border-radius: 10px; background: #fff; color: #49323b; font-size: 12px; font-weight: 700; }
 .placeMapLink span { color: var(--pink); font-size: 17px; }
 .placePickerHint { margin: 0; color: var(--muted); font-size: 11px; line-height: 1.45; }
-@media (max-width: 600px) { .placeMap { min-height: 198px; } .placeFields { grid-template-columns: 1fr; gap: 0; } }
+@media (max-width: 600px) {
+  .placePickerIntro { grid-template-columns: 36px minmax(0, 1fr); gap: 9px; }
+  .placePickerIcon { width: 36px; height: 36px; }
+  .placePickerIntro p { font-size: 11px; }
+  .placeMap { width: 100%; min-height: 190px; border-radius: 13px; }
+  .placeFields { grid-template-columns: minmax(0, 1fr); gap: 0; }
+}

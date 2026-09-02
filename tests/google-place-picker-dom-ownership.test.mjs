@@ -50,3 +50,17 @@ test("uses the current Places and Advanced Marker APIs without legacy widgets", 
     "React must leave the autocomplete host empty for the Google web component",
   );
 });
+
+test("keeps the new autocomplete widget inside narrow wizard viewports", async () => {
+  const source = await readFile(new URL("../components/google-place-picker.tsx", import.meta.url), "utf8");
+  const styles = await readFile(new URL("../components/google-place-picker.css", import.meta.url), "utf8");
+
+  assert.doesNotMatch(
+    source,
+    /<div className="placeSearch">\s*<svg/,
+    "the legacy search icon must not duplicate the icon owned by PlaceAutocompleteElement",
+  );
+  assert.match(styles, /contain:\s*inline-size/, "the widget intrinsic width must not widen its parent");
+  assert.match(styles, /gmp-place-autocomplete[^}]*min-width:\s*0\s*!important/s, "the widget must shrink on mobile");
+  assert.match(styles, /gmp-place-autocomplete[^}]*max-width:\s*100%\s*!important/s, "the widget must stay inside the form");
+});

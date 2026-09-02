@@ -192,10 +192,6 @@ export function GooglePlacePicker({
         <div><b>Elegí la ubicación en el mapa</b><p>Buscá un lugar, hacé clic en el mapa o arrastrá el marcador.</p></div>
       </div>
       <div className="placeSearch">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden="true">
-          <circle cx="10.8" cy="10.8" r="5.8" />
-          <path d="m15.2 15.2 4 4" />
-        </svg>
         <div className="placeAutocompleteHost" ref={autocompleteHostRef} />
       </div>
       <div className="placeMap">
