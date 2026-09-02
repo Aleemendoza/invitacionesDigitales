@@ -1,0 +1,41 @@
+.wizardPanel {
+  align-self: start;
+  padding: 34px;
+  border: 1px solid #e2d8d3;
+  border-radius: 18px;
+  background: #fffdfb;
+  box-shadow: 0 18px 46px #32131b0b;
+}
+
+.wizardPanel h1 { margin-top: 6px; font-size: clamp(40px, 5vw, 60px); }
+.wizardStepLead { margin: 14px 0 25px; color: var(--muted); font-size: 13px; line-height: 1.55; }
+.wizardFields { display: grid; gap: 5px; }
+.wizardField { display: grid !important; gap: 7px; margin: 13px 0 !important; }
+.fieldLabel { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #342c2f; font-size: 12px; font-weight: 750; }
+.fieldLabel em, .wizardChoiceGroup legend em { color: #8a737a; font: 600 9px var(--mono); letter-spacing: .04em; text-transform: uppercase; }
+.wizardField input, .wizardField textarea {
+  width: 100%;
+  min-height: 48px;
+  margin: 0 !important;
+  padding: 12px 13px !important;
+  border: 1px solid #d9cfcb !important;
+  border-radius: 9px !important;
+  background: #fff !important;
+  transition: border-color .16s ease, box-shadow .16s ease, background .16s ease;
+}
+.wizardField textarea { min-height: 100px; }
+.wizardField input:focus, .wizardField textarea:focus { border-color: var(--pink) !important; outline: 0; box-shadow: 0 0 0 3px #ea4d7818; }
+.wizardField input[aria-invalid="true"], .wizardField textarea[aria-invalid="true"] { border-color: #b42346 !important; background: #fff8fa !important; box-shadow: 0 0 0 3px #b4234612; }
+.fieldError { display: block; margin: 1px 0 0; color: #a62546; font-size: 11px; font-weight: 650; line-height: 1.45; }
+.wizardChoiceGroup { min-width: 0; margin: 20px 0 0; padding: 0; border: 0; }
+.wizardChoiceGroup legend { display: flex; justify-content: space-between; width: 100%; color: #342c2f; font-size: 12px; font-weight: 750; }
+.wizardStepStatus { margin: 18px 0 0; padding: 11px 13px; border-left: 3px solid #b42346; border-radius: 0 8px 8px 0; background: #fff5f7; color: #7d2941; font-size: 12px; line-height: 1.45; }
+.wizardActions { padding-top: 20px; border-top: 1px solid #eee5e1; }
+.wizardActions .button { flex: 1; }
+.wizardActions .button:disabled { cursor: not-allowed; opacity: .45; }
+.wizardActions .button.dark:disabled { background: #776a6f; }
+
+@media (max-width: 800px) {
+  .wizardPanel { padding: 25px 20px; }
+  .wizardPanel h1 { font-size: 42px; }
+}

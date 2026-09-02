@@ -2,11 +2,13 @@
 .agenda legend { padding: 0; color: #282126; font-size: 16px; font-weight: 750; letter-spacing: -.01em; }
 .agenda > p { margin: 5px 0 17px; color: var(--muted); font-size: 12px; line-height: 1.5; }
 .list { display: grid; gap: 9px; }
-.item { display: grid; grid-template-columns: 25px 100px minmax(0, 1fr) 34px; align-items: end; gap: 9px; padding: 10px 8px 10px 0; border-bottom: 1px solid #eee6e3; }
+.item { display: grid; grid-template-columns: 25px 120px minmax(0, 1fr) 34px; align-items: start; gap: 9px; padding: 10px 8px 10px 0; border-bottom: 1px solid #eee6e3; }
 .order { padding-bottom: 13px; color: #bcaeb0; font: 10px var(--mono); letter-spacing: .03em; }
 .item label { display: grid; gap: 5px; margin: 0; color: #766c6e; font-size: 10px; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
 .item input { width: 100%; min-width: 0; height: 44px; margin: 0; padding: 10px 11px; border: 1px solid #dfd5d2; border-radius: 9px; background: #fff; color: var(--ink); font: 14px var(--sans); transition: border-color .16s ease, box-shadow .16s ease; }
 .item input:focus { border-color: var(--pink); outline: 0; box-shadow: 0 0 0 3px #ea4d7815; }
+.item input[aria-invalid="true"] { border-color: #b42346; background: #fff8fa; box-shadow: 0 0 0 3px #b4234612; }
+.error { display: block; margin: 1px 0 0; color: #a62546; font: 600 11px/1.4 var(--sans); letter-spacing: 0; text-transform: none; }
 .remove { display: grid; place-items: center; width: 34px; height: 44px; padding: 0; border: 0; border-radius: 9px; background: transparent; color: #a89196; cursor: pointer; transition: background .16s ease, color .16s ease; }
 .remove:hover { background: #fce9ee; color: #b42c57; }
 .remove:focus-visible, .add:focus-visible { outline: 3px solid #ea4d7855; outline-offset: 2px; }
