@@ -19,7 +19,8 @@ export function ProviderIdentity() {
 }
 
 export function LegalPage({eyebrow,title,lead,notice,sections}:{eyebrow:string;title:string;lead:string;notice?:React.ReactNode;sections:LegalSection[]}) {
+  const provider = getLegalProvider();
   return <main className={styles.page}><SiteHeader/><header className={styles.hero}>
     <p className={styles.eyebrow}>{eyebrow} · ACTUALIZADO EL {LEGAL_LAST_UPDATED.toUpperCase()}</p><h1>{title}</h1><p className={styles.lead}>{lead}</p>{notice&&<div className={styles.notice}>{notice}</div>}
-  </header><div className={styles.layout}><nav className={styles.toc} aria-label="Contenido de esta página"><strong>En esta página</strong>{sections.map(s=><a key={s.id} href={`#${s.id}`}>{s.title}</a>)}</nav><article className={styles.content}>{sections.map(s=><section id={s.id} key={s.id}><h2>{s.title}</h2>{s.content}</section>)}<p>¿Necesitás ayuda? Escribinos a <a href="mailto:hola@papeleta.app">hola@papeleta.app</a> o consultá nuestros <Link href="/terminos">Términos y condiciones</Link>.</p></article></div><SiteFooter/></main>;
+  </header><div className={styles.layout}><nav className={styles.toc} aria-label="Contenido de esta página"><strong>En esta página</strong>{sections.map(s=><a key={s.id} href={`#${s.id}`}>{s.title}</a>)}</nav><article className={styles.content}>{sections.map(s=><section id={s.id} key={s.id}><h2>{s.title}</h2>{s.content}</section>)}<p>¿Necesitás ayuda? Escribinos a <a href={`mailto:${provider.email}`}>{provider.email}</a> o consultá nuestros <Link href="/terminos">Términos y condiciones</Link>.</p></article></div><SiteFooter/></main>;
 }

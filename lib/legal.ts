@@ -7,7 +7,7 @@ export function getLegalProvider() {
     commercialName: "Papeleta",
     legalName: value("LEGAL_OPERATOR_NAME"), cuit: value("LEGAL_CUIT"),
     address: value("LEGAL_ADDRESS"), city: value("LEGAL_CITY"),
-    email: value("LEGAL_CONTACT_EMAIL") || "hola@papeleta.app",
+    email: value("LEGAL_CONTACT_EMAIL") || "hola@papeleta.com.ar",
     phone: value("LEGAL_CONTACT_PHONE"),
     supportHours: value("LEGAL_SUPPORT_HOURS") || "lunes a viernes, de 9:00 a 17:00 (hora argentina)",
   };

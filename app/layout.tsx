@@ -7,7 +7,7 @@ import "./pricing.css";
 import "@/components/guests-manager.css";
 import "@/components/organizer-shell.css";
 
-const publicUrl = process.env.APP_URL?.startsWith("http") ? process.env.APP_URL : "https://papeleta.app";
+const publicUrl = process.env.APP_URL?.startsWith("http") ? process.env.APP_URL : "https://papeleta.com.ar";
 export const metadata: Metadata = { metadataBase:new URL(publicUrl), title:{default:"Papeleta — Invitaciones digitales",template:"%s | Papeleta"}, description:"Creá una invitación digital, pagá online y publicala cuando esté lista.", openGraph:{siteName:"Papeleta",locale:"es_AR",type:"website"},twitter:{card:"summary_large_image"} };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {

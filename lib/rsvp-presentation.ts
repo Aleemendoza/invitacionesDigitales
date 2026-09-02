@@ -50,7 +50,7 @@ export function buildCalendarIcs(input: CalendarEventInput) {
   const title = calendarTitle(input.eventType, input.title);
   const location = text(input.venueAddress) || text(input.venue);
   const description = `Confirmación para ${title}\nInvitación digital: ${input.origin}/e/${input.slug}`;
-  const uid = `${input.slug.replace(/[^a-z0-9.-]/gi, "-")}@papeleta.app`;
+  const uid = `${input.slug.replace(/[^a-z0-9.-]/gi, "-")}@papeleta.com.ar`;
   const now = input.now ?? new Date();
 
   return [
