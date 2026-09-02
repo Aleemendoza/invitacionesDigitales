@@ -133,7 +133,7 @@ export function EventEditor({ eventId }: { eventId: string }) {
     const body = await response.json(); if (!response.ok) return setNotice(body.error ?? "No pudimos solicitar la actualización.");
     const target=planDetails[targetPlan]; const current=planDetails[event.plan as Plan];
     const message=`Hola, quiero actualizar mi invitación “${event.title}” (${event.slug}) de ${current.name} a ${target.name}. El saldo informado es $${body.upgrade.amount.toLocaleString("es-AR")}. Solicitud: ${body.upgrade.id}`;
-    window.open(`https://wa.me/5493886145245?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer"); setNotice("Solicitud registrada. Enviá el mensaje por WhatsApp para coordinar el pago.");
+    window.open(`https://wa.me/5493884486112?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer"); setNotice("Solicitud registrada. Enviá el mensaje por WhatsApp para coordinar el pago.");
   };
 
   const uploadGallery = async (files: FileList | null) => {

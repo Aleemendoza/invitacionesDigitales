@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { AnalyticsLink } from "@/components/analytics-link";
 
-const whatsappUrl = "https://wa.me/5493886145245?text=%C2%A1Hola%21%20Quiero%20que%20armen%20mi%20invitaci%C3%B3n%20digital.";
+const whatsappUrl = "https://wa.me/5493884486112?text=%C2%A1Hola%21%20Quiero%20que%20armen%20mi%20invitaci%C3%B3n%20digital.";
 
 export function SiteHeader() {
   const [open, setOpen] = useState(false);

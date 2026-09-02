@@ -1,4 +1,4 @@
-const whatsappNumber = "5493886145245";
+const whatsappNumber = "5493884486112";
 
 function whatsappUrl(message: string) {
   return `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(message)}`;
