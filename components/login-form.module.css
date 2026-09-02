@@ -70,3 +70,5 @@
 }
 
 .authModeSwitch button:disabled { cursor: wait; opacity: .65; }
+.legalNotice { color:#6e5d62; font-size:12px; line-height:1.5; margin:14px 0 0; text-align:center; }
+.legalNotice a { color:#8b1739; font-weight:700; }
