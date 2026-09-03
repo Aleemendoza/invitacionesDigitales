@@ -26,7 +26,7 @@ function PartnerHeader() {
 }
 
 function PartnerFooter() {
-  return <footer className="siteFooter"><div className="footerTop"><div><Link className="brand" href="/">Papeleta<span>✦</span></Link><p>La forma más linda de reunir a quienes más querés.</p></div><div className="footerLinks"><div><b>Descubrí</b><Link href="/plantillas">Plantillas</Link><Link href="/precios">Planes y precios</Link><Link href="/partner">Papeleta Partner</Link></div><div><b>¿Necesitás ayuda?</b><a href="mailto:hola@papeleta.app">hola@papeleta.app</a><a href={partnerWhatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a></div></div></div><div className="footerBottom"><span>© 2026 Papeleta. Hecho para grandes momentos.</span></div></footer>;
+  return <footer className="siteFooter"><div className="footerTop"><div><Link className="brand" href="/">Papeleta<span>✦</span></Link><p>La forma más linda de reunir a quienes más querés.</p></div><div className="footerLinks"><div><b>Descubrí</b><Link href="/plantillas">Plantillas</Link><Link href="/precios">Planes y precios</Link><Link href="/partner">Papeleta Partner</Link></div><div><b>¿Necesitás ayuda?</b><a href="mailto:hola@papeleta.com.ar">hola@papeleta.com.ar</a><a href={partnerWhatsappUrl} target="_blank" rel="noreferrer">WhatsApp</a></div></div></div><div className="footerBottom"><span>© 2026 Papeleta. Hecho para grandes momentos.</span></div></footer>;
 }
 
 export function PartnerPage() {

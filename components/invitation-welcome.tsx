@@ -26,7 +26,7 @@ const confetti = Array.from({ length: 30 }, (_, index) => {
   };
 });
 
-export function InvitationWelcome({ title, eventType, message, backgroundUrl, accentColor, onStart, musicEmbedUrl, musicPlaying = false, onToggleMusic, compact = false }: { title: string; eventType: string; message?: string; backgroundUrl: string; accentColor: string; onStart: () => void; musicEmbedUrl?: string; musicPlaying?: boolean; onToggleMusic?: () => void; compact?: boolean }) {
+export function InvitationWelcome({ title, eventType, message, backgroundUrl, accentColor, onOpening, onStart, musicEmbedUrl, musicPlaying = false, onToggleMusic, compact = false }: { title: string; eventType: string; message?: string; backgroundUrl: string; accentColor: string; onOpening?: () => void; onStart: () => void; musicEmbedUrl?: string; musicPlaying?: boolean; onToggleMusic?: () => void; compact?: boolean }) {
   const [isOpening, setIsOpening] = useState(false);
   const fallbackTimer = useRef<number | undefined>(undefined);
   const completed = useRef(false);
@@ -43,6 +43,7 @@ export function InvitationWelcome({ title, eventType, message, backgroundUrl, ac
       completeOpening();
       return;
     }
+    onOpening?.();
     setIsOpening(true);
     fallbackTimer.current = window.setTimeout(completeOpening, 720);
   };
