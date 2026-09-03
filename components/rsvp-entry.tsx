@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { GeneralRsvp } from "@/components/general-rsvp";
 import { PublicRsvp } from "@/components/public-rsvp";
 import { UnavailableInvitation } from "@/components/single-link-invitation";
+import { normalizePlan } from "@/lib/event-drafts";
 
 type RsvpFlow = "loading" | "general" | "group" | "unavailable";
 
@@ -19,7 +20,7 @@ export function RsvpEntry({ slug }: { slug: string }) {
           setFlow("unavailable");
           return;
         }
-        setFlow(body?.event?.plan === "premium_plus" ? "group" : body?.event?.plan === "premium" ? "general" : "unavailable");
+        setFlow(normalizePlan(body?.event?.plan) === "premium" ? "group" : "unavailable");
       })
       .catch(() => {
         if (!controller.signal.aborted) setFlow("unavailable");

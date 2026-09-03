@@ -8,7 +8,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<{
   try {
     const { eventId, guestId } = await params;
     const result = await ownerContext(request, eventId); if ("error" in result) return result.error;
-    if(!hasPlanFeature(result.event.plan as Plan,"individual-links"))return NextResponse.json({error:"Los enlaces personales son exclusivos de Premium Plus+."},{status:403});
+    if(!hasPlanFeature(result.event.plan as Plan,"individual-links"))return NextResponse.json({error:"Los enlaces personales requieren el plan Invitación + Invitados."},{status:403});
     if (result.event.payment_status !== "approved") return NextResponse.json({ error: "Publicá la invitación para habilitar los enlaces." }, { status: 403 });
     const { data: guest } = await result.db.from("guest_groups").select("id").eq("id", guestId).eq("event_id", eventId).maybeSingle();
     if (!guest) return NextResponse.json({ error: "Invitado no encontrado." }, { status: 404 });

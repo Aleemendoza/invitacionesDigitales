@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { planDetails, type Plan } from "@/lib/event-drafts";
+import { normalizePlan, planDetails } from "@/lib/event-drafts";
 import { getAdminSupabase } from "@/lib/public-guest-server";
 import { validateAndSanitizeImage } from "@/lib/server-image-validation";
 
@@ -8,7 +8,7 @@ export async function POST(request:NextRequest,{params}:{params:Promise<{eventId
   const token=request.headers.get("authorization")?.replace(/^Bearer\s+/i,"");if(!token)return NextResponse.json({error:"Iniciá sesión para subir fotos."},{status:401});
   const db=getAdminSupabase(),{data:{user}}=await db.auth.getUser(token),{eventId}=await params;if(!user)return NextResponse.json({error:"Sesión vencida."},{status:401});
   const{data:event}=await db.from("events").select("id,plan").eq("id",eventId).eq("owner_id",user.id).maybeSingle();if(!event)return NextResponse.json({error:"Evento no encontrado."},{status:404});
-  const maxFiles=planDetails[event.plan as Plan].mediaLimit,form=await request.formData(),files=form.getAll("photos").filter((value):value is File=>value instanceof File);
+  const maxFiles=planDetails[normalizePlan(event.plan)].mediaLimit,form=await request.formData(),files=form.getAll("photos").filter((value):value is File=>value instanceof File);
   if(!files.length||files.length>maxFiles)return NextResponse.json({error:`Tu plan permite hasta ${maxFiles} imágenes.`},{status:400});
   const{count}=await db.from("event_media").select("id",{count:"exact",head:true}).eq("event_id",eventId);let nextPosition=count??0;const uploaded:{path:string;url:string}[]=[];
   for(const file of files){let safe;try{safe=await validateAndSanitizeImage(file,MAX_BYTES)}catch{return NextResponse.json({error:"Subí archivos JPEG, PNG o WebP válidos de hasta 3,5 MB."},{status:400})}

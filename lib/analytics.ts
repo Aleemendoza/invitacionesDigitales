@@ -13,7 +13,7 @@ export type AnalyticsEventName =
   | "whatsapp_clicked"
   | "concierge_lead";
 
-export type AnalyticsPlan = "standard" | "premium" | "premium_plus";
+export type AnalyticsPlan = "standard" | "premium";
 export type AnalyticsEvent = {
   name: AnalyticsEventName;
   eventId?: string;

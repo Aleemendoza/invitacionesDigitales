@@ -1,15 +1,15 @@
 export type TemplatePreview = { title: string; date: string; venue: string };
 export type InvitationSection = "message" | "details" | "agenda" | "gallery" | "dress" | "gifts" | "social" | "rsvp";
 export type SectionVisual = { tone: "light" | "dark"; gradient: string; card: "paper" | "glass" | "solid"; decorativeImage: string; photoEnabled?: boolean };
-export type Template = { slug: string; name: string; category: string; style: string; plan: "standard" | "premium" | "premium_plus"; theme: string; coverImage: string; countdownImage: string; preview: TemplatePreview; sections: Record<InvitationSection, SectionVisual> };
+export type Template = { slug: string; name: string; category: string; style: string; plan: "standard" | "premium"; theme: string; coverImage: string; countdownImage: string; preview: TemplatePreview; sections: Record<InvitationSection, SectionVisual> };
 
 const raw = [
   ["eclat", "Éclat", "Bodas", "Editorial", "premium", "ivory", "Clara & Tomás", "18 · 10 · 2026", "Casa Madero"],
   ["amalfi", "Amalfi", "Bodas", "Mediterráneo", "premium", "amalfi", "Valentina & Bruno", "07 · 11 · 2026", "Villa del Lago"],
-  ["midnight", "Midnight", "Bodas", "Cinematic", "premium_plus", "midnight", "Martina & Felipe", "22 · 08 · 2026", "Palacio Sans Souci"],
+  ["midnight", "Midnight", "Bodas", "Cinematic", "premium", "midnight", "Martina & Felipe", "22 · 08 · 2026", "Palacio Sans Souci"],
   ["aura", "Aura", "XV", "Fashion glam", "premium", "aura", "Julieta", "14 · 11 · 2026", "La Escondida"],
   ["dreamscape", "Dreamscape", "XV", "Soft pearl", "premium", "dream", "Olivia", "05 · 09 · 2026", "La Arboleda"],
-  ["after-dark", "After Dark", "XV", "Club", "premium_plus", "after", "Renata", "19 · 12 · 2026", "Club 21"],
+  ["after-dark", "After Dark", "XV", "Club", "premium", "after", "Renata", "19 · 12 · 2026", "Club 21"],
   ["studio-54", "Studio 54", "Cumpleaños", "Disco", "premium", "disco", "Violeta cumple 30", "11 · 07 · 2026", "Ritual Club"],
   ["dinner-club", "Dinner Club", "Cumpleaños", "Cocktail", "standard", "dinner", "Camila cumple 35", "29 · 08 · 2026", "Casa Pardo"],
   ["tropicale", "Tropicale", "Cumpleaños", "Tropical", "standard", "tropical", "Nico cumple 28", "26 · 12 · 2026", "Patio del Sol"],
@@ -17,7 +17,7 @@ const raw = [
   ["space-camp", "Space Camp", "Infantiles", "Cosmic", "standard", "space", "Alma cumple 7", "03 · 10 · 2026", "Base Estelar"],
   ["safari-club", "Safari Club", "Infantiles", "Jungle", "standard", "safari", "Emma cumple 4", "12 · 09 · 2026", "Jardín Botánico"],
   ["forward", "Forward", "Corporativos", "Tech", "premium", "forward", "Summit Norte", "08 · 10 · 2026", "Distrito 10"],
-  ["gala", "Gala", "Corporativos", "Black tie", "premium_plus", "gala", "Fundación Horizonte", "05 · 12 · 2026", "Teatro Colón"],
+  ["gala", "Gala", "Corporativos", "Black tie", "premium", "gala", "Fundación Horizonte", "05 · 12 · 2026", "Teatro Colón"],
 ] as const;
 
 const sectionFamilies: Record<string, Record<InvitationSection, SectionVisual>> = {

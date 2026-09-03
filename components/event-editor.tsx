@@ -6,7 +6,7 @@ import "./event-editor-section-controls.css";
 import { OrganizerNav } from "@/components/event-portal";
 import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { ThemeControls } from "@/components/theme-controls";
-import { defaultAgenda, defaultFeatures, hasPlanFeature, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
+import { defaultAgenda, defaultFeatures, hasPlanFeature, normalizePlan, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
 import type { GiftSectionConfig, SectionVisualConfig, SocialPhotoSectionConfig } from "@/lib/event-sections";
 import { normalizeTheme, templateTheme } from "@/lib/event-theme";
 import { GIFT_MESSAGE, SOCIAL_PHOTOS_MESSAGE } from "@/lib/invitation-copy";
@@ -38,7 +38,7 @@ function toDraft(event: any): EventDraftInput {
     mapUrl: event.content.mapUrl ?? "",
     closingMessage: event.content.closingMessage ?? "",
     templateSlug: event.template_slug,
-    plan: event.plan,
+    plan: normalizePlan(event.plan),
     step: 7,
     agenda: event.content.agenda?.length ? event.content.agenda : defaultAgenda(),
     features: event.content.features ?? [],
@@ -131,14 +131,14 @@ export function EventEditor({ eventId }: { eventId: string }) {
     if (event.payment_status !== "approved") { update("plan", targetPlan); update("features", defaultFeatures(targetPlan)); return; }
     const response = await fetch(`/api/events/${eventId}/upgrade`, { method:"POST", headers:{"content-type":"application/json",authorization:`Bearer ${await token()}`}, body:JSON.stringify({targetPlan}) });
     const body = await response.json(); if (!response.ok) return setNotice(body.error ?? "No pudimos solicitar la actualización.");
-    const target=planDetails[targetPlan]; const current=planDetails[event.plan as Plan];
+    const target=planDetails[targetPlan]; const current=planDetails[normalizePlan(event.plan)];
     const message=`Hola, quiero actualizar mi invitación “${event.title}” (${event.slug}) de ${current.name} a ${target.name}. El saldo informado es $${body.upgrade.amount.toLocaleString("es-AR")}. Solicitud: ${body.upgrade.id}`;
     window.open(`https://wa.me/5493884486112?text=${encodeURIComponent(message)}`,"_blank","noopener,noreferrer"); setNotice("Solicitud registrada. Enviá el mensaje por WhatsApp para coordinar el pago.");
   };
 
   const uploadGallery = async (files: FileList | null) => {
     if (!files?.length) return;
-    const plan: Plan = draft?.plan ?? (event?.plan as Plan | undefined) ?? "standard";
+    const plan: Plan = draft?.plan ?? normalizePlan(event?.plan);
     const selected = Array.from(files).slice(0, Math.max(0, planDetails[plan].mediaLimit - (event?.event_media?.length ?? 0)));
     const access = await token();
     if (!access) return setNotice("Iniciá sesión para subir imágenes.");

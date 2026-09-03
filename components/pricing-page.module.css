@@ -1,0 +1,113 @@
+.planGrid {
+  width: min(100%, 1040px) !important;
+  max-width: none !important;
+  margin: 52px auto 0 !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-items: stretch;
+  justify-content: center;
+}
+
+.planCard {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  grid-template-rows: auto 1fr auto;
+  min-width: 0;
+  min-height: 620px !important;
+  padding: 36px !important;
+  overflow: visible !important;
+}
+
+.planHeader,
+.planBenefits {
+  min-width: 0;
+}
+
+.planHeader h2 {
+  display: flex;
+  align-items: flex-end;
+  min-height: 1.96em;
+  margin-top: 8px;
+  font-size: clamp(36px, 3vw, 46px);
+  overflow-wrap: anywhere;
+}
+
+.planDescription {
+  min-height: 3.2em;
+  margin: 0;
+  color: #514a4c;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.planBenefits {
+  align-self: start;
+}
+
+.planBenefits ul {
+  max-width: none !important;
+  margin: 10px 0 26px !important;
+}
+
+.planActions {
+  align-self: end;
+  max-width: none !important;
+  margin: 0 !important;
+  padding-top: 18px;
+}
+
+.badge {
+  top: 22px !important;
+  right: 22px !important;
+}
+
+@media (max-width: 1000px) {
+  .planGrid {
+    width: 100% !important;
+    max-width: 620px !important;
+    margin-top: 38px !important;
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 18px !important;
+  }
+
+  .planCard {
+    grid-template-rows: auto auto auto;
+    min-height: 0 !important;
+    padding: 28px 24px !important;
+    overflow: hidden !important;
+  }
+
+  .planHeader h2,
+  .planDescription {
+    min-height: 0;
+  }
+
+  .planHeader h2 {
+    display: block;
+    font-size: clamp(36px, 8vw, 44px);
+    overflow-wrap: normal;
+  }
+
+  .planActions {
+    margin-top: 4px !important;
+  }
+
+  .badge {
+    position: static !important;
+    justify-self: start;
+    margin-bottom: 16px;
+  }
+}
+
+@media (max-width: 420px) {
+  .planCard {
+    padding: 24px 20px !important;
+  }
+
+  .planHeader h2 {
+    font-size: 36px;
+  }
+
+  .badge {
+    margin-bottom: 12px;
+  }
+}

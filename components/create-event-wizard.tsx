@@ -7,7 +7,7 @@ import { EventInvitationPreview } from "@/components/event-invitation-preview";
 import { GooglePlacePicker } from "@/components/google-place-picker";
 import { ThemeControls } from "@/components/theme-controls";
 import { WizardHeader } from "@/components/wizard-header";
-import { defaultAgenda, defaultFeatures, isPlan, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
+import { defaultAgenda, defaultFeatures, hasPlanFeature, isPlan, normalizePlan, planDetails, plans, type EventDraftInput, type Plan } from "@/lib/event-drafts";
 import { trackAnalyticsEvent } from "@/lib/analytics";
 import { defaultTheme, normalizeTheme, templateTheme, type EventTheme } from "@/lib/event-theme";
 import { clearPendingEventDraft, readPendingEventDraft, savePendingEventDraft } from "@/lib/pending-event-draft";
@@ -26,9 +26,8 @@ const category = (type: string) => type === "Boda" ? "Bodas" : type === "Infanti
 const typeForCategory = (value: string) => value === "Bodas" ? "Boda" : value === "Infantiles" ? "Infantil" : value === "Corporativos" ? "Corporativo" : value;
 const options = (type: string) => type === "Baby Shower" ? templates.filter((item) => item.slug === "dreamscape") : templates.filter((item) => item.category === category(type));
 const planBenefits: Record<Plan, string[]> = {
-  standard: ["Portada personalizada", "Agenda, mapa y regalos", "Sin confirmaciones de asistencia"],
-  premium: ["Galería y música", "RSVP dentro de la invitación", "Exportación de respuestas"],
-  premium_plus: ["Todo Premium", "Invitaciones individuales", "Álbum QR y trivia"],
+  standard: ["Toda la información de tu evento", "Diseño personalizado", "Lista para compartir por WhatsApp"],
+  premium: ["Confirmá quién asiste", "Organizá a tus invitados", "Fotos, música, álbum QR y trivia"],
 };
 
 export function CreateEventWizard() {
@@ -51,6 +50,10 @@ export function CreateEventWizard() {
       try {
         const pending = await readPendingEventDraft();
         let nextDraft = pending?.draft ? { ...pending.draft } : { ...initial };
+        if (pending?.draft) {
+          const normalizedPlan = normalizePlan(nextDraft.plan);
+          nextDraft = { ...nextDraft, plan: normalizedPlan, features: nextDraft.features.filter((feature) => hasPlanFeature(normalizedPlan, feature)) };
+        }
         if (requestedPlan) nextDraft = { ...nextDraft, plan: requestedPlan, features: defaultFeatures(requestedPlan), step: pending ? nextDraft.step : 1 };
         if (requestedTemplate) nextDraft = { ...nextDraft, plan: requestedTemplate.plan, eventType: typeForCategory(requestedTemplate.category), templateSlug: requestedTemplate.slug, features: defaultFeatures(requestedTemplate.plan), theme: templateTheme(requestedTemplate.theme), step: pending ? nextDraft.step : 2 };
         const selected = templates.find((item) => item.slug === nextDraft.templateSlug) ?? requestedTemplate ?? templates.find((item) => item.plan === nextDraft.plan) ?? templates[0];

@@ -3,7 +3,7 @@ import type { InvitationSectionStyles } from "./event-sections";
 import type { EventTheme } from "./event-theme";
 import type { WelcomeConfig } from "./invitation-welcome";
 
-export type Plan = "standard" | "premium" | "premium_plus";
+export type Plan = "standard" | "premium";
 export type PaymentStatus = "unpaid" | "pending" | "approved" | "rejected";
 export type AgendaItem = { time: string; title: string };
 export type PlanFeature = "cover" | "agenda" | "map" | "message" | "dress-code" | "gifts" | "gallery" | "music" | "general-rsvp" | "custom-rsvp" | "csv-export" | "guest-list" | "individual-links" | "qr-album" | "trivia";
@@ -18,38 +18,31 @@ export type PlanDefinition = {
 
 export const planDetails: Record<Plan, PlanDefinition> = {
   standard: {
-    name: "Estándar",
+    name: "Invitación",
     price: 18000,
-    description: "Una invitación completa para informar y compartir todos los detalles del evento.",
-    marketingFeatures: ["Portada personalizada", "Agenda, mapa y regalos", "Una foto", "Sin confirmaciones de asistencia"],
+    description: "Tu invitación digital completa, lista para compartir con todos tus invitados.",
+    marketingFeatures: ["Diseño personalizado para tu evento", "Fecha, horario y cronograma", "Ubicación con mapa", "Dress code", "Información de regalos", "Foto principal", "Mensaje para tus invitados", "Link para compartir por WhatsApp"],
     features: ["cover", "agenda", "map", "message", "dress-code", "gifts"],
     mediaLimit: 1,
   },
   premium: {
-    name: "Premium",
+    name: "Invitación + Invitados",
     price: 23000,
-    description: "Confirmaciones dentro de la invitación y herramientas para organizar la asistencia.",
-    marketingFeatures: ["Todo Estándar", "RSVP dentro de la invitación", "Galería y música", "Exportación de respuestas"],
-    features: ["cover", "agenda", "map", "message", "dress-code", "gifts", "gallery", "music", "general-rsvp", "custom-rsvp", "csv-export"],
-    mediaLimit: 5,
-  },
-  premium_plus: {
-    name: "Premium Plus+",
-    price: 28000,
-    description: "La experiencia completa, con invitados individuales y actividades para compartir.",
-    marketingFeatures: ["Todo Premium", "Lista e invitaciones individuales", "Álbum compartido con QR", "Trivia interactiva"],
+    description: "Todo lo de tu invitación, más las herramientas para organizar a tus invitados y hacerla más especial.",
+    marketingFeatures: ["Todo lo del plan Invitación", "Confirmación de asistencia desde la invitación", "Preguntas personalizadas, comida, acompañantes y transporte", "Lista de invitados", "Invitaciones individuales", "Galería de fotos", "Música", "Álbum colaborativo con QR", "Trivia interactiva", "Descarga de confirmaciones"],
     features: ["cover", "agenda", "map", "message", "dress-code", "gifts", "gallery", "music", "general-rsvp", "custom-rsvp", "csv-export", "guest-list", "individual-links", "qr-album", "trivia"],
     mediaLimit: 10,
   },
 };
 export const plans = Object.keys(planDetails) as Plan[];
 export const formatPlanPrice = (plan: Plan) => `$${planDetails[plan].price.toLocaleString("es-AR")}`;
-export const hasPlanFeature = (plan: Plan, feature: PlanFeature) => planDetails[plan].features.includes(feature);
+export const hasPlanFeature = (plan: Plan | string, feature: PlanFeature) => planDetails[normalizePlan(plan)].features.includes(feature);
 export const canManageGuests = (plan: Plan) => hasPlanFeature(plan, "guest-list");
 export const usesPersonalizedRsvp = (plan: Plan) => hasPlanFeature(plan, "guest-list") && hasPlanFeature(plan, "custom-rsvp");
 export const hasPublicMenuActions = (plan: Plan, rsvpEnabled: boolean) => (hasPlanFeature(plan, "general-rsvp") && rsvpEnabled) || hasPlanFeature(plan, "qr-album") || hasPlanFeature(plan, "trivia");
 export const isPlan = (value: unknown): value is Plan => typeof value === "string" && plans.includes(value as Plan);
-export const planRank = (plan: Plan) => plans.indexOf(plan);
+export const normalizePlan = (value: unknown): Plan => value === "premium" || value === "premium_plus" ? "premium" : "standard";
+export const planRank = (plan: Plan | string) => plans.indexOf(normalizePlan(plan));
 export const defaultFeatures = (plan: Plan): PlanFeature[] => [...planDetails[plan].features].filter((feature) => !["general-rsvp", "custom-rsvp", "csv-export", "guest-list", "individual-links", "qr-album", "trivia"].includes(feature));
 
 export type EventDraftInput = { title:string; eventType:string; date:string; time:string; venue:string; venueAddress?:string; mapUrl?:string; closingMessage?:string; templateSlug:string; plan:Plan; step:number; agenda:AgendaItem[]; features:PlanFeature[]; message?:string; dressCode?:string; musicUrl?:string; theme?:EventTheme; rsvp?:RsvpConfig; sections?:EventSections; sectionStyles?:InvitationSectionStyles; welcome?: WelcomeConfig };
