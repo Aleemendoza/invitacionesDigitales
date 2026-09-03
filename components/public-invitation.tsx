@@ -60,25 +60,17 @@ export function InvitationExperience({ event, mode, initiallyStarted = false }: 
   const panel = (section: InvitationSection) => panelProps(template.sections[section], sectionPhoto, section);
   const rsvpPanel = panel("rsvp");
   const showMenu = hasPublicMenuActions(event.plan as Plan, Boolean(event.rsvp_enabled));
-  const previewStyle =
-    mode === "preview"
-      ? ({
-          "--invitation-preview-width": "390px",
-        } as CSSProperties)
-      : undefined;
   return (
     <div
       className={[
         "invitationExperience",
-        `invitationExperience--${mode}`,
+        mode === "preview" ? "invitationExperience--preview" : "invitationExperience--public",
         hasStarted ? "" : "hasWelcome",
         isRevealing ? "isRevealing" : "",
       ]
         .filter(Boolean)
         .join(" ")}
-      style={previewStyle}
-    >
-  <YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={musicPlaying} /><main
+    ><YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={musicPlaying} /><main
       className={[
         "publicInvite",
         "premiumInvite",
@@ -99,8 +91,27 @@ export function InvitationExperience({ event, mode, initiallyStarted = false }: 
     {gifts && <div {...panel("gifts")}><GiftSection mode={mode} slug={event.slug} fallback={gifts.content as GiftSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((gifts.content as GiftSectionConfig).visual?.photoPath ?? "")} /></div>}{social && <div {...panel("social")}><SocialPhotosSection mode={mode} config={social.content as SocialPhotoSectionConfig} theme={template.theme} photoUrl={mediaUrlByPath.get((social.content as SocialPhotoSectionConfig).visual?.photoPath ?? "")} /></div>}
     {rsvpAvailable && <section className="piRsvp sectionSurface" {...rsvpPanel} style={{ ...rsvpPanel.style, ...surfaceStyle(event.content.sectionStyles?.rsvp, mediaUrlByPath) }}><div className="piRsvpCopy"><Icon name="mail" /><div><p className="eyebrow">Asistencia</p><h2>¿Nos acompañás?</h2><p>{event.content.rsvp?.deadline ? `Confirmá antes del ${new Intl.DateTimeFormat("es-AR", { day: "2-digit", month: "long", year: "numeric" }).format(new Date(event.content.rsvp.deadline))}` : "Tu respuesta es muy importante"}</p></div></div><Link href={rsvpHref}>Confirmar asistencia</Link></section>}
     <footer className="piClosing sectionSurface" style={surfaceStyle(event.content.sectionStyles?.closing, mediaUrlByPath)}><h2>{event.title}</h2><p>{resolveClosingMessage(event.content.closingMessage, event.event_type)}</p></footer>
-  </main>{!hasStarted && <InvitationWelcome compact={mode === "preview"} title={event.title} eventType={event.event_type} message={event.content.welcome?.message} backgroundUrl={welcomeBackground} accentColor={theme.accentColor} musicEmbedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} musicPlaying={musicPlaying} onToggleMusic={() => setMusicPlaying((current) => !current)} onOpening={() => setIsRevealing(true)} onStart={() => setHasStarted(true)} />}</div>;
-}
+    </main>
+
+    {!hasStarted && (
+      <InvitationWelcome
+        compact={mode === "preview"}
+        title={event.title}
+        eventType={event.event_type}
+        message={event.content.welcome?.message}
+        backgroundUrl={welcomeBackground}
+        accentColor={theme.accentColor}
+        musicEmbedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined}
+        musicPlaying={musicPlaying}
+        onToggleMusic={() => setMusicPlaying((current) => !current)}
+        onOpening={() => setIsRevealing(true)}
+        onStart={() => setHasStarted(true)}
+      />
+    )}
+  </div>
+    );
+
+    }
 function panelProps(visual: SectionVisual, photo: string | undefined, section: InvitationSection) {
   return { "data-section-tone": visual.tone, "data-section-card": visual.card, "data-section": section, style: { "--section-gradient": visual.gradient, "--section-art": `url(${visual.decorativeImage})`, "--section-photo": visual.photoEnabled && photo ? `url(${photo})` : "none" } as CSSProperties };
 }
