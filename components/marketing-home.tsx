@@ -98,7 +98,31 @@ export function MarketingHome() {
         <p className={styles.scrollHint}>Deslizá dentro del teléfono para explorarla <span aria-hidden="true">↓</span></p>
       </div>
     </section>
-    <section className="band">Diseños para cada celebración.<span>Bodas</span><span>XV</span><span>Cumpleaños</span><span>Infantiles</span><span>Corporativos</span></section>
+    <section className="celebrationsBand" aria-label="Tipos de celebraciones">
+      <div className="celebrationsBand__intro">
+        <span className="celebrationsBand__eyebrow">
+          UNA PAPELETA PARA CADA MOMENTO
+        </span>
+
+        <h2>
+          Diseños que se adaptan
+          <br />
+          <em>a tu celebración.</em>
+        </h2>
+      </div>
+
+      <div className="celebrationsBand__flow">
+        <span>Bodas</span>
+        <i aria-hidden="true" />
+        <span>XV</span>
+        <i aria-hidden="true" />
+        <span>Cumpleaños</span>
+        <i aria-hidden="true" />
+        <span>Infantiles</span>
+        <i aria-hidden="true" />
+        <span>Corporativos</span>
+      </div>
+    </section>
     <section className="section howItWorks" id="como-funciona"><div className="sectionHeading"><div><p className="eyebrow">CÓMO FUNCIONA</p><h2>De la idea al link,<br/><em>sin vueltas.</em></h2></div><p>Tu borrador queda guardado mientras avanzás. Podés crear la invitación primero y pagar cuando esté lista para publicar.</p></div><ol>{steps.map(([number,title,copy])=><li key={number}><span>{number}</span><h3>{title}</h3><p>{copy}</p></li>)}</ol></section>
     <section className="section templateShowcase"><div className="sectionHeading"><div><p className="eyebrow">PLANTILLAS PARA CADA HISTORIA</p><h2>Elegí el estilo<br/><em>que se sienta tuyo.</em></h2></div><Link className="textLink" href="/plantillas">Ver catálogo completo <span aria-hidden="true">→</span></Link></div><div className="grid">{templates.slice(0,4).map((template)=><TemplateCard template={template} key={template.slug}/>)}</div></section>
     <section className="section planSummary"><p className="eyebrow">PLANES CLAROS, SIN SORPRESAS</p><h2>Empezá desde ${planDetails.standard.price.toLocaleString("es-AR")}</h2><p>Estándar incluye todo lo esencial para informar y emocionar. Si necesitás RSVP dentro de la invitación, galería o experiencias interactivas, elegí Premium o Premium Plus+.</p><Link className="button outline" href="/precios">Comparar planes</Link></section>
