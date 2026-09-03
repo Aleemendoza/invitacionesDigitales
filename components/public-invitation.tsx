@@ -6,6 +6,7 @@ import "./invitation-section-surfaces.css";
 import "./invitation-hero.css";
 import "./auto-gallery.css";
 import "./social-photos-section.css";
+import "./invitation-preview.css";
 import Link from "next/link";
 import { useEffect, useState, type CSSProperties } from "react";
 import { GiftSection } from "@/components/gift-section";
@@ -44,7 +45,12 @@ export function InvitationExperience({ event, mode, initiallyStarted = false }: 
   const gifts = event.event_sections?.find((section) => section.kind === "gifts"); const social = event.event_sections?.find((section) => section.kind === "social_photos");
   const values = countdown.kind === "pending" ? [countdown.days, countdown.hours, countdown.minutes, countdown.seconds] : [0, 0, 0, 0];
   const musicId = hasPlanFeature(event.plan as Plan, "music") && event.content.features.includes("music") ? getYouTubeVideoId(event.content.musicUrl) : null;
-  const mapQuery = [event.content.venue, event.content.venueAddress].filter(Boolean).join(", "); const mapLink = event.content.mapUrl || (mapQuery ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}` : "");
+  const mapQuery = [event.content.venue, event.content.venueAddress].filter(Boolean).join(", ");
+  const mapLink =
+    event.content.mapUrl ||
+    (mapQuery
+      ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(mapQuery)}`
+      : "");
   const sectionPhoto = event.event_media?.find((item) => item.position > 0)?.url;
   const mediaUrlByPath = new Map((event.event_media ?? []).map((item) => [item.storage_path, item.url]));
   const welcomeBackground = (event.content.welcome?.backgroundPhotoPath && mediaUrlByPath.get(event.content.welcome.backgroundPhotoPath)) || event.event_media?.[0]?.url || template.coverImage;
@@ -54,7 +60,34 @@ export function InvitationExperience({ event, mode, initiallyStarted = false }: 
   const panel = (section: InvitationSection) => panelProps(template.sections[section], sectionPhoto, section);
   const rsvpPanel = panel("rsvp");
   const showMenu = hasPublicMenuActions(event.plan as Plan, Boolean(event.rsvp_enabled));
-  return <div className={`invitationExperience${hasStarted ? "" : " hasWelcome"}${isRevealing ? " isRevealing" : ""}`}><YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={musicPlaying} /><main className={`publicInvite premiumInvite ${template.theme}`} style={style} aria-hidden={!hasStarted}>
+  const previewStyle =
+    mode === "preview"
+      ? ({
+          "--invitation-preview-width": "390px",
+        } as CSSProperties)
+      : undefined;
+  return (
+    <div
+      className={[
+        "invitationExperience",
+        `invitationExperience--${mode}`,
+        hasStarted ? "" : "hasWelcome",
+        isRevealing ? "isRevealing" : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
+      style={previewStyle}
+    >
+  <YouTubeMusicPlayer embedUrl={musicId ? youtubeEmbedUrl(musicId) : undefined} playing={musicPlaying} /><main
+      className={[
+        "publicInvite",
+        "premiumInvite",
+        template.theme,
+        mode === "preview" ? "publicInvite--preview" : "publicInvite--public",
+      ].join(" ")}
+      style={style}
+      aria-hidden={!hasStarted}
+    >
     <section className="piHero"><div className="piHeroTools">{showMenu && <button className={menuOpen ? "isMenuOpen" : ""} aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"} aria-expanded={menuOpen} onClick={() => setMenuOpen((current) => !current)}><Icon name="menu" size={19} /></button>}{musicId && <button className={musicPlaying ? "isPlaying" : ""} aria-label={musicPlaying ? "Silenciar música" : "Activar música"} aria-pressed={musicPlaying} onClick={() => setMusicPlaying((current) => !current)}><Icon name={musicPlaying ? "music" : "musicOff"} size={19} /></button>}</div>{menuOpen && showMenu && <nav className="piHeroMenu" aria-label="Opciones de la invitación">{rsvpAvailable&&<Link href={rsvpHref}><Icon name="mail" size={17} /><span><small>RSVP</small><b>Confirmar asistencia</b></span><i aria-hidden="true">→</i></Link>}{hasPlanFeature(event.plan as Plan,"qr-album")&&<Link href={`/e/${event.slug}/album`}><Icon name="camera" size={17} /><span><small>Recuerdos</small><b>Álbum de fotos</b></span><i aria-hidden="true">→</i></Link>}{hasPlanFeature(event.plan as Plan,"trivia")&&<Link href={`/e/${event.slug}/trivia`}><Icon name="trivia" size={17} /><span><small>Para jugar</small><b>Trivia del evento</b></span><i aria-hidden="true">→</i></Link>}</nav>}<div className="piHeroCopy"><h1>{event.title}</h1>{compactDate && <time>{compactDate}</time>}</div></section>
     <section className="piCountdownCard"><p>Falta muy poco</p><div>{values.map((value, index) => <span key={index}><b suppressHydrationWarning>{format(value)}</b><small>{["Días", "Horas", "Minutos", "Segundos"][index]}</small></span>)}</div></section>
     <section className="piDetails" {...panel("details")}><Info icon="calendar" title="¿Cuándo?"><p>{date}<br />{event.starts_at && new Intl.DateTimeFormat("es-AR", { hour: "2-digit", minute: "2-digit" }).format(new Date(event.starts_at))} HS</p></Info><Info icon="pin" title="¿Dónde?"><p>{event.content.venue}<br />{event.content.venueAddress}</p>{mapLink && <a href={mapLink} target="_blank" rel="noreferrer">Ver en mapa</a>}</Info></section>

@@ -1,0 +1,470 @@
+/* =========================================================
+   INVITATION PREVIEW
+   La invitación pública no se toca.
+   ========================================================= */
+
+.invitationExperience--preview {
+  --preview-width: 390px;
+
+  position: relative;
+  width: 100%;
+  min-width: 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+
+  padding: 24px;
+  box-sizing: border-box;
+
+  background:
+    radial-gradient(
+      circle at 50% 0%,
+      rgba(255, 255, 255, 0.08),
+      transparent 38%
+    ),
+    #ececea;
+
+  overflow: auto;
+}
+
+/* El "teléfono" real de la preview */
+.invitationExperience--preview .publicInvite--preview {
+  width: min(100%, var(--preview-width));
+  max-width: var(--preview-width);
+  min-width: 0;
+
+  margin: 0 auto;
+
+  position: relative;
+  overflow: hidden;
+
+  border-radius: 30px;
+  background: var(--event-background);
+
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, 0.04),
+    0 12px 32px rgba(0, 0, 0, 0.08),
+    0 32px 70px rgba(0, 0, 0, 0.12);
+
+  isolation: isolate;
+}
+
+/* Evita que las secciones intenten usar medidas desktop */
+.invitationExperience--preview .publicInvite--preview > section,
+.invitationExperience--preview .publicInvite--preview > footer,
+.invitationExperience--preview .publicInvite--preview > div {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+.invitationExperience--preview .piHero {
+  min-height: 560px;
+  height: auto;
+  padding: 24px 22px 42px;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+}
+
+.invitationExperience--preview .piHeroCopy {
+  width: 100%;
+  max-width: 310px;
+}
+
+.invitationExperience--preview .piHeroCopy h1 {
+  margin: 0;
+
+  font-size: clamp(2.7rem, 11vw, 4rem);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
+
+  overflow-wrap: break-word;
+}
+
+.invitationExperience--preview .piHeroCopy time {
+  display: block;
+  margin-top: 16px;
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
+}
+
+.invitationExperience--preview .piHeroTools {
+  top: 18px;
+  right: 18px;
+}
+
+/* =========================================================
+   COUNTDOWN
+   ========================================================= */
+
+.invitationExperience--preview .piCountdownCard {
+  margin: 0;
+  padding: 38px 20px 42px;
+}
+
+.invitationExperience--preview .piCountdownCard > p {
+  margin: 0 0 22px;
+  text-align: center;
+}
+
+.invitationExperience--preview .piCountdownCard > div {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+
+.invitationExperience--preview .piCountdownCard span {
+  min-width: 0;
+  padding: 13px 4px;
+}
+
+.invitationExperience--preview .piCountdownCard b {
+  display: block;
+  font-size: 1.65rem;
+  line-height: 1;
+}
+
+.invitationExperience--preview .piCountdownCard small {
+  display: block;
+  margin-top: 8px;
+
+  font-size: 0.58rem;
+  line-height: 1.1;
+}
+
+/* =========================================================
+   FECHA + UBICACIÓN
+   En preview tienen que respirar, no entrar dos columnas
+   artificialmente.
+   ========================================================= */
+
+.invitationExperience--preview .piDetails {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 14px;
+
+  padding: 42px 18px;
+}
+
+.invitationExperience--preview .piDetails article {
+  width: 100%;
+  min-width: 0;
+
+  padding: 24px 22px;
+  box-sizing: border-box;
+}
+
+.invitationExperience--preview .piDetails article h2 {
+  margin: 12px 0 9px;
+}
+
+.invitationExperience--preview .piDetails article p {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.invitationExperience--preview .piDetails article a {
+  display: inline-flex;
+  margin-top: 16px;
+}
+
+/* =========================================================
+   MAPA
+   ========================================================= */
+
+.invitationExperience--preview .piMap {
+  margin: 0;
+  padding: 36px 22px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.invitationExperience--preview .piMap > div {
+  min-width: 0;
+}
+
+.invitationExperience--preview .piMap strong,
+.invitationExperience--preview .piMap span {
+  overflow-wrap: anywhere;
+}
+
+.invitationExperience--preview .piMap > a {
+  width: 100%;
+  justify-content: center;
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   MENSAJE
+   ========================================================= */
+
+.invitationExperience--preview .piMessage {
+  padding: 56px 26px;
+}
+
+.invitationExperience--preview .piMessage > p:last-child {
+  max-width: 30ch;
+  margin-left: auto;
+  margin-right: auto;
+
+  font-size: 1rem;
+  line-height: 1.75;
+}
+
+/* =========================================================
+   AGENDA
+   ========================================================= */
+
+.invitationExperience--preview .piAgenda {
+  padding: 52px 20px 58px;
+}
+
+.invitationExperience--preview .piAgenda > header {
+  margin-bottom: 36px;
+}
+
+.invitationExperience--preview .piAgenda > header span {
+  display: block;
+  margin-top: 6px;
+}
+
+.invitationExperience--preview .piAgenda ol {
+  margin: 0;
+  padding: 0;
+}
+
+.invitationExperience--preview .piAgenda li {
+  grid-template-columns: 32px 14px minmax(0, 1fr);
+  column-gap: 12px;
+
+  min-height: 92px;
+}
+
+.invitationExperience--preview .piAgendaIcon {
+  width: 26px;
+  height: 26px;
+}
+
+.invitationExperience--preview .piAgenda li article {
+  min-width: 0;
+  padding-bottom: 28px;
+}
+
+.invitationExperience--preview .piAgenda li article time {
+  display: block;
+  margin-bottom: 5px;
+}
+
+.invitationExperience--preview .piAgenda li article h2 {
+  margin: 0;
+  font-size: 1.15rem;
+  line-height: 1.15;
+
+  overflow-wrap: anywhere;
+}
+
+/* =========================================================
+   GALERÍA
+   ========================================================= */
+
+.invitationExperience--preview .piGallery {
+  padding: 48px 18px 54px;
+}
+
+.invitationExperience--preview .piSectionHeader {
+  margin-bottom: 24px;
+}
+
+/* Nunca permitir overflow horizontal de la galería */
+.invitationExperience--preview .piGallery img,
+.invitationExperience--preview .piGallery video {
+  max-width: 100%;
+}
+
+/* =========================================================
+   DRESS CODE
+   ========================================================= */
+
+.invitationExperience--preview .piDress {
+  position: relative;
+
+  min-height: 260px;
+  padding: 52px 60px;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.invitationExperience--preview .piDress > div {
+  position: relative;
+  z-index: 2;
+
+  width: 100%;
+  max-width: 230px;
+  text-align: center;
+}
+
+.invitationExperience--preview .piDress h2 {
+  margin: 7px 0 8px;
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.invitationExperience--preview .piDressIcon {
+  position: absolute;
+  width: 46px;
+  height: 46px;
+  opacity: 0.6;
+}
+
+.invitationExperience--preview .piDressIconLeft {
+  left: 16px;
+}
+
+.invitationExperience--preview .piDressIconRight {
+  right: 16px;
+}
+
+/* =========================================================
+   RSVP
+   ========================================================= */
+
+.invitationExperience--preview .piRsvp {
+  margin: 0;
+  padding: 44px 22px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 28px;
+}
+
+.invitationExperience--preview .piRsvpCopy {
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.invitationExperience--preview .piRsvpCopy > div {
+  min-width: 0;
+}
+
+.invitationExperience--preview .piRsvp h2 {
+  margin: 5px 0 8px;
+  font-size: 1.75rem;
+}
+
+.invitationExperience--preview .piRsvp > a {
+  width: 100%;
+  min-height: 52px;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  box-sizing: border-box;
+}
+
+/* =========================================================
+   CIERRE
+   ========================================================= */
+
+.invitationExperience--preview .piClosing {
+  min-height: 300px;
+
+  padding: 62px 28px;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+.invitationExperience--preview .piClosing h2 {
+  margin: 0 0 18px;
+
+  font-size: 2.3rem;
+  line-height: 0.95;
+  letter-spacing: -0.04em;
+
+  overflow-wrap: anywhere;
+}
+
+.invitationExperience--preview .piClosing p {
+  max-width: 27ch;
+  margin: 0;
+
+  line-height: 1.65;
+}
+
+/* =========================================================
+   CHILD COMPONENTS
+   GiftSection / SocialPhotosSection
+   ========================================================= */
+
+.invitationExperience--preview .publicInvite--preview img {
+  max-width: 100%;
+}
+
+.invitationExperience--preview .publicInvite--preview * {
+  box-sizing: border-box;
+}
+
+/*
+ Evita el bug típico:
+ child con width: 100vw rompe la preview.
+*/
+.invitationExperience--preview .publicInvite--preview [class*="section"],
+.invitationExperience--preview .publicInvite--preview [class*="Section"] {
+  max-width: 100%;
+}
+
+/* =========================================================
+   TABLET / EDITOR ANGOSTO
+   ========================================================= */
+
+@media (max-width: 760px) {
+  .invitationExperience--preview {
+    padding: 12px;
+    background: transparent;
+  }
+
+  .invitationExperience--preview .publicInvite--preview {
+    width: 100%;
+    max-width: 430px;
+    border-radius: 24px;
+  }
+}
+
+/* =========================================================
+   MOBILE REAL
+   ========================================================= */
+
+@media (max-width: 430px) {
+  .invitationExperience--preview {
+    padding: 0;
+  }
+
+  .invitationExperience--preview {
+    --preview-width: var(--invitation-preview-width, 390px);
+  }
+
+  .invitationExperience--preview .publicInvite--preview {
+    max-width: none;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
